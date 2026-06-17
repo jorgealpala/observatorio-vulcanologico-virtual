@@ -1,0 +1,1470 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Observatorio Vulcanológico Virtual · Simulador de Erupciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* roca / consola */
+  --rock-deep:#0a0d13;
+  --rock:#11151e;
+  --rock-2:#161b27;
+  --rock-3:#1d2433;
+  --line:#27303f;
+  --line-soft:#202736;
+  --text:#e8edf5;
+  --text-dim:#9aa6b8;
+  --text-mute:#6c778a;
+  /* escala térmica de la lava (funcional) */
+  --t-cool:#3a120e;
+  --t-red:#c4201a;
+  --t-orange:#ec6021;
+  --t-yellow:#f7b733;
+  --t-white:#fff2cf;
+  /* instrumento */
+  --signal:#52d6cf;
+  --signal-dim:#2c7c78;
+  --signal-deep:#0e3331;
+  /* niveles de alerta (estilo SGC) */
+  --a-green:#3fb950;
+  --a-yellow:#e3b341;
+  --a-orange:#f0883e;
+  --a-red:#f85149;
+  /* productos */
+  --p-ash:#9aa1ad;
+  --p-lava:#f06a1e;
+  --p-pdc:#b0584c;
+  --p-lahar:#8a6a4a;
+  --p-ball:#ffb648;
+  --p-gas:#cfd8e6;
+  --radius:10px;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --disp:"Space Grotesk",system-ui,sans-serif;
+  --body:"Inter",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:
+    radial-gradient(1200px 600px at 75% -10%, #18202e 0%, transparent 60%),
+    var(--rock-deep);
+  color:var(--text);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+}
+button{font-family:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{margin:0;font-family:var(--disp);font-weight:600}
+
+/* ---------- layout ---------- */
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+.hud{
+  display:flex;align-items:center;gap:18px;
+  padding:10px 16px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,var(--rock-2),var(--rock));
+  flex:0 0 auto;z-index:6;
+}
+.hud__id{display:flex;flex-direction:column;gap:1px;min-width:0}
+.hud__obs{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--signal);text-transform:uppercase}
+.hud__volcano{font-size:18px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud__spacer{flex:1}
+
+.alert-badge{display:flex;align-items:center;gap:9px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--rock-3)}
+.alert-dot{width:13px;height:13px;border-radius:50%;background:var(--a-green);box-shadow:0 0 0 0 var(--a-green);position:relative;flex:0 0 auto}
+.alert-dot.live{animation:pulse 1.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(248,81,73,.55)}70%{box-shadow:0 0 0 9px rgba(248,81,73,0)}100%{box-shadow:0 0 0 0 rgba(248,81,73,0)}}
+.alert-badge .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--text-mute);display:block;text-transform:uppercase}
+.alert-badge .v{font-family:var(--disp);font-size:13px;font-weight:600}
+
+.clock{display:flex;align-items:center;gap:14px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--rock-3)}
+.clock .field{display:flex;flex-direction:column;line-height:1.1}
+.clock .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--text-mute);text-transform:uppercase}
+.clock .v{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--text)}
+.clock .v.time{color:var(--signal)}
+
+.layout{flex:1;display:grid;grid-template-columns:288px 1fr 312px;min-height:0}
+.panel{background:var(--rock);overflow-y:auto;overflow-x:hidden}
+.panel--left{border-right:1px solid var(--line)}
+.panel--right{border-left:1px solid var(--line)}
+.panel::-webkit-scrollbar{width:9px}
+.panel::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px;border:2px solid var(--rock)}
+
+/* ---------- controles ---------- */
+.section{padding:14px 15px;border-bottom:1px solid var(--line-soft)}
+.section__title{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--text-mute);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.section__title::before{content:"";width:5px;height:5px;background:var(--signal);border-radius:1px;box-shadow:0 0 6px var(--signal)}
+
+.field-row{margin-bottom:13px}
+.field-row:last-child{margin-bottom:0}
+.field-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.field-label .name{font-size:12px;color:var(--text-dim);font-weight:500}
+.field-label .val{font-family:var(--mono);font-size:11px;color:var(--signal);font-weight:500}
+
+select{
+  width:100%;appearance:none;background:var(--rock-3);border:1px solid var(--line);
+  color:var(--text);padding:9px 30px 9px 11px;border-radius:8px;font-size:12.5px;font-family:var(--body);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239aa6b8' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;
+}
+select:focus{outline:none;border-color:var(--signal-dim)}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+  background:linear-gradient(90deg,var(--signal-dim) var(--p,40%),var(--line) var(--p,40%));outline:none;
+}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--signal);border:2px solid var(--rock-deep);box-shadow:0 0 8px rgba(82,214,207,.5);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--signal);border:2px solid var(--rock-deep);cursor:pointer}
+.scale-hint{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text-mute);margin-top:5px}
+
+/* segmented (estilo eruptivo) */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.seg button{
+  background:var(--rock-3);border:1px solid var(--line);border-radius:7px;padding:8px 6px;
+  font-size:11px;color:var(--text-dim);font-weight:500;transition:.12s;text-align:center;line-height:1.25;
+}
+.seg button .em{display:block;font-family:var(--mono);font-size:8px;color:var(--text-mute);margin-top:2px;letter-spacing:.04em}
+.seg button:hover{border-color:var(--signal-dim);color:var(--text)}
+.seg button.on{background:var(--signal-deep);border-color:var(--signal-dim);color:var(--signal)}
+.seg button.on .em{color:var(--signal)}
+
+/* toggle */
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.toggle .desc{font-size:11px;color:var(--text-mute);margin-top:2px;line-height:1.35}
+.switch{position:relative;width:42px;height:23px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch .track{position:absolute;inset:0;background:var(--line);border-radius:23px;transition:.18s}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--text-dim);transition:.18s}
+.switch input:checked + .track{background:var(--signal-deep)}
+.switch input:checked + .track .knob{transform:translateX(19px);background:var(--signal)}
+
+/* wind dial */
+.wind-wrap{display:flex;gap:14px;align-items:center}
+.dial{width:78px;height:78px;flex:0 0 auto;position:relative;touch-action:none;cursor:grab}
+.dial:active{cursor:grabbing}
+.wind-meta{flex:1}
+
+/* botones de acción */
+.actions{display:flex;flex-direction:column;gap:8px}
+.btn{
+  border:1px solid var(--line);border-radius:9px;padding:11px 12px;font-family:var(--disp);font-weight:600;
+  font-size:12.5px;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--rock-3);transition:.13s;width:100%;
+}
+.btn:hover{border-color:var(--text-mute)}
+.btn .ix{font-family:var(--mono);font-size:11px;opacity:.7}
+.btn--rise{background:linear-gradient(180deg,#3a2f12,#2a2410);border-color:#5a4a1f;color:var(--a-yellow)}
+.btn--rise:hover{border-color:var(--a-yellow)}
+.btn--erupt{background:linear-gradient(180deg,#4a1410,#34100c);border-color:#7a241c;color:#ff8763}
+.btn--erupt:hover{border-color:var(--a-red);box-shadow:0 0 18px rgba(248,81,73,.25)}
+.btn--reset{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.1em;color:var(--text-mute);padding:8px}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none!important}
+.btn:disabled:hover{border-color:var(--line)}
+
+/* ---------- stage / vistas ---------- */
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--rock-deep)}
+.tabs{display:flex;gap:2px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--rock);flex:0 0 auto;align-items:center}
+.tab{
+  background:transparent;border:1px solid transparent;border-radius:7px;padding:7px 13px;
+  font-size:12px;font-weight:500;color:var(--text-mute);display:flex;align-items:center;gap:7px;transition:.12s;
+}
+.tab svg{width:14px;height:14px;opacity:.8}
+.tab:hover{color:var(--text-dim);background:var(--rock-3)}
+.tab.on{background:var(--rock-3);border-color:var(--line);color:var(--text)}
+.tab.on svg{opacity:1;color:var(--signal)}
+.tabs .grow{flex:1}
+.legend-toggle{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--text-mute);padding:6px 10px;border:1px solid var(--line);border-radius:7px;background:var(--rock-3)}
+
+.views{position:relative;flex:1;min-height:0;padding:10px;gap:10px}
+.view{position:absolute;inset:10px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#070a0f;display:none}
+.view canvas,.view #three{width:100%;height:100%;display:block}
+.view-tag{position:absolute;left:9px;top:9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--text-dim);background:rgba(7,10,15,.7);border:1px solid var(--line);padding:4px 8px;border-radius:6px;text-transform:uppercase;pointer-events:none;z-index:3;backdrop-filter:blur(4px)}
+.view-hint{position:absolute;right:9px;bottom:9px;font-family:var(--mono);font-size:9px;color:var(--text-mute);background:rgba(7,10,15,.65);padding:3px 7px;border-radius:5px;pointer-events:none;z-index:3}
+
+.views[data-mode=profile] .view--profile{display:block}
+.views[data-mode=plan] .view--plan{display:block}
+.views[data-mode=three] .view--three{display:block}
+.views[data-mode=complete]{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.views[data-mode=complete] .view{position:static;inset:auto;display:block}
+.views[data-mode=complete] .view--concepts{display:none}
+.views[data-mode=complete] .view--legend{display:flex}
+.view--legend{flex-direction:column;background:var(--rock);padding:0}
+
+/* ---------- apartado de conceptos ---------- */
+.views[data-mode=concepts] .view--concepts{display:block}
+.view--concepts{overflow-y:auto;background:var(--rock)}
+.view--concepts::-webkit-scrollbar{width:9px}
+.view--concepts::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px;border:2px solid var(--rock)}
+.concepts{padding:34px 22px 26px}
+.concepts__intro{font-size:12.5px;color:var(--text-dim);line-height:1.6;max-width:820px;margin:0 0 20px}
+.concepts__intro b{color:var(--text);font-weight:600}
+.con-group{margin-bottom:24px}
+.con-group>h3{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--signal);text-transform:uppercase;margin:0 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line);font-weight:500}
+.con-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:11px}
+.con-card{background:var(--rock-2);border:1px solid var(--line);border-radius:9px;padding:12px 14px;transition:border-color .2s}
+.con-card:hover{border-color:var(--signal-dim)}
+.con-card .term{display:flex;align-items:center;gap:8px;font-family:var(--disp);font-weight:600;font-size:13px;color:var(--text);margin-bottom:6px}
+.con-card .term .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+.con-card .def{font-size:11.5px;color:var(--text-mute);line-height:1.55}
+.con-card .def em{color:var(--text-dim);font-style:normal;font-weight:600}
+
+/* ---------- pie / citación ---------- */
+.cite{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:11px 18px;border-top:1px solid var(--line);background:linear-gradient(0deg,var(--rock-2),var(--rock))}
+.cite__txt{font-family:var(--mono);font-size:10px;color:var(--text-mute);line-height:1.55;max-width:880px}
+.cite__txt b{color:var(--text-dim);font-weight:600}
+.cite__badge{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--signal);border:1px solid var(--signal-dim);border-radius:6px;padding:5px 11px;white-space:nowrap;flex:0 0 auto}
+
+/* ---------- telemetría ---------- */
+.telem-head{padding:13px 15px 11px;border-bottom:1px solid var(--line-soft)}
+.telem-head h2{font-size:13px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:500;display:flex;align-items:center;gap:8px}
+.rec{width:8px;height:8px;border-radius:50%;background:var(--text-mute)}
+.rec.live{background:var(--a-red);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+.gauge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft)}
+.gauge{background:var(--rock);padding:12px 14px}
+.gauge .k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--text-mute);text-transform:uppercase}
+.gauge .v{font-family:var(--disp);font-weight:600;font-size:23px;line-height:1.1;margin-top:3px;color:var(--text)}
+.gauge .v small{font-size:11px;font-weight:500;color:var(--text-dim);margin-left:2px}
+.gauge .v.hot{color:var(--t-orange)}
+.gauge .v.sig{color:var(--signal)}
+
+.telem-block{padding:13px 15px;border-bottom:1px solid var(--line-soft)}
+.telem-block .bt{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--text-mute);text-transform:uppercase;margin-bottom:9px}
+
+/* barra columna */
+.colbar{height:88px;display:flex;align-items:flex-end;gap:3px}
+.colbar .seismo{flex:1;display:flex;align-items:flex-end;gap:1.5px;height:100%}
+.seismo i{flex:1;background:var(--signal-dim);border-radius:1px;min-height:1px;transition:height .1s;opacity:.85}
+
+/* productos activos */
+.prod-list{display:flex;flex-direction:column;gap:7px}
+.prod{display:flex;align-items:center;gap:9px;opacity:.32;transition:.25s}
+.prod.on{opacity:1}
+.prod .sw{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+.prod .nm{font-size:12px;color:var(--text-dim);flex:1}
+.prod .mt{font-family:var(--mono);font-size:10px;color:var(--text-mute)}
+.prod.on .mt{color:var(--signal)}
+
+/* leyenda panel */
+.legend-body{padding:14px;overflow-y:auto;flex:1}
+.legend-body h3{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--text-mute);text-transform:uppercase;margin:0 0 10px;font-weight:500}
+.leg-item{display:flex;gap:9px;margin-bottom:11px;align-items:flex-start}
+.leg-item .sw{width:13px;height:13px;border-radius:3px;flex:0 0 auto;margin-top:1px}
+.leg-item .tx b{font-size:12px;color:var(--text);font-weight:600;display:block}
+.leg-item .tx span{font-size:11px;color:var(--text-mute);line-height:1.4;display:block;margin-top:1px}
+.therm{height:13px;border-radius:3px;margin:4px 0 6px;background:linear-gradient(90deg,var(--t-cool),var(--t-red),var(--t-orange),var(--t-yellow),var(--t-white))}
+.therm-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text-mute)}
+
+.note{padding:12px 15px;font-size:10.5px;color:var(--text-mute);line-height:1.5;font-style:normal}
+.note b{color:var(--text-dim);font-weight:600}
+
+.mobile-tip{display:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .layout{grid-template-columns:248px 1fr 0}
+  .panel--right{display:none}
+  .views[data-mode=complete] .view--legend{display:none}
+  .views[data-mode=complete]{grid-template-rows:1fr 1fr 1fr}
+  .views[data-mode=complete] .view--three{grid-column:1/3}
+}
+@media (max-width:760px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100vh}
+  .hud{flex-wrap:wrap;gap:10px}
+  .hud__id{flex:1 1 100%}
+  .layout{display:flex;flex-direction:column;height:auto}
+  .panel--left{order:3;border-right:none;border-top:1px solid var(--line);max-height:none;overflow:visible}
+  .stage{order:2;height:64vh;min-height:420px}
+  .mobile-tip{display:block;order:1;padding:9px 14px;background:var(--signal-deep);border-bottom:1px solid var(--signal-dim);font-family:var(--mono);font-size:10.5px;color:var(--signal);text-align:center}
+  .views[data-mode=complete]{grid-template-columns:1fr;grid-template-rows:repeat(3,minmax(180px,1fr))}
+  .views[data-mode=complete] .view--three{grid-column:auto}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="hud">
+    <div class="hud__id">
+      <span class="hud__obs">Observatorio Vulcanológico Virtual · Simulador de erupciones</span>
+      <h1 class="hud__volcano" id="volcanoName">Volcán Puracé</h1>
+    </div>
+    <div class="hud__spacer"></div>
+    <div class="alert-badge" id="alertBadge">
+      <span class="alert-dot" id="alertDot"></span>
+      <div><span class="k">Estado de alerta</span><span class="v" id="alertLevel">Verde</span></div>
+    </div>
+    <div class="clock">
+      <div class="field"><span class="k">Fase</span><span class="v" id="phaseLabel">Reposo</span></div>
+      <div class="field"><span class="k">Tiempo</span><span class="v time" id="clock">T+00:00</span></div>
+    </div>
+  </header>
+
+  <div class="mobile-tip">Toca y arrastra en la vista 3D para orbitar el edificio volcánico</div>
+
+  <div class="layout">
+
+    <!-- ====== CONTROLES ====== -->
+    <aside class="panel panel--left">
+      <div class="section">
+        <div class="section__title">Escenario</div>
+        <div class="field-row">
+          <div class="field-label"><span class="name">Volcán de referencia</span></div>
+          <select id="scenario">
+            <option value="purace">Puracé — Cauca</option>
+            <option value="galeras">Galeras — Nariño</option>
+            <option value="ruiz">Nevado del Ruiz — Caldas</option>
+            <option value="machin">Cerro Machín — Tolima</option>
+            <option value="donajuana">Doña Juana — Nariño</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span class="name">Estilo eruptivo</span></div>
+          <div class="seg" id="styleSeg">
+            <button data-style="hawaiian">Hawaiana<span class="em">efusiva</span></button>
+            <button data-style="strombolian">Estromboliana<span class="em">VEI 1–2</span></button>
+            <button data-style="vulcanian" class="on">Vulcaniana<span class="em">VEI 2–3</span></button>
+            <button data-style="plinian">Pliniana<span class="em">VEI 4–6</span></button>
+            <button data-style="pelean">Peleana<span class="em">domo · CDP</span></button>
+            <button data-style="phreatic">Freática<span class="em">vapor</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section__title">Parámetros del magma</div>
+        <div class="field-row">
+          <div class="field-label"><span class="name">Índice de explosividad (VEI)</span><span class="val" id="veiVal">3</span></div>
+          <input type="range" id="vei" min="0" max="6" step="1" value="3">
+          <div class="scale-hint"><span>0 · efusiva</span><span>6 · colosal</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span class="name">Viscosidad / composición</span><span class="val" id="viscVal">Andesítico</span></div>
+          <input type="range" id="visc" min="0" max="100" step="1" value="55">
+          <div class="scale-hint"><span>Basáltico</span><span>Riolítico</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span class="name">Contenido de volátiles (gas)</span><span class="val" id="gasVal">55%</span></div>
+          <input type="range" id="gas" min="0" max="100" step="1" value="55">
+          <div class="scale-hint"><span>Pobre</span><span>Rico</span></div>
+        </div>
+        <div class="field-row">
+          <div class="toggle">
+            <div><span class="name" style="font-size:12px;color:var(--text-dim);font-weight:500">Casquete glaciar / agua</span><div class="desc">Habilita lahares (caso Armero)</div></div>
+            <label class="switch"><input type="checkbox" id="glacier"><span class="track"><span class="knob"></span></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section__title">Atmósfera</div>
+        <div class="wind-wrap">
+          <div class="dial" id="windDial">
+            <svg viewBox="0 0 78 78" width="78" height="78">
+              <circle cx="39" cy="39" r="36" fill="#161b27" stroke="#27303f"/>
+              <g font-family="JetBrains Mono" font-size="7" fill="#6c778a" text-anchor="middle">
+                <text x="39" y="12">N</text><text x="68" y="42">E</text><text x="39" y="73">S</text><text x="11" y="42">O</text>
+              </g>
+              <g id="windArrow" transform="rotate(90 39 39)">
+                <line x1="39" y1="39" x2="39" y2="15" stroke="#52d6cf" stroke-width="2.4" stroke-linecap="round"/>
+                <path d="M39 12 l4 7 l-8 0 z" fill="#52d6cf"/>
+                <circle cx="39" cy="39" r="3" fill="#52d6cf"/>
+              </g>
+            </svg>
+          </div>
+          <div class="wind-meta">
+            <div class="field-row" style="margin-bottom:8px">
+              <div class="field-label"><span class="name">Dirección</span><span class="val" id="windDirVal">→ E</span></div>
+            </div>
+            <div class="field-row">
+              <div class="field-label"><span class="name">Velocidad</span><span class="val" id="windSpdVal">45 km/h</span></div>
+              <input type="range" id="windSpd" min="0" max="140" step="5" value="45">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section__title">Control de erupción</div>
+        <div class="actions">
+          <button class="btn btn--rise" id="btnRise"><span class="ix">▲</span> Iniciar ascenso de magma</button>
+          <button class="btn btn--erupt" id="btnErupt"><span class="ix">◉</span> Desencadenar erupción</button>
+          <button class="btn btn--reset" id="btnReset">↺ Reiniciar simulación</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====== STAGE ====== -->
+    <main class="stage">
+      <nav class="tabs">
+        <button class="tab on" data-mode="profile" title="Vista de perfil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18M5 20l5-9 3 4 2-3 4 8"/></svg>Perfil
+        </button>
+        <button class="tab" data-mode="plan" title="Vista en planta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/></svg>Planta
+        </button>
+        <button class="tab" data-mode="three" title="Vista 3D">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 5v8l-8 5-8-5V8z"/><path d="M12 3v18M4 8l8 5 8-5"/></svg>3D
+        </button>
+        <button class="tab" data-mode="complete" title="Vista completa">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>Completa
+        </button>
+        <button class="tab" data-mode="concepts" title="Definiciones y conceptos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h11v16H6a2 2 0 0 0-2 2z"/><path d="M9 7h5M9 11h5"/></svg>Conceptos
+        </button>
+        <span class="grow"></span>
+      </nav>
+
+      <div class="views" id="views" data-mode="profile">
+        <section class="view view--profile">
+          <canvas id="cvProfile"></canvas>
+          <div class="view-tag">Perfil · sección vertical</div>
+          <div class="view-hint" id="profileHint">corte del edificio y conducto</div>
+        </section>
+        <section class="view view--plan">
+          <canvas id="cvPlan"></canvas>
+          <div class="view-tag">Planta · vista cenital</div>
+          <div class="view-hint">dispersión y alcance · km</div>
+        </section>
+        <section class="view view--three">
+          <div id="three"></div>
+          <div class="view-tag">3D · edificio volcánico</div>
+          <div class="view-hint">arrastra para orbitar · rueda para zoom</div>
+        </section>
+        <aside class="view view--legend">
+          <div class="legend-body" id="legendBodyMirror"></div>
+        </aside>
+
+        <section class="view view--concepts">
+          <div class="view-tag">Conceptos · marco teórico</div>
+          <div class="concepts">
+            <p class="concepts__intro">Glosario breve de los términos representados en el simulador. Las definiciones siguen la terminología usada en vulcanología y en el monitoreo de amenaza volcánica (p. ej. <b>SGC — Servicio Geológico Colombiano</b>). Se ofrecen como apoyo conceptual, no como definiciones normativas.</p>
+
+            <div class="con-group">
+              <h3>Parámetros del magma</h3>
+              <div class="con-grid">
+                <div class="con-card"><div class="term">VEI</div><div class="def"><em>Índice de Explosividad Volcánica.</em> Escala logarítmica de 0 a 8 que clasifica la magnitud de una erupción según el volumen de material expulsado y la altura de la columna. Cada nivel representa, aproximadamente, un orden de magnitud más de material que el anterior.</div></div>
+                <div class="con-card"><div class="term">Viscosidad / composición</div><div class="def">Resistencia del magma a fluir, controlada sobre todo por su contenido de sílice. De menor a mayor: <em>basáltico</em> (fluido), <em>andesítico</em>, <em>dacítico</em> y <em>riolítico</em> (muy viscoso). A mayor viscosidad, mayor tendencia explosiva.</div></div>
+                <div class="con-card"><div class="term">Volátiles (gas)</div><div class="def">Gases disueltos en el magma (principalmente H₂O, CO₂ y SO₂). Al ascender y descomprimirse, forman burbujas; si no escapan con facilidad (magma viscoso), su expansión fragmenta el magma y alimenta la explosividad.</div></div>
+                <div class="con-card"><div class="term">Cámara magmática / conducto</div><div class="def">Reservorio de magma en profundidad y el canal que lo conecta con el cráter. La presurización y el ascenso del magma generan deformación y sismicidad medibles en superficie.</div></div>
+              </div>
+            </div>
+
+            <div class="con-group">
+              <h3>Productos volcánicos</h3>
+              <div class="con-grid">
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-ash)"></span>Tefra / ceniza</div><div class="def">Fragmentos expulsados y transportados por el aire. La <em>ceniza</em> (&lt;2 mm) puede dispersarse decenas o cientos de km con el viento. Su espesor se representa con <em>isópacas</em> (líneas de igual acumulación).</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-ball)"></span>Proyectiles balísticos</div><div class="def">Bloques y bombas lanzados con trayectoria parabólica, poco afectados por el viento. Caen cerca del cráter (típicamente &lt; 2–5 km) y representan un peligro de alta energía.</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-pdc)"></span>CDP (flujos piroclásticos)</div><div class="def"><em>Corrientes de Densidad Piroclástica.</em> Mezclas calientes de gas y partículas que descienden por la ladera a gran velocidad. Son el peligro volcánico más letal por su rapidez y temperatura.</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-lava)"></span>Flujos de lava</div><div class="def">Roca fundida que escurre siguiendo la pendiente. Su alcance depende de la viscosidad y la tasa de emisión: los flujos basálticos avanzan más lejos que los viscosos, que tienden a formar domos.</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-lahar)"></span>Lahares</div><div class="def">Flujos de lodo y escombros volcánicos movilizados por agua, frecuentemente por fusión de hielo o nieve durante una erupción. Siguen los drenajes y pueden viajar decenas de km (p. ej. Armero, 1985).</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-gas)"></span>Gases volcánicos</div><div class="def">Emisión de vapor y gases (SO₂, CO₂, H₂S, etc.), presente incluso en reposo. Su flujo y composición son indicadores clave del estado del sistema magmático.</div></div>
+              </div>
+            </div>
+
+            <div class="con-group">
+              <h3>Estilos eruptivos</h3>
+              <div class="con-grid">
+                <div class="con-card"><div class="term">Hawaiana</div><div class="def">Efusiva, magma basáltico fluido. Domina la lava y las fuentes de lava; explosividad mínima.</div></div>
+                <div class="con-card"><div class="term">Estromboliana</div><div class="def">Explosiones rítmicas de baja energía con balísticos y escoria; mezcla de lava y ceniza moderada.</div></div>
+                <div class="con-card"><div class="term">Vulcaniana</div><div class="def">Explosiones cortas y violentas de magma viscoso; columnas de varios km, ceniza, balísticos y CDP.</div></div>
+                <div class="con-card"><div class="term">Pliniana</div><div class="def">La más explosiva (VEI 4–6): columnas sostenidas de decenas de km, ceniza extensa y CDP por colapso.</div></div>
+                <div class="con-card"><div class="term">Peleana</div><div class="def">Asociada a domos de lava muy viscosa; colapso del domo que genera CDP dirigidas (nubes ardientes).</div></div>
+                <div class="con-card"><div class="term">Freática</div><div class="def">Impulsada por vapor: el agua se calienta por el magma sin que este llegue a la superficie. Expulsa material preexistente y gases.</div></div>
+              </div>
+            </div>
+
+            <div class="con-group">
+              <h3>Erupción y monitoreo</h3>
+              <div class="con-grid">
+                <div class="con-card"><div class="term">Columna eruptiva</div><div class="def">Penacho ascendente con tres regiones: <em>empuje de gas</em> (impulso inicial), <em>convectiva</em> (ascenso por flotabilidad) y <em>paraguas</em> (dispersión lateral al perder flotabilidad).</div></div>
+                <div class="con-card"><div class="term">Fases de actividad</div><div class="def">En el simulador: <em>reposo → ascenso de magma → erupción → declive</em>. Reflejan, de forma esquemática, la evolución del sistema antes, durante y después del clímax.</div></div>
+                <div class="con-card"><div class="term">Estados de alerta</div><div class="def">Esquema del <em>SGC</em> (vigente desde 2023) con cuatro colores, sin numeración: <em>verde</em> (volcán activo en reposo, parámetros en niveles muy bajos), <em>amarillo</em> (cambios en el comportamiento base de los parámetros; posibles emisiones esporádicas de ceniza), <em>naranja</em> (cambios importantes en los parámetros; aumenta la probabilidad de una o varias erupciones mayores) y <em>rojo</em> (volcán en erupción mayor en curso). No expresan probabilidad en plazos fijos de tiempo.</div></div>
+                <div class="con-card"><div class="term">Sismicidad y tremor</div><div class="def">Vibraciones del terreno por fractura de roca o por el movimiento de fluidos (<em>tremor</em>). Su aumento suele preceder o acompañar el ascenso de magma.</div></div>
+                <div class="con-card"><div class="term">Deformación / inflación</div><div class="def">Cambios en la forma del edificio volcánico por presión del magma. Se miden con GNSS, inclinómetros e <em>InSAR</em> y son señal de recarga del sistema.</div></div>
+                <div class="con-card"><div class="term">Isópacas</div><div class="def">Líneas que unen puntos de igual espesor de ceniza acumulada. Su forma alargada refleja la dirección dominante del viento durante la erupción.</div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ====== TELEMETRÍA ====== -->
+    <aside class="panel panel--right">
+      <div class="telem-head">
+        <h2><span class="rec" id="rec"></span> Telemetría</h2>
+      </div>
+      <div class="gauge-grid">
+        <div class="gauge"><div class="k">Altura columna</div><div class="v sig" id="gColumn">0<small>km</small></div></div>
+        <div class="gauge"><div class="k">Intensidad</div><div class="v" id="gVei">VEI 0</div></div>
+        <div class="gauge"><div class="k">Temp. magma</div><div class="v hot" id="gTemp">—</div></div>
+        <div class="gauge"><div class="k">Alcance CDP</div><div class="v" id="gReach">0<small>km</small></div></div>
+      </div>
+
+      <div class="telem-block">
+        <div class="bt">Sismicidad / tremor</div>
+        <div class="colbar"><div class="seismo" id="seismo"></div></div>
+      </div>
+
+      <div class="telem-block">
+        <div class="bt">Productos en superficie</div>
+        <div class="prod-list" id="prodList">
+          <div class="prod" data-p="ash"><span class="sw" style="background:var(--p-ash)"></span><span class="nm">Caída de ceniza (tefra)</span><span class="mt">—</span></div>
+          <div class="prod" data-p="ball"><span class="sw" style="background:var(--p-ball)"></span><span class="nm">Proyectiles balísticos</span><span class="mt">—</span></div>
+          <div class="prod" data-p="pdc"><span class="sw" style="background:var(--p-pdc)"></span><span class="nm">Corrientes de densidad (CDP)</span><span class="mt">—</span></div>
+          <div class="prod" data-p="lava"><span class="sw" style="background:var(--p-lava)"></span><span class="nm">Flujos de lava</span><span class="mt">—</span></div>
+          <div class="prod" data-p="lahar"><span class="sw" style="background:var(--p-lahar)"></span><span class="nm">Lahares</span><span class="mt">—</span></div>
+          <div class="prod" data-p="gas"><span class="sw" style="background:var(--p-gas)"></span><span class="nm">Emisión de gases</span><span class="mt">—</span></div>
+        </div>
+      </div>
+
+      <div class="legend-body" id="legendBody">
+        <h3>Escala térmica del material</h3>
+        <div class="therm"></div>
+        <div class="therm-row"><span>~700 °C</span><span>~900 °C</span><span>~1150 °C</span></div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="cite">
+    <div class="cite__txt">
+      Alpala Aguilar, J. A. (2026). <b>Observatorio Vulcanológico Virtual — Simulador de erupciones volcánicas.</b> Soluciones Geomáticas Colombia. Recurso educativo de visualización conceptual; las simulaciones son esquemáticas y <b>solo para fines académicos</b>, no constituyen pronóstico ni evaluación oficial de amenaza. Contacto: <a href="mailto:jorge.alpala.1987@gmail.com" style="color:var(--signal);text-decoration:none">jorge.alpala.1987@gmail.com</a>
+    </div>
+    <span class="cite__badge">Uso académico</span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============================================================
+   SIMULADOR DE ERUPCIONES — núcleo
+   ============================================================ */
+'use strict';
+const TAU = Math.PI*2;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const rand=(a=1,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a);
+const randn=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v);};
+const $=id=>document.getElementById(id);
+const smooth=(c,t,k,dt)=>c+(t-c)*(1-Math.exp(-k*dt));
+
+/* escala térmica (frío→incandescente) */
+const THERM=[[58,18,14],[122,29,18],[196,32,26],[236,96,33],[247,183,51],[255,242,207]];
+function thermRGB(t){t=clamp(t,0,1);const f=t*(THERM.length-1);const i=Math.floor(f);const k=f-i;
+  const a=THERM[i],b=THERM[Math.min(i+1,THERM.length-1)];
+  return[Math.round(lerp(a[0],b[0],k)),Math.round(lerp(a[1],b[1],k)),Math.round(lerp(a[2],b[2],k))];}
+function thermCss(t,al){const c=thermRGB(t);return al===undefined?`rgb(${c[0]},${c[1]},${c[2]})`:`rgba(${c[0]},${c[1]},${c[2]},${al})`;}
+
+/* ---------- estado global ---------- */
+const S={
+  scenario:'purace', style:'vulcanian',
+  vei:3, visc:55, gas:55, glacier:false,
+  windDir:90/*deg, 0=N,90=E*/, windSpd:45,
+  phase:'repose',           // repose | rising | climax | waning
+  t:0,                      // tiempo de fase (s)
+  tGlobal:0,
+  intensity:0,              // 0..1 vigor eruptivo
+  magmaLevel:0,             // 0..1 ascenso en conducto
+  columnKm:0,               // altura actual de columna
+  seismic:0,                // 0..1 amplitud sísmica
+  inflation:0,              // 0..1 deformación
+  auto:false,               // si rising pasa solo a climax
+  pulse:0,                  // disparo de colapso (CDP)
+};
+
+/* ---------- estilos eruptivos ---------- */
+const STYLES={
+  hawaiian:{name:'Hawaiana',vei:1,visc:12,gas:32,colMax:0.9,
+    rates:{gas:.5,ash:.08,ball:.15,lava:1.0,pdc:0,lahar:0,fountain:.9}},
+  strombolian:{name:'Estromboliana',vei:2,visc:35,gas:58,colMax:4,
+    rates:{gas:.7,ash:.4,ball:.7,lava:.55,pdc:.05,lahar:0,fountain:.6}},
+  vulcanian:{name:'Vulcaniana',vei:3,visc:62,gas:62,colMax:12,
+    rates:{gas:.85,ash:.9,ball:.85,lava:.18,pdc:.45,lahar:0,fountain:.1}},
+  plinian:{name:'Pliniana',vei:5,visc:78,gas:82,colMax:34,
+    rates:{gas:1,ash:1,ball:.5,lava:0,pdc:.8,lahar:0,fountain:0}},
+  pelean:{name:'Peleana',vei:3,visc:90,gas:48,colMax:8,
+    rates:{gas:.7,ash:.65,ball:.5,lava:.05,pdc:1.0,lahar:0,fountain:0}},
+  phreatic:{name:'Freática',vei:2,visc:55,gas:40,colMax:5,
+    rates:{gas:1,ash:.7,ball:.6,lava:0,pdc:.1,lahar:0,fountain:0}},
+};
+
+/* ---------- escenarios (volcanes de Colombia) ---------- */
+const SCENARIOS={
+  purace:{name:'Volcán Puracé',style:'vulcanian',vei:2,visc:58,gas:55,glacier:false,wind:80},
+  galeras:{name:'Volcán Galeras',style:'vulcanian',vei:3,visc:64,gas:62,glacier:false,wind:120},
+  ruiz:{name:'Nevado del Ruiz',style:'plinian',vei:3,visc:70,gas:72,glacier:true,wind:95},
+  machin:{name:'Cerro Machín',style:'pelean',vei:4,visc:90,gas:58,glacier:false,wind:70},
+  donajuana:{name:'Volcán Doña Juana',style:'vulcanian',vei:3,visc:75,gas:55,glacier:false,wind:110},
+  custom:null,
+};
+
+const VISC_LABEL=v=>v<22?'Basáltico':v<48?'Basáltico-andesítico':v<70?'Andesítico':v<86?'Dacítico':'Riolítico';
+
+/* tasas de producción actuales (0..1) según estilo + parámetros + intensidad */
+function productRates(){
+  const st=STYLES[S.style], I=S.intensity;
+  const r=Object.assign({},st.rates);
+  // viscosidad modula explosividad vs efusividad
+  const ex=clamp(S.visc/100,0,1), gas=clamp(S.gas/100,0,1);
+  r.ash  = clamp(r.ash*(0.4+ex*0.9)*(0.4+gas*1.0),0,1.4);
+  r.pdc  = clamp(r.pdc*(0.3+ex*1.0),0,1.3);
+  r.ball = clamp(r.ball*(0.4+gas*0.9),0,1.3);
+  r.lava = clamp(r.lava*(1.2-ex*0.9),0,1.2);
+  r.lahar= (S.glacier && (r.ash>0.2||r.pdc>0.2))?clamp(0.55+ex*0.4,0,1):0;
+  for(const k in r) r[k]*=I;
+  if(S.phase==='repose'||S.phase==='rising') r.gas=Math.max(r.gas, S.style==='phreatic'?0.25:0.12)*(0.4+S.magmaLevel*0.6);
+  return r;
+}
+/* altura máxima de columna (km) para parámetros actuales */
+function columnMaxKm(){
+  const veiK=[0.3,1.5,5,11,18,27,40][clamp(S.vei,0,6)];
+  const st=STYLES[S.style];
+  const gasF=0.55+0.55*(S.gas/100);
+  const exF =0.35+0.75*(S.visc/100);
+  return clamp(Math.min(veiK, st.colMax*1.25)*gasF*exF, 0.2, 45);
+}
+function magmaTempC(){return Math.round(lerp(1160,770,S.visc/100));}
+
+/* ---------- motor de fases ---------- */
+function setPhase(p){S.phase=p;S.t=0;}
+function stepSim(dt){
+  S.tGlobal+=dt; S.t+=dt;
+  const st=STYLES[S.style];
+  switch(S.phase){
+    case 'repose':
+      S.intensity=smooth(S.intensity,0,3,dt);
+      S.magmaLevel=smooth(S.magmaLevel,0.04,1.2,dt);
+      S.seismic=smooth(S.seismic,0.05+Math.abs(randn())*0.02,4,dt);
+      S.inflation=smooth(S.inflation,0,1,dt);
+      break;
+    case 'rising':{
+      const dur=6.5;
+      S.magmaLevel=smooth(S.magmaLevel,1,0.45,dt);
+      S.inflation=smooth(S.inflation,clamp(S.magmaLevel,0,1),0.8,dt);
+      S.seismic=clamp(0.25+S.magmaLevel*0.55+Math.abs(randn())*0.12,0,1);
+      S.intensity=smooth(S.intensity,0,3,dt);
+      if(S.auto && S.t>dur && S.magmaLevel>0.92){setPhase('climax');}
+      break;}
+    case 'climax':{
+      const climaxDur=lerp(7,16,S.vei/6);
+      const ramp=clamp(S.t/1.4,0,1);
+      const flick=0.84+0.16*Math.sin(S.t*2.3)+0.05*randn();
+      S.intensity=smooth(S.intensity, clamp(ramp*flick,0,1.05),2.4,dt);
+      S.magmaLevel=1;
+      S.inflation=smooth(S.inflation,0.55,0.6,dt);   // se desinfla algo al erupcionar
+      S.seismic=clamp(0.55+S.intensity*0.4+Math.abs(randn())*0.13,0,1);
+      // colapsos esporádicos -> pulso CDP (plinian/pelean)
+      S.pulse=Math.max(0,S.pulse-dt);
+      const collapseProb=(st.rates.pdc>0.6?0.9:0.25)*dt;
+      if(S.intensity>0.6 && Math.random()<collapseProb) S.pulse=1;
+      if(S.t>climaxDur) setPhase('waning');
+      break;}
+    case 'waning':{
+      const dur=8;
+      S.intensity=smooth(S.intensity,0,0.5,dt);
+      S.seismic=smooth(S.seismic,0.08,1.5,dt);
+      S.inflation=smooth(S.inflation,0,0.5,dt);
+      // colapso final de columna
+      if(S.t<1.2 && st.rates.pdc>0.3){S.pulse=1;}
+      else S.pulse=Math.max(0,S.pulse-dt);
+      if(S.t>dur) setPhase('repose');
+      break;}
+  }
+  S.columnKm=smooth(S.columnKm, S.intensity*columnMaxKm()*(STYLES[S.style].colMax<1.5?0.25:1), 2.6, dt);
+}
+
+/* nivel de alerta a partir de la fase/intensidad */
+function alertState(){
+  if(S.phase==='climax') return['Rojo','Erupción en curso','var(--a-red)',true];
+  if(S.phase==='waning') return['Naranja','Descenso de actividad','var(--a-orange)',false];
+  if(S.phase==='rising'){
+    if(S.magmaLevel>0.7) return['Naranja','Cambios importantes','var(--a-orange)',false];
+    return['Amarillo','Cambios en la actividad','var(--a-yellow)',false];
+  }
+  return['Verde','Activo en reposo','var(--a-green)',false];
+}
+/* ============================================================
+   VISTA PERFIL — corte vertical + física de partículas
+   ============================================================ */
+const Profile=(function(){
+  const cv=$('cvProfile'); const ctx=cv.getContext('2d');
+  let W=0,H=0,DPR=1;
+  let cx,groundY,summitY,coneHalf,craterHalf,craterDepth,chamberY,pxPerKm,topMargin;
+  const P=[]; const MAX=1600;
+  const acc={gas:0,ash:0,ball:0,lava:0,pdc:0,lahar:0,fountain:0};
+
+  function resize(){
+    const r=cv.getBoundingClientRect();DPR=Math.min(window.devicePixelRatio||1,2);
+    W=Math.max(40,r.width);H=Math.max(40,r.height);
+    cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+    cx=W*0.5; groundY=H*0.66; summitY=H*0.34; topMargin=H*0.05;
+    coneHalf=Math.min(W*0.34,260); craterHalf=coneHalf*0.10; craterDepth=H*0.028;
+    chamberY=H*0.92; pxPerKm=(summitY-topMargin);
+  }
+  function terrainY(x){
+    const dx=Math.abs(x-cx);
+    if(dx>=coneHalf) return groundY;
+    const d=dx/coneHalf;
+    let y=groundY-(groundY-summitY)*Math.pow(1-d,1.28);
+    if(dx<craterHalf){const cr=dx/craterHalf;y=lerp(summitY+craterDepth,summitY,cr*cr);}
+    return y;
+  }
+  function colTopY(){return summitY-(summitY-topMargin)*Math.pow(clamp(S.columnKm/35,0,1),0.6);}
+  const windPx=()=> Math.cos((S.windDir-90)*Math.PI/180)*0 + (S.windDir>=0? Math.cos((90-S.windDir)*Math.PI/180):0); // placeholder
+  function windX(){ // componente horizontal del viento proyectada (E=+x)
+    const a=(90-S.windDir)*Math.PI/180; return Math.cos(a)*(S.windSpd/140);
+  }
+
+  /* ---- emisión ---- */
+  function spawn(){
+    const r=productRates(); const dt=1/60;
+    const craterY=summitY+craterDepth*0.4;
+    const emit=(key,rate,fn)=>{acc[key]+=rate*dt;while(acc[key]>=1){acc[key]-=1;if(P.length<MAX)fn();}};
+
+    emit('gas', r.gas*9, ()=>P.push(mk('gas',cx+rand(-craterHalf,craterHalf),craterY,rand(-.2,.2),-rand(.8,1.7),rand(7,16),rand(.9,1.6))));
+    emit('ash', r.ash*26, ()=>{const side=Math.random()<.5?-1:1;const p=mk('ash',cx+rand(-craterHalf*.7,craterHalf*.7),craterY,rand(-.25,.25),-rand(3.2,5.2),rand(2,5),rand(2.2,4.2));p.side=side;p.big=Math.random()<.18;P.push(p);});
+    emit('ball', r.ball*5, ()=>{const dir=Math.random()<.5?-1:1;P.push(mk('ball',cx+rand(-craterHalf,craterHalf),craterY,dir*rand(.6,2.6),-rand(4,7.5),rand(2.5,5),0));});
+    emit('fountain', r.fountain*16,()=>{P.push(mk('fountain',cx+rand(-craterHalf,craterHalf),craterY,rand(-1.1,1.1),-rand(3,6),rand(2,4),0));});
+    emit('lava', r.lava*7,()=>{const dir=Math.random()<.5?-1:1;P.push(mk('lava',cx+dir*craterHalf*.7,terrainY(cx+dir*craterHalf*.7)-2,dir*rand(.2,.6),0,rand(4,7),0,dir));});
+    // CDP: salen por pulso (colapso) o flujo continuo
+    const pdcRate=r.pdc*(4+ (S.pulse>0?22:0));
+    emit('pdc', pdcRate,()=>{const dir=Math.random()<.5?-1:1;P.push(mk('pdc',cx+dir*craterHalf,craterY+craterDepth*.3,dir*rand(2.2,3.6),rand(-.5,.6),rand(5,9),0,dir));});
+    emit('lahar', r.lahar*5,()=>{const dir=Math.random()<.5?-1:1;P.push(mk('lahar',cx+dir*coneHalf*.34,terrainY(cx+dir*coneHalf*.34),dir*rand(1.4,2.4),0,rand(4,7),0,dir));});
+  }
+  function mk(type,x,y,vx,vy,size,life,dir){return{type,x,y,vx,vy,size,age:0,life:life||0,dir:dir||0,px:x,py:y,seed:rand(TAU)};}
+
+  /* ---- física ---- */
+  function update(dt){
+    const g=42*dt; const wx=windX();
+    const cTop=colTopY(); const craterY=summitY+craterDepth*0.4;
+    const span=Math.max(40,craterY-cTop);
+    for(let i=P.length-1;i>=0;i--){
+      const p=P[i]; p.age+=dt; p.px=p.x; p.py=p.y;
+      switch(p.type){
+        case 'gas':{
+          p.vy-=18*dt*(1-clamp(p.age/3,0,.8)); p.vy+=g*0.12;
+          p.vx=smooth(p.vx, wx*5,1.5,dt)+randn()*0.25;
+          p.x+=p.vx; p.y+=p.vy; p.size+=10*dt; 
+          if(p.y<cTop-30||p.age>5||p.y>terrainY(p.x)) P.splice(i,1);
+          break;}
+        case 'ash':{
+          const rel=clamp((craterY-p.y)/span,0,1.3);
+          if(rel<0.18){ p.vy-=130*dt*(1-rel*4); p.vx*=0.9; p.vx+=wx*4*dt; }
+          else if(rel<0.92){ p.vy-=70*dt*(1-rel)*1.1; p.vy+=g*0.5; p.vx+=(randn()*1.2*(0.4+rel)+wx*7)*dt; p.size+=7*dt; }
+          else { p.vy*=Math.pow(0.12,dt); p.vy+=g*0.25; p.vx+=(p.side*rand(2,5)+wx*22)*dt; p.size+=5*dt; }
+          if(p.big) p.vy+=g*0.7;
+          p.x+=p.vx; p.y+=p.vy;
+          if(p.y>terrainY(p.x)){ if(rel<0.4){P.splice(i,1);} else {p.vy=0;p.vx*=0.86;p.y=terrainY(p.x);p.settle=(p.settle||0)+dt; if(p.settle>1.2)P.splice(i,1);} }
+          else if(p.x<-60||p.x>W+60||p.age>16) P.splice(i,1);
+          break;}
+        case 'ball':{
+          p.vy+=g*1.05; p.vx+=wx*1.5*dt; p.x+=p.vx; p.y+=p.vy;
+          const ty=terrainY(p.x);
+          if(p.y>=ty){ if(Math.abs(p.vy)>2.4 && p.age<2.2){p.y=ty;p.vy*=-0.32;p.vx*=0.55;} else P.splice(i,1); }
+          else if(p.age>4) P.splice(i,1);
+          break;}
+        case 'fountain':{
+          p.vy+=g*1.0; p.vx+=wx*0.6*dt; p.x+=p.vx;p.y+=p.vy;
+          const ty=terrainY(p.x);
+          if(p.y>=ty){ // alimenta lava
+            if(Math.random()<.5 && P.length<MAX){const dir=p.x<cx?-1:1;P.push(mk('lava',p.x,ty-2,dir*rand(.2,.5),0,rand(3,6),0,dir));}
+            P.splice(i,1);
+          } else if(p.age>2.5)P.splice(i,1);
+          break;}
+        case 'lava':{
+          const dir=p.dir||(p.x<cx?-1:1);
+          const sp=lerp(1.9,0.5,S.visc/100)*clamp(1-p.age/9,0.05,1);
+          p.x+=dir*sp; const ty=terrainY(p.x);
+          p.y=smooth(p.y,ty-1.5,8,dt);
+          p.cool=clamp(p.age/8 + Math.abs(p.x-cx)/(coneHalf*1.5),0,1);
+          if(Math.abs(p.x-cx)>coneHalf*1.5 || p.age>11) {p.frozen=true;}
+          if(p.age>16)P.splice(i,1);
+          break;}
+        case 'pdc':{
+          const dir=p.dir||(p.x<cx?-1:1);
+          const sp=lerp(5.5,3.4,clamp(p.age/3,0,1));
+          p.x+=dir*sp*(0.6+0.4*Math.sin(p.seed+p.age*4)); 
+          const ty=terrainY(p.x);
+          p.y=smooth(p.y,ty-rand(2,10)-p.age*1.5,6,dt); // se eleva la nube
+          p.size+=10*dt; p.cool=clamp(p.age/4,0,1);
+          // co-ignimbrita: ceniza ascendente
+          if(Math.random()<0.5 && P.length<MAX){const a=mk('ash',p.x,p.y,randn()*0.4,-rand(1.5,3.5),rand(2,4),0);a.side=dir;a.coign=true;P.push(a);}
+          if(Math.abs(p.x-cx)>coneHalf*2.4||p.age>7)P.splice(i,1);
+          break;}
+        case 'lahar':{
+          const dir=p.dir||(p.x<cx?-1:1);
+          const sp=2.6*clamp(1-p.age/12,.15,1);
+          p.x+=dir*sp; const ty=terrainY(p.x);
+          p.y=smooth(p.y,ty-1,9,dt); p.size+=4*dt;
+          if(Math.abs(p.x-cx)>coneHalf*2.0||p.age>14)P.splice(i,1);
+          break;}
+      }
+    }
+  }
+
+  /* ---- dibujo de escenografía ---- */
+  function drawScene(){
+    // cielo crepuscular
+    const sky=ctx.createLinearGradient(0,0,0,groundY);
+    sky.addColorStop(0,'#0a1424');sky.addColorStop(0.55,'#142036');sky.addColorStop(0.85,'#33304a');sky.addColorStop(1,'#5a4150');
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,groundY);
+    // resplandor del cráter en el cielo durante erupción
+    if(S.intensity>0.05){const gl=ctx.createRadialGradient(cx,summitY,0,cx,summitY,coneHalf*2.2);
+      gl.addColorStop(0,`rgba(236,96,33,${0.18*S.intensity})`);gl.addColorStop(1,'rgba(236,96,33,0)');
+      ctx.fillStyle=gl;ctx.fillRect(0,0,W,groundY);}
+    // subsuelo con estratos
+    const strata=['#241c20','#2c2228','#211a1f','#322530','#272029'];
+    const bands=6;const bh=(H-groundY)/bands;
+    for(let i=0;i<bands;i++){ctx.fillStyle=strata[i%strata.length];ctx.fillRect(0,groundY+i*bh,W,bh+1);}
+    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,groundY,W,2);
+
+    // EDIFICIO (cono) relleno con estratos del aparato volcánico
+    ctx.save();
+    ctx.beginPath();ctx.moveTo(cx-coneHalf,groundY);
+    for(let x=cx-coneHalf;x<=cx+coneHalf;x+=3)ctx.lineTo(x,terrainY(x));
+    ctx.lineTo(cx+coneHalf,groundY);ctx.closePath();ctx.clip();
+    const cone=ctx.createLinearGradient(0,summitY,0,groundY);
+    cone.addColorStop(0,'#574a52');cone.addColorStop(0.5,'#43373f');cone.addColorStop(1,'#332a31');
+    ctx.fillStyle=cone;ctx.fillRect(cx-coneHalf,summitY-10,coneHalf*2,groundY-summitY+20);
+    // capas internas (paralelas a la superficie)
+    ctx.lineWidth=1;
+    for(let k=1;k<=7;k++){const off=k*((groundY-summitY)/8);ctx.beginPath();
+      for(let x=cx-coneHalf;x<=cx+coneHalf;x+=4){const y=terrainY(x)+off;ctx.lineTo(x,y);}
+      ctx.strokeStyle=k%2?'rgba(0,0,0,.16)':'rgba(255,220,200,.05)';ctx.stroke();}
+    ctx.restore();
+
+    // CÁMARA MAGMÁTICA + CONDUCTO (corte visible)
+    const tphase=0.5+0.5*Math.sin(S.tGlobal*2)*clamp(S.magmaLevel+S.intensity,0,1);
+    // halo de la cámara
+    const ch=ctx.createRadialGradient(cx,chamberY,4,cx,chamberY,coneHalf*1.05);
+    ch.addColorStop(0,thermCss(0.8+0.2*tphase,0.95));ch.addColorStop(0.45,thermCss(0.45,0.6));ch.addColorStop(1,'rgba(120,20,10,0)');
+    ctx.fillStyle=ch;ctx.beginPath();ctx.ellipse(cx,chamberY,coneHalf*0.95,H*0.12,0,0,TAU);ctx.fill();
+    // conducto
+    const condW=craterHalf*1.5;
+    const fillTop=lerp(chamberY-H*0.05, summitY+craterDepth, clamp(S.magmaLevel,0,1));
+    // tubo (roca)
+    ctx.fillStyle='#1a1216';ctx.fillRect(cx-condW,summitY+craterDepth, condW*2, chamberY-summitY);
+    // magma dentro
+    const mg=ctx.createLinearGradient(0,fillTop,0,chamberY);
+    mg.addColorStop(0,thermCss(0.92,0.95));mg.addColorStop(1,thermCss(0.55,0.95));
+    ctx.fillStyle=mg;ctx.fillRect(cx-condW*0.78,fillTop,condW*1.56,chamberY-fillTop);
+    // burbujeo
+    if(S.magmaLevel>0.2){ctx.fillStyle=thermCss(1,0.5);for(let b=0;b<5;b++){const by=fillTop+rand(0,(chamberY-fillTop)*0.7);ctx.beginPath();ctx.arc(cx+rand(-condW*0.5,condW*0.5),by,rand(1,2.6),0,TAU);ctx.fill();}}
+    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.2;ctx.strokeRect(cx-condW,summitY+craterDepth,condW*2,chamberY-summitY);
+
+    // borde del cráter por encima del conducto
+    ctx.fillStyle='#3a2f36';ctx.beginPath();
+    ctx.moveTo(cx-craterHalf*1.7,summitY+craterDepth*0.3);
+    ctx.quadraticCurveTo(cx-craterHalf*0.4,summitY+craterDepth*1.1,cx,summitY+craterDepth*0.95);
+    ctx.quadraticCurveTo(cx+craterHalf*0.4,summitY+craterDepth*1.1,cx+craterHalf*1.7,summitY+craterDepth*0.3);
+    ctx.lineTo(cx+craterHalf*1.7,summitY+craterDepth*2);ctx.lineTo(cx-craterHalf*1.7,summitY+craterDepth*2);ctx.closePath();ctx.fill();
+
+    // glaciar
+    if(S.glacier){ctx.save();ctx.beginPath();ctx.moveTo(cx-coneHalf,groundY);
+      for(let x=cx-coneHalf;x<=cx+coneHalf;x+=3)ctx.lineTo(x,terrainY(x));ctx.lineTo(cx+coneHalf,groundY);ctx.closePath();ctx.clip();
+      const snowY=lerp(summitY,groundY,0.42);
+      ctx.fillStyle='rgba(228,238,248,.92)';
+      ctx.beginPath();for(let x=cx-coneHalf;x<=cx+coneHalf;x+=3){const ty=terrainY(x);if(ty<snowY){ctx.lineTo(x,ty-1.5);}}
+      ctx.lineTo(cx+coneHalf,snowY);ctx.lineTo(cx-coneHalf,snowY);ctx.closePath();ctx.fill();
+      ctx.restore();}
+    // inflación (línea de deformación)
+    if(S.inflation>0.05){ctx.strokeStyle=`rgba(82,214,207,${0.25*S.inflation})`;ctx.setLineDash([4,4]);ctx.lineWidth=1.2;
+      ctx.beginPath();for(let x=cx-coneHalf;x<=cx+coneHalf;x+=4)ctx.lineTo(x,terrainY(x)-6*S.inflation*Math.pow(1-Math.abs(x-cx)/coneHalf,2));ctx.stroke();ctx.setLineDash([]);}
+  }
+
+  /* ---- dibujo de partículas ---- */
+  function drawParticles(){
+    // 1) flujos pegados al suelo primero (lava, lahar, pdc cuerpo)
+    for(const p of P){
+      if(p.type==='lava'){
+        const t=p.frozen?0.05:lerp(0.95,0.25,p.cool||0);
+        ctx.fillStyle=thermCss(t, p.frozen?1:0.95);
+        ctx.shadowColor=thermCss(0.8,0.9);ctx.shadowBlur=p.frozen?0:12;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.6,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      } else if(p.type==='lahar'){
+        ctx.fillStyle=`rgba(${110+randn()*8|0},${82},${56},0.92)`;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.65,0,TAU);ctx.fill();
+      } else if(p.type==='pdc'){
+        // cuerpo denso caliente
+        const t=lerp(0.55,0.12,p.cool||0);
+        ctx.fillStyle=`rgba(${thermRGB(t).join(',')},0.55)`;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.8,0,TAU);ctx.fill();
+      }
+    }
+    // 2) columna / gas / ceniza (additivo suave para densidad)
+    ctx.globalCompositeOperation='lighter';
+    for(const p of P){
+      if(p.type==='gas'){
+        const a=clamp(0.10*(1-p.age/5),0,0.12);ctx.fillStyle=`rgba(210,218,232,${a})`;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,TAU);ctx.fill();
+      }
+    }
+    ctx.globalCompositeOperation='source-over';
+    for(const p of P){
+      if(p.type==='ash'){
+        const rel=clamp((summitY+craterDepth*0.4-p.y)/Math.max(40,(summitY+craterDepth*0.4-colTopY())),0,1);
+        const g=p.coign?lerp(70,150,Math.random()):lerp(150,86,rel); // base más oscura
+        const a=p.settle?0.7:clamp(0.5*(1-p.age/16)+0.18,0.06,0.7);
+        ctx.fillStyle=`rgba(${g|0},${(g*0.96)|0},${(g*0.95)|0},${a})`;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.85,0,TAU);ctx.fill();
+      }
+    }
+    // 3) incandescentes (bombas, fuente) por encima con glow
+    for(const p of P){
+      if(p.type==='ball'||p.type==='fountain'){
+        const t=clamp(1-p.age/(p.type==='ball'?2.6:2),0.1,1);
+        // estela
+        ctx.strokeStyle=thermCss(t,0.5);ctx.lineWidth=p.size*0.5;ctx.lineCap='round';
+        ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(p.x,p.y);ctx.stroke();
+        ctx.fillStyle=thermCss(t,0.95);ctx.shadowColor=thermCss(0.85,1);ctx.shadowBlur=8;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.5,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      }
+    }
+  }
+
+  /* ---- etiquetas según fase ---- */
+  function label(x1,y1,x2,y2,txt,color){
+    ctx.strokeStyle=color||'rgba(154,166,184,.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    ctx.fillStyle=color||'rgba(200,210,224,.9)';ctx.font='10px "JetBrains Mono"';
+    const right=x2>cx;ctx.textAlign=right?'left':'right';
+    ctx.fillText(txt,x2+(right?5:-5),y2+3);ctx.textAlign='left';
+    ctx.fillStyle=color||'rgba(154,166,184,.7)';ctx.beginPath();ctx.arc(x1,y1,2,0,TAU);ctx.fill();
+  }
+  function drawLabels(){
+    ctx.save();
+    if(S.phase==='rising'||S.phase==='repose'){
+      label(cx,chamberY,cx-coneHalf*0.7,chamberY,'Cámara magmática','rgba(247,183,51,.8)');
+      const fillTop=lerp(chamberY-H*0.05,summitY+craterDepth,clamp(S.magmaLevel,0,1));
+      label(cx+craterHalf,(fillTop+chamberY)/2,cx+coneHalf*0.62,(fillTop+chamberY)/2,'Conducto','rgba(236,96,33,.8)');
+      if(S.inflation>0.2) label(cx,terrainY(cx)-12,cx+coneHalf*0.5,summitY-22,'Deformación / inflación','rgba(82,214,207,.8)');
+    }
+    if(S.intensity>0.2){
+      const cTop=colTopY();
+      label(cx,cTop+span()*0.06,cx-coneHalf*0.9,cTop+30,'Región paraguas','rgba(180,190,205,.85)');
+      label(cx+craterHalf,summitY-span()*0.35,cx+coneHalf*0.85,summitY-span()*0.45,'Columna eruptiva','rgba(170,180,195,.85)');
+      label(cx-8,summitY-span()*0.06,cx-coneHalf*0.55,summitY-span()*0.02,'Empuje de gas','rgba(247,183,51,.7)');
+      const r=productRates();
+      if(r.pdc>0.2)  label(cx-coneHalf*0.7,terrainY(cx-coneHalf*0.7)-8,cx-coneHalf*1.15,terrainY(cx-coneHalf*0.9)-26,'CDP / flujo piroclástico','rgba(176,88,76,.95)');
+      if(r.lava>0.15)label(cx+coneHalf*0.6,terrainY(cx+coneHalf*0.6)-4,cx+coneHalf*1.0,terrainY(cx+coneHalf*0.6)+18,'Flujo de lava','rgba(240,106,30,.95)');
+      if(r.lahar>0.1)label(cx+coneHalf*0.8,terrainY(cx+coneHalf*0.8),cx+coneHalf*1.25,terrainY(cx+coneHalf*0.8)+8,'Lahar','rgba(138,106,74,1)');
+      if(r.ash>0.3) label(cx+coneHalf*1.3,summitY+10,cx+coneHalf*1.6,summitY+24,'Caída de ceniza','rgba(154,161,173,.9)');
+    }
+    ctx.restore();
+  }
+  function span(){return Math.max(40,(summitY+craterDepth*0.4)-colTopY());}
+
+  function draw(dt){
+    drawScene();
+    spawn(); update(dt);
+    drawParticles();
+    drawLabels();
+  }
+  function reset(){P.length=0;for(const k in acc)acc[k]=0;}
+  return {resize,draw,reset};
+})();
+/* ============================================================
+   VISTA PLANTA — mapa cenital, dispersión y alcances
+   ============================================================ */
+const Plan=(function(){
+  const cv=$('cvPlan'); const ctx=cv.getContext('2d');
+  let W=0,H=0,DPR=1,cx,cy,minR,pxPerKm,planKm;
+  const P=[]; const MAX=1400;
+  const acc={ash:0,lava:0,pdc:0,lahar:0,ball:0};
+  const VALLEYS=[-52,18,92,158,214,286].map(d=>d*Math.PI/180);
+  function windVec(){const r=S.windDir*Math.PI/180;return[Math.sin(r),-Math.cos(r)];}
+
+  function resize(){
+    const r=cv.getBoundingClientRect();DPR=Math.min(window.devicePixelRatio||1,2);
+    W=Math.max(40,r.width);H=Math.max(40,r.height);
+    cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+    cx=W*0.5;cy=H*0.5;minR=Math.min(W,H)*0.5-12;
+  }
+  function reaches(){
+    const v=clamp(S.vei,0,6);
+    const pdc=[1,2,4,7.5,13,20,30][v]*(0.5+S.visc/120);
+    const lava=lerp(5,1.2,S.visc/100)*[0.5,0.8,1.1,1.2,1.1,1,1][v];
+    const lahar=S.glacier?[3,6,11,18,28,42,60][v]:0;
+    const ash=[3,6,12,20,32,50,75][v]*(0.7+S.windSpd/200);
+    return{pdc,lava,lahar,ash};
+  }
+  function updateScale(){const R=reaches();planKm=Math.max(8,R.pdc*1.7,R.lahar*1.15,R.lava*2.4,R.ash*0.5);pxPerKm=minR/planKm;}
+
+  function spawn(){
+    const r=productRates(),R=reaches(),dt=1/60;const wv=windVec();
+    const emit=(k,rate,fn)=>{acc[k]+=rate*dt;while(acc[k]>=1){acc[k]-=1;if(P.length<MAX)fn();}};
+    // ceniza: deriva con viento + abanico
+    emit('ash', r.ash*40,()=>{
+      const spread=rand(-0.5,0.5);const speed=rand(.4,1.0)*(0.5+S.windSpd/120);
+      const px=wv[0]+(-wv[1])*spread, py=wv[1]+(wv[0])*spread; // perpendicular para abanico
+      P.push({type:'ash',x:cx,y:cy,vx:px*speed,vy:py*speed,r:0,age:0,size:rand(2,5),reach:R.ash*pxPerKm*rand(.5,1.05)});
+    });
+    // lava por 1-2 valles
+    emit('lava', r.lava*10,()=>{const a=VALLEYS[1]+rand(-.18,.18);P.push({type:'lava',x:cx,y:cy,a,r:rand(0,minR*.05),age:0,size:rand(3,6),reach:R.lava*pxPerKm});});
+    // CDP por valles (abanico)
+    const pdcRate=r.pdc*(8+(S.pulse>0?30:0));
+    emit('pdc', pdcRate,()=>{const a=VALLEYS[(Math.random()*3|0)]+rand(-.4,.4);P.push({type:'pdc',x:cx,y:cy,a,r:rand(0,minR*.04),age:0,size:rand(4,8),reach:R.pdc*pxPerKm});});
+    // lahar por valles
+    emit('lahar', r.lahar*9,()=>{const a=VALLEYS[3+(Math.random()*3|0)]+rand(-.06,.06);P.push({type:'lahar',x:cx,y:cy,a,r:rand(0,minR*.05),age:0,size:rand(3,6),reach:R.lahar*pxPerKm});});
+    // balísticos
+    emit('ball', r.ball*6,()=>{const a=rand(0,TAU);const rr=rand(minR*.04,minR*.10);P.push({type:'ball',x:cx+Math.cos(a)*rr,y:cy+Math.sin(a)*rr,age:0,size:rand(1.5,3)});});
+  }
+  function update(dt){
+    for(let i=P.length-1;i>=0;i--){const p=P[i];p.age+=dt;
+      if(p.type==='ash'){p.x+=p.vx*1.6;p.y+=p.vy*1.6;p.r=Math.hypot(p.x-cx,p.y-cy);p.vx+=randn()*0.05;p.vy+=randn()*0.05;p.size+=4*dt;
+        if(p.r>p.reach||p.age>14)P.splice(i,1);}
+      else if(p.type==='lava'){const sp=lerp(34,10,S.visc/100)*dt;p.r+=sp*clamp(1-p.r/p.reach,.05,1);p.x=cx+Math.cos(p.a)*p.r;p.y=cy+Math.sin(p.a)*p.r;p.cool=clamp(p.r/p.reach,0,1);
+        if(p.r>=p.reach*0.98||p.age>14){p.frozen=true;}if(p.age>20)P.splice(i,1);}
+      else if(p.type==='pdc'){const sp=140*dt;p.r+=sp*clamp(1-p.r/p.reach,.06,1);p.x=cx+Math.cos(p.a)*p.r;p.y=cy+Math.sin(p.a)*p.r;p.size+=18*dt;p.cool=clamp(p.r/p.reach,0,1);
+        if(p.r>=p.reach||p.age>6)P.splice(i,1);}
+      else if(p.type==='lahar'){const sp=90*dt;p.r+=sp*clamp(1-p.r/p.reach,.1,1);p.x=cx+Math.cos(p.a)*p.r;p.y=cy+Math.sin(p.a)*p.r;p.size+=6*dt;
+        if(p.r>=p.reach||p.age>16)P.splice(i,1);}
+      else if(p.type==='ball'){if(p.age>1.5)P.splice(i,1);}
+    }
+  }
+
+  function drawScene(){
+    // relieve
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,minR);
+    g.addColorStop(0,'#5a4d44');g.addColorStop(0.12,'#4a4038');g.addColorStop(0.4,'#3a4232');g.addColorStop(0.75,'#2f3a2c');g.addColorStop(1,'#222b22');
+    ctx.fillStyle='#0b0f0a';ctx.fillRect(0,0,W,H);
+    ctx.save();ctx.beginPath();ctx.arc(cx,cy,minR,0,TAU);ctx.clip();ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // valles (drenajes)
+    ctx.strokeStyle='rgba(20,28,20,.55)';ctx.lineWidth=2.5;
+    for(const a of VALLEYS){ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*minR*0.08,cy+Math.sin(a)*minR*0.08);
+      const wob=a*1.3;ctx.quadraticCurveTo(cx+Math.cos(a+0.12)*minR*0.55,cy+Math.sin(a+0.12)*minR*0.55,cx+Math.cos(a)*minR,cy+Math.sin(a)*minR);ctx.stroke();}
+    ctx.restore();
+    // curvas de nivel + anillos de escala
+    ctx.lineWidth=1;ctx.font='9px "JetBrains Mono"';ctx.textAlign='left';
+    const step=niceStep(planKm);
+    for(let km=step;km<=planKm;km+=step){const rr=km*pxPerKm;if(rr>minR)break;
+      ctx.strokeStyle='rgba(140,160,140,.12)';ctx.beginPath();ctx.arc(cx,cy,rr,0,TAU);ctx.stroke();
+      ctx.fillStyle='rgba(160,176,160,.4)';ctx.fillText(km+' km',cx+rr-26,cy-3);}
+    ctx.strokeStyle='rgba(150,170,150,.25)';ctx.beginPath();ctx.arc(cx,cy,minR,0,TAU);ctx.stroke();
+  }
+  function niceStep(km){const raw=km/5;const p=Math.pow(10,Math.floor(Math.log10(raw)));const n=raw/p;return (n<1.5?1:n<3.5?2:n<7.5?5:10)*p;}
+
+  function drawIsopach(){
+    if(S.columnKm<0.5)return;const wv=windVec();const ang=Math.atan2(wv[1],wv[0]);
+    const R=reaches();const base=R.ash*pxPerKm;
+    const levels=[[0.32,'rgba(120,124,132,0.30)','grueso'],[0.62,'rgba(132,136,144,0.20)','medio'],[1.0,'rgba(150,154,162,0.12)','fino']];
+    for(const [f,col,lab] of levels){
+      const a=base*f, b=a*0.42; // elipse alargada downwind
+      const ecx=cx+wv[0]*a*0.55, ecy=cy+wv[1]*a*0.55;
+      ctx.save();ctx.translate(ecx,ecy);ctx.rotate(ang);
+      ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(0,0,a*0.62,b,0,0,TAU);ctx.fill();ctx.restore();
+    }
+  }
+
+  function drawParticles(){
+    // flujos
+    for(const p of P){
+      if(p.type==='lava'){const t=p.frozen?0.06:lerp(0.92,0.28,p.cool||0);
+        ctx.fillStyle=thermCss(t,p.frozen?0.95:0.9);ctx.shadowColor=thermCss(0.8,.8);ctx.shadowBlur=p.frozen?0:8;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.7,0,TAU);ctx.fill();ctx.shadowBlur=0;}
+      else if(p.type==='pdc'){const t=lerp(0.5,0.12,p.cool||0);ctx.fillStyle=`rgba(${thermRGB(t).join(',')},0.42)`;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,TAU);ctx.fill();}
+      else if(p.type==='lahar'){ctx.fillStyle='rgba(120,90,60,0.7)';ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.8,0,TAU);ctx.fill();}
+    }
+    // ceniza (pluma)
+    for(const p of P){if(p.type==='ash'){const a=clamp(0.4*(1-p.r/p.reach)+0.05,0.03,0.4);
+      ctx.fillStyle=`rgba(154,161,173,${a})`;ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.8,0,TAU);ctx.fill();}}
+    // balísticos
+    for(const p of P){if(p.type==='ball'){ctx.fillStyle=thermCss(clamp(1-p.age,0.2,1),0.9);ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,TAU);ctx.fill();}}
+  }
+  function drawCrater(){
+    // cráter
+    ctx.fillStyle='rgba(20,16,18,.9)';ctx.beginPath();ctx.arc(cx,cy,minR*0.045,0,TAU);ctx.fill();
+    if(S.intensity>0.05){ctx.fillStyle=thermCss(0.9,0.6+0.3*Math.sin(S.tGlobal*6));ctx.beginPath();ctx.arc(cx,cy,minR*0.03*(0.7+S.intensity*0.6),0,TAU);ctx.fill();}
+    ctx.strokeStyle='rgba(180,120,100,.7)';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(cx,cy,minR*0.045,0,TAU);ctx.stroke();
+    // flecha de viento
+    const wv=windVec();const ox=W-46,oy=46;
+    ctx.strokeStyle='rgba(82,214,207,.85)';ctx.fillStyle='rgba(82,214,207,.85)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(ox,oy,18,0,TAU);ctx.strokeStyle='rgba(39,48,63,.9)';ctx.stroke();
+    ctx.strokeStyle='rgba(82,214,207,.85)';ctx.beginPath();ctx.moveTo(ox-wv[0]*12,oy-wv[1]*12);ctx.lineTo(ox+wv[0]*12,oy+wv[1]*12);ctx.stroke();
+    const ah=Math.atan2(wv[1],wv[0]);ctx.beginPath();ctx.moveTo(ox+wv[0]*15,oy+wv[1]*15);
+    ctx.lineTo(ox+Math.cos(ah+2.5)*7,oy+Math.sin(ah+2.5)*7);ctx.lineTo(ox+Math.cos(ah-2.5)*7,oy+Math.sin(ah-2.5)*7);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(140,150,165,.7)';ctx.font='8px "JetBrains Mono"';ctx.textAlign='center';ctx.fillText('VIENTO',ox,oy+30);ctx.textAlign='left';
+  }
+  function draw(dt){updateScale();drawScene();drawIsopach();spawn();update(dt);drawParticles();drawCrater();}
+  function reset(){P.length=0;for(const k in acc)acc[k]=0;}
+  return {resize,draw,reset,reaches};
+})();
+/* ============================================================
+   VISTA 3D — edificio volcánico (Three.js r128)
+   ============================================================ */
+const View3D=(function(){
+  const host=$('three');
+  let ok = (typeof THREE!=='undefined');
+  let renderer,scene,cam,terrainMesh,ventLight,coreMesh,plumeGeo,plumePts,flowGeo,flowPts,glow;
+  let W=1,H=1;
+  // órbita manual
+  let theta=0.9, phi=1.02, radius=205;          // esféricas
+  const TR=185, SUMMIT=40, CRATER_R=0.085, CRATER_D=7.2, SIZE=120, GRID=104;
+  let dragging=false,lx=0,ly=0;
+
+  /* --- perfil de altura del cono (normalizado) --- */
+  function coneH(rN,ang){
+    let h=Math.pow(clamp(1-rN,0,1),1.45);                 // cono base
+    h+=0.05*Math.sin(ang*7+rN*3)*clamp(1-rN,0,1);          // crestas radiales
+    h+=0.028*Math.sin(rN*15)*Math.sin(ang*3);              // rugosidad
+    h+=0.018*Math.sin(ang*13);                             // micro-relieve
+    if(rN<CRATER_R){ const d=(CRATER_R-rN)/CRATER_R; h-=d*d*(CRATER_D/SUMMIT); } // cráter hundido
+    return Math.max(h,-0.02);
+  }
+  function terrYworld(x,z){
+    const rN=Math.min(Math.sqrt(x*x+z*z)/SIZE,1.4); const ang=Math.atan2(z,x);
+    return coneH(rN,ang)*SUMMIT;
+  }
+  function terrColor(hN,rN,glac){
+    // hN: altura relativa 0..1 ; rN: radio normalizado
+    let c=new THREE.Color();
+    if(glac && hN>0.74){ c.setRGB(0.86,0.89,0.95); }            // nieve/glaciar
+    else if(rN<CRATER_R+0.015){ c.setRGB(0.16,0.11,0.10); }      // interior cráter
+    else if(hN>0.62){ const t=(hN-0.62)/0.38; c.setRGB(lerp(0.34,0.5,t),lerp(0.31,0.47,t),lerp(0.30,0.46,t)); } // roca gris
+    else if(hN>0.30){ const t=(hN-0.30)/0.32; c.setRGB(lerp(0.32,0.40,t),lerp(0.26,0.30,t),lerp(0.18,0.21,t)); } // suelo pardo
+    else { const t=hN/0.30; c.setRGB(lerp(0.16,0.27,t),lerp(0.24,0.33,t),lerp(0.12,0.15,t)); }                   // vegetación
+    return c;
+  }
+
+  function buildTerrain(){
+    const g=new THREE.BufferGeometry();
+    const verts=[],cols=[],idx=[];
+    const half=SIZE, step=(SIZE*2)/GRID;
+    for(let j=0;j<=GRID;j++)for(let i=0;i<=GRID;i++){
+      const x=-half+i*step, z=-half+j*step; const y=terrYworld(x,z);
+      verts.push(x,y,z);
+      const rN=Math.min(Math.sqrt(x*x+z*z)/SIZE,1.2), hN=clamp(y/SUMMIT,0,1);
+      const c=terrColor(hN,rN,S.glacier); cols.push(c.r,c.g,c.b);
+    }
+    for(let j=0;j<GRID;j++)for(let i=0;i<GRID;i++){
+      const a=j*(GRID+1)+i,b=a+1,d=a+(GRID+1),e=d+1;
+      idx.push(a,d,b, b,d,e);
+    }
+    g.setIndex(idx);
+    g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+    g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));
+    g.computeVertexNormals();
+    return g;
+  }
+  function recolorTerrain(){
+    if(!terrainMesh)return; const pos=terrainMesh.geometry.attributes.position, col=terrainMesh.geometry.attributes.color;
+    for(let k=0;k<pos.count;k++){ const x=pos.getX(k),y=pos.getY(k),z=pos.getZ(k);
+      const rN=Math.min(Math.sqrt(x*x+z*z)/SIZE,1.2),hN=clamp(y/SUMMIT,0,1); const c=terrColor(hN,rN,S.glacier);
+      col.setXYZ(k,c.r,c.g,c.b); }
+    col.needsUpdate=true;
+  }
+
+  // sistemas de partículas (pluma + flujos) ----------------
+  const PMAX=2200, plume=[]; const FMAX=900, flow=[];
+  let plPos,plCol,flPos,flCol;
+  function initParticles(){
+    plPos=new Float32Array(PMAX*3); plCol=new Float32Array(PMAX*3);
+    plumeGeo=new THREE.BufferGeometry();
+    plumeGeo.setAttribute('position',new THREE.BufferAttribute(plPos,3));
+    plumeGeo.setAttribute('color',new THREE.BufferAttribute(plCol,3));
+    const pm=new THREE.PointsMaterial({size:2.5,vertexColors:true,transparent:true,opacity:0.82,depthWrite:false,blending:THREE.NormalBlending});
+    plumePts=new THREE.Points(plumeGeo,pm); scene.add(plumePts);
+
+    flPos=new Float32Array(FMAX*3); flCol=new Float32Array(FMAX*3);
+    flowGeo=new THREE.BufferGeometry();
+    flowGeo.setAttribute('position',new THREE.BufferAttribute(flPos,3));
+    flowGeo.setAttribute('color',new THREE.BufferAttribute(flCol,3));
+    const fm=new THREE.PointsMaterial({size:3.0,vertexColors:true,transparent:true,opacity:0.92,depthWrite:false});
+    flowPts=new THREE.Points(flowGeo,fm); scene.add(flowPts);
+  }
+  function ventY(){return terrYworld(0,0);}
+  function windVec3(){const r=S.windDir*Math.PI/180;return[Math.sin(r),0,-Math.cos(r)];}
+  function emit(dt){
+    const R=productRates(); const I=S.intensity; if(I<=0.02 && R.gas<0.05)return;
+    const vy0=()=>SUMMIT*0.9+I*60;
+    // pluma / ceniza / gas
+    let n=Math.floor((R.ash*9 + R.gas*4 + R.ball*2)*I*60*dt + (R.gas>0?1:0)*2*dt*60);
+    n=Math.min(n,40);
+    for(let i=0;i<n && plume.length<PMAX;i++){
+      const a=rand(TAU), rr=rand(CRATER_R*SIZE*0.7);
+      plume.push({x:Math.cos(a)*rr, y:ventY()+rand(3), z:Math.sin(a)*rr,
+        vx:Math.cos(a)*rand(2), vy:vy0()*rand(0.7,1.1)*0.016, vz:Math.sin(a)*rand(2),
+        age:0, life:rand(3.4,6.5), hot:Math.random()<0.5?1:0, sz:rand(0.6,1.4)});
+    }
+    // flujos: lava / CDP / lahar descendiendo la ladera
+    const ftypes=[];
+    if(R.lava>0.05)ftypes.push(['lava',R.lava]);
+    if(R.pdc>0.05) ftypes.push(['pdc',R.pdc]);
+    if(R.lahar>0.05)ftypes.push(['lahar',R.lahar]);
+    for(const [ty,rate] of ftypes){
+      let m=Math.floor(rate*I*22*dt*60); m=Math.min(m,10);
+      for(let i=0;i<m && flow.length<FMAX;i++){
+        const a=rand(TAU);
+        flow.push({ty, ang:a, r:CRATER_R*SIZE+rand(4), age:0,
+          life:ty==='lava'?rand(7,13):rand(3,6),
+          spd:ty==='pdc'?rand(34,52):ty==='lahar'?rand(26,40):rand(10,18)});
+      }
+    }
+  }
+  function stepParticles(dt){
+    const wv=windVec3(); const colH=Math.max(20,S.columnKm/35*150);
+    for(let i=plume.length-1;i>=0;i--){const p=plume[i];p.age+=dt;
+      const rel=clamp((p.y-ventY())/colH,0,1);
+      // empuje→convección→paraguas
+      p.vy += (rel<0.5? 8*dt : -3*dt); p.vy=clamp(p.vy,-2,80);
+      const spread=(rel>0.45?1:0.15)*(8+rel*20);
+      const dirx=p.x, dirz=p.z, dl=Math.hypot(dirx,dirz)||1;
+      p.vx += (dirx/dl)*spread*dt + wv[0]*S.windSpd*0.02*dt*(0.3+rel);
+      p.vz += (dirz/dl)*spread*dt + wv[2]*S.windSpd*0.02*dt*(0.3+rel);
+      p.x+=p.vx*dt*6; p.y+=p.vy*dt*6; p.z+=p.vz*dt*6;
+      if(p.age>p.life||p.y<ventY()-4){plume.splice(i,1);}
+    }
+    for(let i=flow.length-1;i>=0;i--){const f=flow[i];f.age+=dt; f.r+=f.spd*dt;
+      if(f.age>f.life||f.r>SIZE*1.15){flow.splice(i,1);}
+    }
+    // volcar a buffers
+    let k=0; for(const p of plume){ if(k>=PMAX)break;
+      plPos[k*3]=p.x; plPos[k*3+1]=p.y; plPos[k*3+2]=p.z;
+      const rel=clamp((p.y-ventY())/colH,0,1);
+      if(p.hot && rel<0.25){const c=thermRGB(lerp(0.95,0.4,rel/0.25)); plCol[k*3]=c[0]/255;plCol[k*3+1]=c[1]/255;plCol[k*3+2]=c[2]/255;}
+      else {const g=lerp(0.34,0.62,rel); plCol[k*3]=g; plCol[k*3+1]=g*0.97; plCol[k*3+2]=g*0.99;}
+      k++; }
+    plumeGeo.setDrawRange(0,k); plPos.fill(0,k*3); 
+    plumeGeo.attributes.position.needsUpdate=true; plumeGeo.attributes.color.needsUpdate=true;
+
+    let m=0; for(const f of flow){ if(m>=FMAX)break;
+      const x=Math.cos(f.ang)*f.r, z=Math.sin(f.ang)*f.r, y=terrYworld(x,z)+1.2;
+      flPos[m*3]=x; flPos[m*3+1]=y; flPos[m*3+2]=z;
+      let c;
+      if(f.ty==='lava'){c=thermRGB(clamp(1-f.age/f.life*0.8,0.25,1));c=[c[0]/255,c[1]/255,c[2]/255];}
+      else if(f.ty==='pdc'){const g=lerp(0.5,0.32,f.age/f.life);c=[g,g*0.95,g*0.95];}
+      else {c=[0.42,0.32,0.22];}
+      flCol[m*3]=c[0]; flCol[m*3+1]=c[1]; flCol[m*3+2]=c[2]; m++; }
+    flowGeo.setDrawRange(0,m); flPos.fill(0,m*3);
+    flowGeo.attributes.position.needsUpdate=true; flowGeo.attributes.color.needsUpdate=true;
+  }
+
+  function placeCam(){
+    cam.position.set(
+      radius*Math.sin(phi)*Math.cos(theta),
+      radius*Math.cos(phi),
+      radius*Math.sin(phi)*Math.sin(theta));
+    cam.lookAt(0,SUMMIT*0.42,0);
+  }
+  function onDown(e){dragging=true;const t=e.touches?e.touches[0]:e;lx=t.clientX;ly=t.clientY;}
+  function onMove(e){if(!dragging)return;const t=e.touches?e.touches[0]:e;
+    const dx=t.clientX-lx, dy=t.clientY-ly; lx=t.clientX; ly=t.clientY;
+    theta-=dx*0.006; phi=clamp(phi-dy*0.005,0.18,1.45); placeCam(); if(e.cancelable)e.preventDefault();}
+  function onUp(){dragging=false;}
+  function onWheel(e){radius=clamp(radius*(1+(e.deltaY>0?0.09:-0.09)),90,360);placeCam();e.preventDefault();}
+
+  function init(){
+    if(!ok){ host.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#6c778a;font:12px JetBrains Mono;text-align:center;padding:20px">No se pudo cargar el motor 3D (Three.js).<br>Las demás vistas siguen activas.</div>'; return; }
+    try{
+      W=host.clientWidth||600; H=host.clientHeight||400;
+      scene=new THREE.Scene();
+      scene.background=new THREE.Color(0x0a0f17);
+      scene.fog=new THREE.Fog(0x0a0f17, 230, 520);
+      cam=new THREE.PerspectiveCamera(52, W/H, 0.5, 2000); placeCam();
+      renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+      renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+      renderer.setSize(W,H); host.appendChild(renderer.domElement);
+      // luces
+      scene.add(new THREE.HemisphereLight(0x9fb6d6,0x1a140f,0.85));
+      const sun=new THREE.DirectionalLight(0xffe9c8,0.95); sun.position.set(-120,160,90); scene.add(sun);
+      ventLight=new THREE.PointLight(0xff5a1e,0,260,2); ventLight.position.set(0,SUMMIT-CRATER_D+4,0); scene.add(ventLight);
+      // terreno
+      terrainMesh=new THREE.Mesh(buildTerrain(), new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.95,metalness:0.02,flatShading:false}));
+      scene.add(terrainMesh);
+      // núcleo incandescente del cráter
+      coreMesh=new THREE.Mesh(new THREE.SphereGeometry(SIZE*CRATER_R*0.7,16,16),
+        new THREE.MeshBasicMaterial({color:0xff6a22,transparent:true,opacity:0}));
+      coreMesh.position.set(0,SUMMIT-CRATER_D+3,0); scene.add(coreMesh);
+      glow=new THREE.Mesh(new THREE.SphereGeometry(SIZE*CRATER_R*1.5,16,16),
+        new THREE.MeshBasicMaterial({color:0xff8a3a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+      glow.position.copy(coreMesh.position); scene.add(glow);
+      initParticles();
+      // interacción
+      const el=renderer.domElement;
+      el.addEventListener('mousedown',onDown); window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp);
+      el.addEventListener('touchstart',onDown,{passive:false}); el.addEventListener('touchmove',onMove,{passive:false}); el.addEventListener('touchend',onUp);
+      el.addEventListener('wheel',onWheel,{passive:false});
+    }catch(err){ ok=false; console.warn('3D init falló:',err);
+      host.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#6c778a;font:12px JetBrains Mono">Motor 3D no disponible.</div>'; }
+  }
+  function resize(){ if(!ok||!renderer)return; W=host.clientWidth||W; H=host.clientHeight||H;
+    if(W<2||H<2)return; cam.aspect=W/H; cam.updateProjectionMatrix(); renderer.setSize(W,H); }
+  let lastGlac=null;
+  function draw(dt){ if(!ok||!renderer)return;
+    if(lastGlac!==S.glacier){recolorTerrain(); lastGlac=S.glacier;}
+    emit(dt); stepParticles(Math.min(dt,0.05));
+    const I=S.intensity;
+    ventLight.intensity = I*3.4*(0.75+0.25*Math.sin(S.tGlobal*7));
+    coreMesh.material.opacity = clamp(I*0.85,0,0.9);
+    coreMesh.scale.setScalar(0.7+I*0.7+0.12*Math.sin(S.tGlobal*5));
+    glow.material.opacity = clamp(I*0.5,0,0.55);
+    glow.scale.setScalar(1+I*1.3+0.2*Math.sin(S.tGlobal*4));
+    renderer.render(scene,cam);
+  }
+  function reset(){ plume.length=0; flow.length=0; }
+  return {init,resize,draw,reset};
+})();
+/* ============================================================
+   UI · TELEMETRÍA · BUCLE · INICIO
+   ============================================================ */
+const PHASE_ES={repose:'Reposo',rising:'Ascenso de magma',climax:'Erupción',waning:'Declive'};
+function fmtClock(s){const m=Math.floor(s/60),ss=Math.floor(s%60);return 'T+'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');}
+function dirText(deg){deg=((deg%360)+360)%360;const a=['↑ N','↗ NE','→ E','↘ SE','↓ S','↙ SO','← O','↖ NO'];return a[Math.round(deg/45)%8];}
+function level3(v){return v<0.05?'—':v<0.34?'bajo':v<0.66?'medio':'alto';}
+
+/* ---- sincroniza controles desde el estado ---- */
+function syncUI(){
+  $('scenario').value=S.scenario;
+  [...$('styleSeg').children].forEach(b=>b.classList.toggle('on',b.dataset.style===S.style));
+  $('vei').value=S.vei; $('veiVal').textContent='VEI '+S.vei;
+  $('visc').value=S.visc; $('viscVal').textContent=VISC_LABEL(S.visc);
+  $('gas').value=S.gas; $('gasVal').textContent=S.gas+'%';
+  $('glacier').checked=S.glacier;
+  $('windArrow').setAttribute('transform','rotate('+S.windDir+' 39 39)');
+  $('windDirVal').textContent=dirText(S.windDir);
+  $('windSpd').value=S.windSpd; $('windSpdVal').textContent=S.windSpd+' km/h';
+}
+function goCustom(){ S.scenario='custom'; $('scenario').value='custom'; $('volcanoName').textContent='Escenario personalizado'; }
+
+function applyScenario(key){
+  const sc=SCENARIOS[key];
+  if(sc){ S.scenario=key; S.style=sc.style; S.vei=sc.vei; S.visc=sc.visc; S.gas=sc.gas; S.glacier=sc.glacier; S.windDir=sc.wind;
+    $('volcanoName').textContent=sc.name; }
+  else { S.scenario='custom'; $('volcanoName').textContent='Escenario personalizado'; }
+  syncUI();
+}
+function applyStyle(key){
+  const st=STYLES[key]; if(!st)return;
+  S.style=key; S.vei=st.vei; S.visc=st.visc; S.gas=st.gas;
+  goCustom(); syncUI();
+}
+
+/* ---- sismograma en vivo ---- */
+const NB=46; const seis=new Array(NB).fill(0.04);
+function buildSeismo(){const el=$('seismo'); if(el.children.length)return; for(let i=0;i<NB;i++)el.appendChild(document.createElement('i'));}
+function pushSeismo(){
+  seis.shift();
+  const base=S.phase==='repose'?0.05:0.12;
+  seis.push(clamp(base+S.seismic*rand(0.6,1)+Math.abs(randn())*0.05+(S.pulse>0?0.3:0),0.02,1));
+  const bars=$('seismo').children;
+  for(let i=0;i<NB;i++){const v=seis[i];bars[i].style.height=(v*100).toFixed(1)+'%';
+    bars[i].style.background=v>0.6?'var(--t-orange)':v>0.32?'var(--signal)':'var(--signal-dim)';}
+}
+
+/* ---- telemetría ---- */
+let _tAcc=0;
+function updateTelemetry(){
+  const R=productRates(), rc=Plan.reaches();
+  $('gColumn').innerHTML=S.columnKm.toFixed(1)+'<small>km</small>';
+  $('gVei').textContent='VEI '+S.vei;
+  $('gTemp').innerHTML=magmaTempC()+'<small>°C</small>';
+  const cdp=R.pdc>0.02?rc.pdc:0;
+  $('gReach').innerHTML=cdp.toFixed(1)+'<small>km</small>';
+  // productos
+  $('prodList').querySelectorAll('.prod').forEach(el=>{
+    const p=el.dataset.p, v=R[p]||0, on=v>(p==='gas'?0.04:0.05);
+    el.classList.toggle('on',on); el.querySelector('.mt').textContent=on?level3(v):'—';
+  });
+  // alerta
+  const [lvl,txt,col,blink]=alertState();
+  $('alertLevel').textContent=lvl; $('alertDot').style.background=col;
+  $('alertDot').classList.toggle('live',blink); $('alertBadge').title=txt;
+  // fase / reloj
+  $('phaseLabel').textContent=PHASE_ES[S.phase]||'—';
+  $('clock').textContent=fmtClock(S.tGlobal);
+  pushSeismo();
+}
+
+/* ---- leyenda ---- */
+function fillLegend(){
+  const html=`
+    <h3>Productos volcánicos</h3>
+    <div class="leg-item"><span class="sw" style="background:var(--p-ash)"></span><div class="tx"><b>Caída de ceniza (tefra)</b><span>Fragmentos finos dispersados por el viento; forman isópacas.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-ball)"></span><div class="tx"><b>Proyectiles balísticos</b><span>Bloques y bombas con trayectoria parabólica cerca del cráter.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-pdc)"></span><div class="tx"><b>Corrientes de densidad (CDP)</b><span>Flujos piroclásticos calientes que descienden a gran velocidad.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-lava)"></span><div class="tx"><b>Flujos de lava</b><span>Roca fundida que sigue la pendiente; mayor alcance si es fluida.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-lahar)"></span><div class="tx"><b>Lahares</b><span>Flujos de lodo por fusión de hielo/nieve; siguen los drenajes.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-gas)"></span><div class="tx"><b>Emisión de gases</b><span>Pluma de vapor y gases (SO₂, CO₂) en cualquier fase.</span></div></div>
+    <h3 style="margin-top:16px">Temperatura del magma</h3>
+    <div class="therm"></div>
+    <div class="therm-row"><span>~770 °C · riolítico</span><span>basáltico · ~1160 °C</span></div>`;
+  $('legendBody').innerHTML=html; $('legendBodyMirror').innerHTML=html;
+}
+
+/* ---- viento: dial arrastrable ---- */
+function bindDial(){
+  const d=$('windDial'); let drag=false;
+  function set(e){const r=d.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const t=e.touches?e.touches[0]:e; const dx=t.clientX-cx, dy=t.clientY-cy;
+    let deg=Math.atan2(dx,-dy)*180/Math.PI; deg=((Math.round(deg/5)*5)%360+360)%360;
+    S.windDir=deg; goCustom(); syncUI(); if(e.cancelable)e.preventDefault();}
+  d.addEventListener('mousedown',e=>{drag=true;set(e);});
+  window.addEventListener('mousemove',e=>{if(drag)set(e);});
+  window.addEventListener('mouseup',()=>drag=false);
+  d.addEventListener('touchstart',e=>{drag=true;set(e);},{passive:false});
+  d.addEventListener('touchmove',e=>{if(drag)set(e);},{passive:false});
+  d.addEventListener('touchend',()=>drag=false);
+}
+
+/* ---- enlaces de UI ---- */
+function resizeAll(){Profile.resize();Plan.resize();View3D.resize();}
+function bindUI(){
+  $('scenario').addEventListener('change',e=>applyScenario(e.target.value));
+  [...$('styleSeg').children].forEach(b=>b.addEventListener('click',()=>applyStyle(b.dataset.style)));
+  $('vei').addEventListener('input',e=>{S.vei=+e.target.value;$('veiVal').textContent='VEI '+S.vei;goCustom();});
+  $('visc').addEventListener('input',e=>{S.visc=+e.target.value;$('viscVal').textContent=VISC_LABEL(S.visc);goCustom();});
+  $('gas').addEventListener('input',e=>{S.gas=+e.target.value;$('gasVal').textContent=S.gas+'%';goCustom();});
+  $('glacier').addEventListener('change',e=>{S.glacier=e.target.checked;goCustom();});
+  $('windSpd').addEventListener('input',e=>{S.windSpd=+e.target.value;$('windSpdVal').textContent=S.windSpd+' km/h';goCustom();});
+  bindDial();
+  $('btnRise').addEventListener('click',()=>{S.auto=true; if(S.phase==='repose'||S.phase==='waning')setPhase('rising');});
+  $('btnErupt').addEventListener('click',()=>{ if(S.phase==='repose'||S.phase==='waning'){S.magmaLevel=0.65;} S.auto=false; setPhase('climax');});
+  $('btnReset').addEventListener('click',()=>{
+    S.phase='repose';S.t=0;S.tGlobal=0;S.intensity=0;S.magmaLevel=0;S.columnKm=0;S.seismic=0;S.inflation=0;S.pulse=0;S.auto=false;
+    Profile.reset();Plan.reset();View3D.reset(); for(let i=0;i<NB;i++)seis[i]=0.04;
+  });
+  // tabs
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); t.classList.add('on');
+    $('views').dataset.mode=t.dataset.mode;
+    requestAnimationFrame(()=>{resizeAll();requestAnimationFrame(resizeAll);});
+  }));
+}
+
+/* ---- bucle principal ---- */
+let _last=performance.now();
+function frame(now){
+  let dt=(now-_last)/1000; _last=now; if(dt>0.05)dt=0.05; if(dt<0)dt=0;
+  stepSim(dt);
+  const mode=$('views').dataset.mode;
+  if(mode==='profile') Profile.draw(dt);
+  else if(mode==='plan') Plan.draw(dt);
+  else if(mode==='three') View3D.draw(dt);
+  else if(mode==='complete'){ Profile.draw(dt); Plan.draw(dt); View3D.draw(dt); }
+  // 'concepts': sin render de lienzos; el motor y la telemetría siguen activos
+  _tAcc+=dt; if(_tAcc>=0.18){_tAcc=0;updateTelemetry();}
+  requestAnimationFrame(frame);
+}
+
+/* ---- init ---- */
+function init(){
+  buildSeismo(); fillLegend(); bindUI();
+  applyScenario('purace');
+  View3D.init();
+  resizeAll();
+  updateTelemetry();
+  requestAnimationFrame(frame);
+  window.addEventListener('resize',()=>{ clearTimeout(window.__rz); window.__rz=setTimeout(resizeAll,120); });
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+</script>
+</body>
+</html>
