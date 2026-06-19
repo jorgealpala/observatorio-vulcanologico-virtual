@@ -159,6 +159,9 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
 .btn--rise:hover{border-color:var(--a-yellow)}
 .btn--erupt{background:linear-gradient(180deg,#4a1410,#34100c);border-color:#7a241c;color:#ff8763}
 .btn--erupt:hover{border-color:var(--a-red);box-shadow:0 0 18px rgba(248,81,73,.25)}
+.btn--pause{background:linear-gradient(180deg,#163040,#0e2230);border-color:#2a5468;color:var(--signal)}
+.btn--pause:hover{border-color:var(--signal)}
+.btn--pause.on{background:linear-gradient(180deg,#3a2f12,#2a2410);border-color:var(--a-yellow);color:var(--a-yellow)}
 .btn--reset{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.1em;color:var(--text-mute);padding:8px}
 .btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none!important}
 .btn:disabled:hover{border-color:var(--line)}
@@ -182,6 +185,10 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
 .view canvas,.view #three{width:100%;height:100%;display:block}
 .view-tag{position:absolute;left:9px;top:9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--text-dim);background:rgba(7,10,15,.7);border:1px solid var(--line);padding:4px 8px;border-radius:6px;text-transform:uppercase;pointer-events:none;z-index:3;backdrop-filter:blur(4px)}
 .view-hint{position:absolute;right:9px;bottom:9px;font-family:var(--mono);font-size:9px;color:var(--text-mute);background:rgba(7,10,15,.65);padding:3px 7px;border-radius:5px;pointer-events:none;z-index:3}
+.plan-note{position:absolute;left:9px;right:9px;bottom:9px;font-family:var(--mono);font-size:9px;line-height:1.45;color:var(--text-mute);background:rgba(7,10,15,.8);border:1px solid var(--line);border-left:2px solid var(--signal);padding:5px 9px;border-radius:5px;pointer-events:none;z-index:3;backdrop-filter:blur(4px)}
+.three-legend{position:absolute;left:9px;bottom:9px;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:9px;color:var(--text-dim);background:rgba(7,10,15,.78);border:1px solid var(--line);padding:7px 9px;border-radius:6px;pointer-events:none;z-index:3;backdrop-filter:blur(4px)}
+.three-legend span{display:flex;align-items:center;gap:6px}
+.three-legend i{width:9px;height:9px;border-radius:2px;flex:0 0 auto}
 
 .views[data-mode=profile] .view--profile{display:block}
 .views[data-mode=plan] .view--plan{display:block}
@@ -391,6 +398,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
         <div class="actions">
           <button class="btn btn--rise" id="btnRise"><span class="ix">▲</span> Iniciar ascenso de magma</button>
           <button class="btn btn--erupt" id="btnErupt"><span class="ix">◉</span> Desencadenar erupción</button>
+          <button class="btn btn--pause" id="btnPause"><span class="ix">❚❚</span> Pausar simulación</button>
           <button class="btn btn--reset" id="btnReset">↺ Reiniciar simulación</button>
         </div>
       </div>
@@ -426,11 +434,18 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
         <section class="view view--plan">
           <canvas id="cvPlan"></canvas>
           <div class="view-tag">Planta · vista cenital</div>
-          <div class="view-hint">dispersión y alcance · km</div>
+          <div class="plan-note">La separación direccional de CDP y lahares (en sectores distintos) es una configuración del programa para facilitar su lectura, no un comportamiento natural de estos fenómenos.</div>
         </section>
         <section class="view view--three">
           <div id="three"></div>
           <div class="view-tag">3D · edificio volcánico</div>
+          <div class="three-legend">
+            <span><i style="background:#ec6021"></i>Lava</span>
+            <span><i style="background:#b6443a"></i>CDP</span>
+            <span><i style="background:#8a6a3a"></i>Lahar</span>
+            <span><i style="background:#9aa6b8"></i>Pluma / ceniza</span>
+            <span><i style="background:#d23a1a;opacity:.6"></i>Cámara magmática</span>
+          </div>
           <div class="view-hint">arrastra para orbitar · rueda para zoom</div>
         </section>
         <aside class="view view--legend">
@@ -447,7 +462,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
               <div class="con-grid">
                 <div class="con-card"><div class="term">Volcán</div><div class="def">Estructura geológica por donde el magma, los gases y los fragmentos del interior de la Tierra alcanzan la superficie. Su forma (cono, domo, caldera, escudo) depende del tipo de magma y del estilo de actividad.</div></div>
                 <div class="con-card"><div class="term">Magma</div><div class="def">Roca fundida, con cristales y gases disueltos, que se encuentra bajo la superficie. Su composición y temperatura determinan cómo se comporta al ascender.</div></div>
-                <div class="con-card"><div class="term">Lava</div><div class="def">Magma que alcanza la superficie y fluye expuesto. Al enfriarse y solidificar forma una roca volcánica, que también se denomina <em>lava</em>.</div></div>
+                <div class="con-card"><div class="term">Lava</div><div class="def">Magma que alcanza la superficie y fluye expuesto. Al enfriarse y solidificar da origen a las rocas volcánicas. La <em>lava</em> (material fundido en movimiento) no es lo mismo que la <em>roca volcánica</em> que resulta al solidificar.</div></div>
                 <div class="con-card"><div class="term">Material piroclástico</div><div class="def">Fragmentos sólidos producidos por la fragmentación explosiva del magma o de roca preexistente. El término <em>piroclasto</em> (o tefra) abarca cualquiera de estos fragmentos, sin importar su tamaño.</div></div>
                 <div class="con-card"><div class="term">Tamaño de los fragmentos</div><div class="def">Clasificación granulométrica de los piroclastos: <em>ceniza</em> &lt; 2 mm; <em>lapilli</em> 2–64 mm; <em>bloques y bombas</em> &gt; 64 mm (bloque si es sólido al ser expulsado, bomba si aún está fundido).</div></div>
               </div>
@@ -463,31 +478,22 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
             </div>
 
             <div class="con-group">
-              <h3>Estilos eruptivos</h3>
-              <div class="con-grid">
-                <div class="con-card"><div class="term">Hawaiana</div><div class="def">Efusiva, de magma basáltico fluido. Predominan los flujos y las fuentes de lava; explosividad mínima.</div></div>
-                <div class="con-card"><div class="term">Estromboliana</div><div class="def">Explosiones rítmicas de baja energía que lanzan escoria y proyectiles; mezcla moderada de lava y ceniza.</div></div>
-                <div class="con-card"><div class="term">Vulcaniana</div><div class="def">Explosiones cortas y violentas de magma viscoso, a menudo asociadas a la destrucción de un tapón o domo en el cráter. Producen columnas de varios km, ceniza, balísticos y CDP de alcance proximal.</div></div>
-                <div class="con-card"><div class="term">Pliniana</div><div class="def">La más explosiva (VEI 4–6). Columnas sostenidas de decenas de km y dispersión extensa de ceniza; el colapso de la columna genera corrientes de densidad piroclástica.</div></div>
-              </div>
-            </div>
-
-            <div class="con-group">
               <h3>Procesos o fenómenos</h3>
               <div class="con-grid">
                 <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-lava)"></span>Flujo de lava</div><div class="def">Avance de roca fundida sobre la superficie siguiendo la pendiente. Su alcance depende de la viscosidad y de la tasa de emisión.</div></div>
                 <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-ash)"></span>Dispersión de piroclastos por el viento</div><div class="def">Transporte de ceniza y lapilli finos por la pluma eruptiva; la nube se desplaza y deposita en función de la dirección y velocidad del viento.</div></div>
                 <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-ball)"></span>Proyección balística</div><div class="def">Lanzamiento de bloques y bombas con trayectoria parabólica, poco afectados por el viento. Caen cerca del cráter (típicamente &lt; 2–5 km).</div></div>
-                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-pdc)"></span>CDP diluida (oleada)</div><div class="def">Corriente de densidad piroclástica turbulenta y poco concentrada. Muy móvil; puede desbordar obstáculos del relieve.</div></div>
-                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-pdc)"></span>CDP concentrada (flujo)</div><div class="def">Corriente de densidad piroclástica densa que se canaliza por los valles. Caliente y rápida; el fenómeno volcánico más letal.</div></div>
-                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-lahar)"></span>Lahar</div><div class="def">Flujo de lodo y escombros movilizado por agua (lluvia o fusión de hielo/nieve). Sigue los drenajes y puede viajar decenas de km.</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-pdc)"></span>Corriente de densidad piroclástica (CDP)</div><div class="def">Flujo compuesto por fragmentos de roca, ceniza y gases calientes (de ~300 °C a &gt; 800 °C). Se forma por el colapso de la columna eruptiva o por una erupción baja (desbordamiento del material desde el cráter).</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-pdc)"></span>CDP diluida (oleada)</div><div class="def">CDP turbulenta y poco concentrada. Muy móvil; puede desbordar obstáculos del relieve. <em>Mayor</em> contenido de gases.</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-pdc)"></span>CDP concentrada (flujo)</div><div class="def">CDP densa que se canaliza por los valles. Caliente y rápida; el fenómeno volcánico más letal. <em>Menor</em> contenido de gases.</div></div>
+                <div class="con-card"><div class="term"><span class="dot" style="background:var(--p-lahar)"></span>Lahar</div><div class="def">Flujo de lodo y escombros movilizado por agua (de ríos, lluvia o fusión de hielo/nieve). Sigue los drenajes y puede viajar decenas de km.</div></div>
               </div>
             </div>
 
             <div class="con-group">
               <h3>Depósitos</h3>
               <div class="con-grid">
-                <div class="con-card"><div class="term">Lava (no es depósito)</div><div class="def">El flujo de lava no deja un depósito en sentido estricto: al solidificar produce una <em>roca</em> volcánica (lava).</div></div>
+                <div class="con-card"><div class="term">Lava (no es depósito)</div><div class="def">El flujo de lava no deja un depósito en sentido estricto: al solidificar produce una <em>roca</em> volcánica, que puede alcanzar extensiones significativas según su composición.</div></div>
                 <div class="con-card"><div class="term">Depósito piroclástico de caída</div><div class="def">Material que cae de la pluma y se acumula en capas que mantean el relieve; su espesor decrece con la distancia (isópacas).</div></div>
                 <div class="con-card"><div class="term">Depósito de bloques y bombas</div><div class="def">Acumulación gruesa de proyectiles balísticos en las inmediaciones del cráter.</div></div>
                 <div class="con-card"><div class="term">Depósito de oleada piroclástica</div><div class="def">Sedimento de una CDP diluida; capas finas con estructuras de tracción (laminación cruzada).</div></div>
@@ -497,12 +503,12 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
             </div>
 
             <div class="con-group">
-              <h3>Monitoreo y estados de alerta</h3>
+              <h3>Estilos eruptivos</h3>
               <div class="con-grid">
-                <div class="con-card"><div class="term">Sismicidad y tremor</div><div class="def">Vibraciones del terreno por fractura de roca o por movimiento de fluidos (<em>tremor</em>). Su variación suele preceder o acompañar el ascenso de magma.</div></div>
-                <div class="con-card"><div class="term">Deformación / inflación</div><div class="def">Cambios en la forma del edificio volcánico por presión del magma. Se miden con GNSS, inclinómetros e <em>InSAR</em>; son señal de recarga del sistema.</div></div>
-                <div class="con-card"><div class="term">Desgasificación y geoquímica</div><div class="def">Medición del flujo y la composición de gases (SO₂, CO₂) y de fuentes termales. Sus cambios indican aportes de magma o de gases nuevos.</div></div>
-                <div class="con-card"><div class="term">Estados de alerta</div><div class="def">Esquema del <em>SGC</em> (vigente desde 2023) con cuatro colores, sin numeración: <em>verde</em> (volcán activo en reposo, parámetros en niveles muy bajos), <em>amarillo</em> (cambios en el comportamiento base de los parámetros; posibles emisiones esporádicas de ceniza), <em>naranja</em> (cambios importantes en los parámetros; aumenta la probabilidad de una o varias erupciones mayores) y <em>rojo</em> (volcán en erupción mayor en curso). No expresan probabilidad en plazos fijos de tiempo.</div></div>
+                <div class="con-card"><div class="term">Hawaiana</div><div class="def">Efusiva, de magma basáltico fluido. Predominan los flujos y las fuentes de lava; explosividad mínima.</div></div>
+                <div class="con-card"><div class="term">Estromboliana</div><div class="def">Explosiones rítmicas de baja energía que lanzan escoria y proyectiles; mezcla moderada de lava y ceniza.</div></div>
+                <div class="con-card"><div class="term">Vulcaniana</div><div class="def">Explosiones cortas y violentas de magma viscoso, a menudo asociadas a la destrucción de un tapón o domo en el cráter. Producen columnas de varios km, ceniza, balísticos y CDP de alcance proximal.</div></div>
+                <div class="con-card"><div class="term">Pliniana</div><div class="def">La más explosiva (VEI 4–6). Columnas sostenidas de decenas de km y dispersión extensa de ceniza; el colapso de la columna genera corrientes de densidad piroclástica.</div></div>
               </div>
             </div>
 
@@ -517,10 +523,20 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
             </div>
 
             <div class="con-group">
+              <h3>Monitoreo y estados de alerta</h3>
+              <div class="con-grid">
+                <div class="con-card"><div class="term">Sismicidad y tremor</div><div class="def">Vibraciones del terreno por fractura de roca o por movimiento de fluidos (<em>tremor</em>). Su variación suele preceder o acompañar el ascenso de magma.</div></div>
+                <div class="con-card"><div class="term">Deformación / inflación</div><div class="def">Cambios en la forma del edificio volcánico por presión del magma. Se miden con GNSS, inclinómetros e <em>InSAR</em>; son señal de recarga del sistema.</div></div>
+                <div class="con-card"><div class="term">Desgasificación y geoquímica</div><div class="def">Medición del flujo y la composición de gases (SO₂, CO₂) y de fuentes termales. Sus cambios indican aportes de magma o de gases nuevos.</div></div>
+                <div class="con-card"><div class="term">Estados de alerta</div><div class="def">Esquema del <em>SGC</em> (vigente desde 2023) con cuatro colores, sin numeración: <em>verde</em> (volcán activo en reposo, parámetros en niveles muy bajos), <em>amarillo</em> (cambios en el comportamiento base de los parámetros; posibles emisiones esporádicas de ceniza), <em>naranja</em> (cambios importantes en los parámetros; aumenta la probabilidad de una o varias erupciones mayores) y <em>rojo</em> (volcán en erupción mayor en curso). No expresan probabilidad en plazos fijos de tiempo.</div></div>
+              </div>
+            </div>
+
+            <div class="con-group">
               <h3>Simulación</h3>
               <div class="con-grid">
                 <div class="con-card"><div class="term">Isópacas</div><div class="def">Líneas que unen puntos de igual espesor de ceniza acumulada. Su forma alargada refleja la dirección dominante del viento durante la erupción.</div></div>
-                <div class="con-card"><div class="term">Naturaleza del modelo</div><div class="def">Las vistas y magnitudes son una representación <em>esquemática</em> de los principios anteriores, con fines didácticos; no reproducen valores cuantitativos validados.</div></div>
+                <div class="con-card"><div class="term">Naturaleza del modelo</div><div class="def">Las vistas y magnitudes son una representación <em>esquemática</em> de los principios anteriores, con fines didácticos; no reproducen valores cuantitativos validados. La separación direccional de algunos flujos (p. ej. CDP y lahares en sectores distintos) es una elección de visualización, no un comportamiento natural.</div></div>
               </div>
             </div>
           </div>
@@ -610,6 +626,7 @@ const S={
   inflation:0,              // 0..1 deformación
   auto:false,               // si rising pasa solo a climax
   pulse:0,                  // disparo de colapso (CDP)
+  paused:false,             // simulación en pausa
 };
 
 /* ---------- estilos eruptivos ---------- */
@@ -734,7 +751,7 @@ const Profile=(function(){
     cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
     cx=W*0.5; groundY=H*0.70; summitY=H*0.40; topMargin=H*0.035;
     coneHalf=Math.min(W*0.34,260); craterHalf=coneHalf*0.10; craterDepth=H*0.028;
-    chamberY=H*0.92; pxPerKm=(summitY-topMargin);
+    chamberY=H*0.84; pxPerKm=(summitY-topMargin);
   }
   function terrainY(x){
     const dx=Math.abs(x-cx);
@@ -752,6 +769,7 @@ const Profile=(function(){
 
   /* ---- emisión ---- */
   function spawn(){
+    if(S.paused)return;
     const r=productRates(); const dt=1/60;
     const craterY=summitY+craterDepth*0.4;
     const emit=(key,rate,fn)=>{acc[key]+=rate*dt;while(acc[key]>=1){acc[key]-=1;if(P.length<MAX)fn();}};
@@ -873,7 +891,8 @@ const Profile=(function(){
     // halo de la cámara
     const ch=ctx.createRadialGradient(cx,chamberY,4,cx,chamberY,coneHalf*1.05);
     ch.addColorStop(0,thermCss(0.8+0.2*tphase,0.95));ch.addColorStop(0.45,thermCss(0.45,0.6));ch.addColorStop(1,'rgba(120,20,10,0)');
-    ctx.fillStyle=ch;ctx.beginPath();ctx.ellipse(cx,chamberY,coneHalf*0.95,H*0.12,0,0,TAU);ctx.fill();
+    ctx.fillStyle=ch;ctx.beginPath();ctx.ellipse(cx,chamberY,coneHalf*0.95,H*0.10,0,0,TAU);ctx.fill();
+    ctx.strokeStyle='rgba(120,30,16,.55)';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(cx,chamberY,coneHalf*0.95,H*0.10,0,0,TAU);ctx.stroke();
     // conducto
     const condW=craterHalf*1.5;
     const fillTop=lerp(chamberY-H*0.05, summitY+craterDepth, clamp(S.magmaLevel,0,1));
@@ -969,10 +988,19 @@ const Profile=(function(){
   function drawLabels(){
     ctx.save();
     if(S.phase==='rising'||S.phase==='repose'){
-      label(cx,chamberY,cx-coneHalf*0.7,chamberY+H*0.02,'Cámara magmática','rgba(247,183,51,.85)');
+      label(cx-coneHalf*0.45,chamberY+H*0.02,cx-coneHalf*0.74,chamberY+H*0.055,'Cámara magmática','rgba(247,183,51,.85)');
       const condMidY=(summitY+craterDepth+chamberY)/2;
-      label(cx+craterHalf*1.5,condMidY,cx+coneHalf*0.7,condMidY-H*0.05,'Conducto','rgba(236,96,33,.85)');
-      if(S.inflation>0.2) label(cx,terrainY(cx)-12,cx+coneHalf*0.5,summitY-22,'Deformación / inflación','rgba(82,214,207,.8)');
+      if(S.phase==='rising'){
+        const fillTop=lerp(chamberY-H*0.05,summitY+craterDepth,clamp(S.magmaLevel,0,1));
+        const ay=clamp((fillTop+chamberY)/2,summitY+craterDepth+12,chamberY-12);
+        label(cx+craterHalf*1.5,ay,cx+coneHalf*0.72,ay-H*0.04,'Ascenso del magma','rgba(247,183,51,.92)');
+      } else {
+        label(cx+craterHalf*1.5,condMidY,cx+coneHalf*0.72,condMidY-H*0.04,'Conducto','rgba(236,96,33,.85)');
+      }
+      const exF=cx-coneHalf*0.5, exFy=terrainY(exF);
+      label(exF,exFy,cx-coneHalf*1.05,exFy+H*0.05,'Edificio volcánico','rgba(160,170,185,.82)');
+      label(cx+craterHalf*0.5,summitY+craterDepth*0.5,cx+coneHalf*0.55,summitY-H*0.06,'Cráter','rgba(176,186,200,.88)');
+      if(S.inflation>0.2) label(cx-10,terrainY(cx-10)-12,cx-coneHalf*0.5,summitY-H*0.02,'Deformación / inflación','rgba(82,214,207,.82)');
     }
     if(S.intensity>0.2){
       const cTop=colTopY();
@@ -1026,6 +1054,7 @@ const Plan=(function(){
   function updateScale(){const R=reaches();planKm=Math.max(8,R.pdc*1.7,R.lahar*1.15,R.lava*2.4,R.ash*0.5);pxPerKm=minR/planKm;}
 
   function spawn(){
+    if(S.paused)return;
     const r=productRates(),R=reaches(),dt=1/60;const wv=windVec();
     const emit=(k,rate,fn)=>{acc[k]+=rate*dt;while(acc[k]>=1){acc[k]-=1;if(P.length<MAX)fn();}};
     // ceniza: deriva con viento + abanico
@@ -1108,6 +1137,16 @@ const Plan=(function(){
     for(const p of P){if(p.type==='ball'){ctx.fillStyle=thermCss(clamp(1-p.age,0.2,1),0.9);ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,TAU);ctx.fill();}}
   }
   function drawCrater(){
+    // proyección de la cámara magmática (subsuelo, vista cenital)
+    ctx.save();
+    const chR=minR*0.17, chRy=minR*0.13;
+    ctx.fillStyle=`rgba(236,96,33,${0.05+0.05*S.intensity})`;
+    ctx.beginPath();ctx.ellipse(cx,cy,chR,chRy,0,0,TAU);ctx.fill();
+    ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(236,96,33,.5)';ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.ellipse(cx,cy,chR,chRy,0,0,TAU);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(236,96,33,.65)';ctx.font='8px "JetBrains Mono"';ctx.textAlign='center';
+    ctx.fillText('cámara magmática (proyección)',cx,cy+chRy+12);ctx.textAlign='left';
+    ctx.restore();
     // cráter
     ctx.fillStyle='rgba(20,16,18,.9)';ctx.beginPath();ctx.arc(cx,cy,minR*0.045,0,TAU);ctx.fill();
     if(S.intensity>0.05){ctx.fillStyle=thermCss(0.9,0.6+0.3*Math.sin(S.tGlobal*6));ctx.beginPath();ctx.arc(cx,cy,minR*0.03*(0.7+S.intensity*0.6),0,TAU);ctx.fill();}
@@ -1131,7 +1170,7 @@ const Plan=(function(){
 const View3D=(function(){
   const host=$('three');
   let ok = (typeof THREE!=='undefined');
-  let renderer,scene,cam,terrainMesh,ventLight,coreMesh,plumeGeo,plumePts,flowGeo,flowPts,glow;
+  let renderer,scene,cam,terrainMesh,ventLight,coreMesh,plumeGeo,plumePts,flowGeo,flowPts,glow,chamberMesh,conduitMesh;
   let W=1,H=1;
   // órbita manual
   let theta=0.9, phi=1.02, radius=205;          // esféricas
@@ -1264,12 +1303,13 @@ const View3D=(function(){
     plumeGeo.attributes.position.needsUpdate=true; plumeGeo.attributes.color.needsUpdate=true;
 
     let m=0; for(const f of flow){ if(m>=FMAX)break;
-      const x=Math.cos(f.ang)*f.r, z=Math.sin(f.ang)*f.r, y=terrYworld(x,z)+1.2;
-      flPos[m*3]=x; flPos[m*3+1]=y; flPos[m*3+2]=z;
-      let c;
+      const x=Math.cos(f.ang)*f.r, z=Math.sin(f.ang)*f.r;
+      let yoff=1.2, c;
       if(f.ty==='lava'){c=thermRGB(clamp(1-f.age/f.life*0.8,0.25,1));c=[c[0]/255,c[1]/255,c[2]/255];}
-      else if(f.ty==='pdc'){const g=lerp(0.5,0.32,f.age/f.life);c=[g,g*0.95,g*0.95];}
-      else {c=[0.42,0.32,0.22];}
+      else if(f.ty==='pdc'){const k=f.age/f.life; c=[lerp(0.66,0.34,k),lerp(0.24,0.18,k),lerp(0.20,0.18,k)]; yoff=2.5+6*(1-k);} // CDP: nube rojiza-carbón que se eleva
+      else {c=[lerp(0.52,0.42,f.age/f.life),lerp(0.38,0.31,f.age/f.life),0.20];} // lahar: pardo-lodo pegado al suelo
+      const y=terrYworld(x,z)+yoff;
+      flPos[m*3]=x; flPos[m*3+1]=y; flPos[m*3+2]=z;
       flCol[m*3]=c[0]; flCol[m*3+1]=c[1]; flCol[m*3+2]=c[2]; m++; }
     flowGeo.setDrawRange(0,m); flPos.fill(0,m*3);
     flowGeo.attributes.position.needsUpdate=true; flowGeo.attributes.color.needsUpdate=true;
@@ -1314,6 +1354,14 @@ const View3D=(function(){
       glow=new THREE.Mesh(new THREE.SphereGeometry(SIZE*CRATER_R*1.5,16,16),
         new THREE.MeshBasicMaterial({color:0xff8a3a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
       glow.position.copy(coreMesh.position); scene.add(glow);
+      // CÁMARA MAGMÁTICA subsuperficial (vista tipo rayos X) + conducto
+      const chamberMat=new THREE.MeshBasicMaterial({color:0xd23a1a,transparent:true,opacity:0.4,depthTest:false,depthWrite:false});
+      chamberMesh=new THREE.Mesh(new THREE.SphereGeometry(SIZE*0.22,20,16),chamberMat);
+      chamberMesh.scale.set(1,0.5,1); chamberMesh.position.set(0,-9,0); chamberMesh.renderOrder=3; scene.add(chamberMesh);
+      const condTop=SUMMIT-CRATER_D+3, condBot=-9, condLen=condTop-condBot;
+      conduitMesh=new THREE.Mesh(new THREE.CylinderGeometry(SIZE*0.022,SIZE*0.03,condLen,12),
+        new THREE.MeshBasicMaterial({color:0xe0561e,transparent:true,opacity:0.4,depthTest:false,depthWrite:false}));
+      conduitMesh.position.set(0,(condTop+condBot)/2,0); conduitMesh.renderOrder=3; scene.add(conduitMesh);
       initParticles();
       // interacción
       const el=renderer.domElement;
@@ -1335,6 +1383,11 @@ const View3D=(function(){
     coreMesh.scale.setScalar(0.7+I*0.7+0.12*Math.sin(S.tGlobal*5));
     glow.material.opacity = clamp(I*0.5,0,0.55);
     glow.scale.setScalar(1+I*1.3+0.2*Math.sin(S.tGlobal*4));
+    if(chamberMesh){
+      const cap=clamp(S.magmaLevel*0.45+I*0.7,0,1);
+      chamberMesh.material.opacity=clamp(0.30+0.30*cap+0.05*Math.sin(S.tGlobal*3),0.22,0.66);
+      conduitMesh.material.opacity=clamp(0.26+0.40*clamp(S.magmaLevel,0,1),0.24,0.66);
+    }
     renderer.render(scene,cam);
   }
   function reset(){ plume.length=0; flow.length=0; }
@@ -1444,6 +1497,12 @@ function bindDial(){
 
 /* ---- enlaces de UI ---- */
 function resizeAll(){Profile.resize();Plan.resize();View3D.resize();}
+function setPaused(v){
+  S.paused=v;
+  const b=$('btnPause');
+  b.classList.toggle('on',v);
+  b.innerHTML = v ? '<span class="ix">▶</span> Reanudar simulación' : '<span class="ix">❚❚</span> Pausar simulación';
+}
 function bindUI(){
   $('scenario').addEventListener('change',e=>applyScenario(e.target.value));
   [...$('styleSeg').children].forEach(b=>b.addEventListener('click',()=>applyStyle(b.dataset.style)));
@@ -1455,8 +1514,10 @@ function bindUI(){
   bindDial();
   $('btnRise').addEventListener('click',()=>{S.auto=true; if(S.phase==='repose'||S.phase==='waning')setPhase('rising');});
   $('btnErupt').addEventListener('click',()=>{ if(S.phase==='repose'||S.phase==='waning'){S.magmaLevel=0.65;} S.auto=false; setPhase('climax');});
+  $('btnPause').addEventListener('click',()=>setPaused(!S.paused));
   $('btnReset').addEventListener('click',()=>{
     S.phase='repose';S.t=0;S.tGlobal=0;S.intensity=0;S.magmaLevel=0;S.columnKm=0;S.seismic=0;S.inflation=0;S.pulse=0;S.auto=false;
+    setPaused(false);
     Profile.reset();Plan.reset();View3D.reset(); for(let i=0;i<NB;i++)seis[i]=0.04;
   });
   // tabs
@@ -1471,6 +1532,7 @@ function bindUI(){
 let _last=performance.now();
 function frame(now){
   let dt=(now-_last)/1000; _last=now; if(dt>0.05)dt=0.05; if(dt<0)dt=0;
+  if(S.paused) dt=0;
   stepSim(dt);
   const mode=$('views').dataset.mode;
   if(mode==='profile') Profile.draw(dt);
