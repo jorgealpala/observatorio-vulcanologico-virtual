@@ -20,7 +20,7 @@ El *Observatorio Vulcanológico Virtual* simula, de forma esquemática e interac
 
 Está pensado como **apoyo docente y de divulgación** en temas de vulcanología y gestión del riesgo: no es un modelo de pronóstico ni una evaluación oficial de amenaza.
 
----
+----
 
 ## Características
 
