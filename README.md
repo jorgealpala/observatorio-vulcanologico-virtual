@@ -22,14 +22,6 @@ Está pensado como **apoyo docente y de divulgación** en temas de vulcanología
 
 ---
 
-## Captura
-
-> Añade una captura de la interfaz en `docs/captura.png` y descomenta la línea siguiente:
->
-> <!-- ![Interfaz del simulador](docs/captura.png) -->
-
----
-
 ## Características
 
 ### Vistas sincronizadas
