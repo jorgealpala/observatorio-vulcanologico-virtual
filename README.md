@@ -1,6 +1,6 @@
 # 🌋 Observatorio Vulcanológico Virtual
 
-**Simulador interactivo de erupciones volcánicas** — una herramienta educativa que representa el ascenso del magma y los productos que un volcán puede generar en superficie.
+**Simulador didáctico de erupciones volcánicas** — una herramienta educativa que representa el ascenso del magma y los productos que un volcán puede generar en superficie.
 
 [![Ver simulador](https://img.shields.io/badge/▶_Abrir_simulador-en_vivo-ec6021?style=for-the-badge)](https://jorgealpala.github.io/observatorio-vulcanologico-virtual/)
 
@@ -16,7 +16,7 @@
 
 ## Descripción
 
-El *Observatorio Vulcanológico Virtual* simula, de forma esquemática e interactiva, el comportamiento de un volcán desde el reposo hasta el declive de una erupción. La interfaz reproduce el aspecto de una consola de monitoreo geofísico y permite modificar en tiempo real los parámetros del magma y de la atmósfera para observar cómo cambian los productos emitidos, su alcance y el estado de alerta.
+El *Simulador didáctico de erupciones volcánicas* simula, de forma esquemática e interactiva, el comportamiento de un volcán desde el reposo hasta el declive de una erupción. La interfaz reproduce el aspecto de una consola de monitoreo geofísico y permite modificar en tiempo real los parámetros del magma y de la atmósfera para observar cómo cambian los productos emitidos, su alcance y el estado de alerta.
 
 Está pensado como **apoyo docente y de divulgación** en temas de vulcanología y gestión del riesgo: no es un modelo de pronóstico ni una evaluación oficial de amenaza.
 
