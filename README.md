@@ -2,6 +2,8 @@
 
 **Simulador didáctico de erupciones volcánicas** — una herramienta educativa que representa el ascenso del magma y los productos que un volcán puede generar en superficie.
 
+Cuenta con la aprobación de la **Subdirección para el Conocimiento del Riesgo (SCR)** de la **Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD)**.
+
 [![Ver simulador](https://img.shields.io/badge/▶_Abrir_simulador-en_vivo-ec6021?style=for-the-badge)](https://jorgealpala.github.io/observatorio-vulcanologico-virtual/)
 
 [![HTML5](https://img.shields.io/badge/HTML5-single_file-e34f26?logo=html5&logoColor=white)](#tecnologías)
@@ -16,23 +18,33 @@
 
 ## Descripción
 
-El *Simulador didáctico de erupciones volcánicas* simula, de forma esquemática e interactiva, el comportamiento de un volcán desde el reposo hasta el declive de una erupción. La interfaz reproduce el aspecto de una consola de monitoreo geofísico y permite modificar en tiempo real los parámetros del magma y de la atmósfera para observar cómo cambian los productos emitidos, su alcance y el estado de alerta.
+El *Observatorio Vulcanológico Virtual* simula, de forma esquemática e interactiva, el comportamiento de un volcán desde el reposo hasta el declive de una erupción. La interfaz reproduce el aspecto de una consola de monitoreo geofísico y permite modificar en tiempo real los parámetros del magma y de la atmósfera para observar cómo cambian los productos emitidos, su alcance y el estado de alerta.
+
+El volcán se asienta en un **paisaje sintético** —relieve, ríos, vías, cultivos y poblaciones— compartido por todas las vistas, de modo que el perfil, el mapa y el modelo 3D muestran siempre el mismo terreno y los mismos flujos.
 
 Está pensado como **apoyo docente y de divulgación** en temas de vulcanología y gestión del riesgo: no es un modelo de pronóstico ni una evaluación oficial de amenaza.
 
-----
+---
+
+## Captura
+
+> Añade una captura de la interfaz en `docs/captura.png` y descomenta la línea siguiente:
+>
+> <!-- ![Interfaz del simulador](docs/captura.png) -->
+
+---
 
 ## Características
 
 ### Vistas sincronizadas
 
-Todas las vistas comparten un mismo motor de simulación, de modo que responden simultáneamente a los mismos parámetros.
+Todas las vistas comparten un mismo motor de simulación y un mismo terreno, de modo que responden simultáneamente a los mismos parámetros y coinciden entre sí.
 
 | Vista | Contenido |
 |---|---|
-| **Perfil** | Corte vertical del edificio volcánico: cámara magmática, conducto, cráter, columna eruptiva y productos en superficie. |
-| **Planta** | Vista cenital con dispersión de ceniza (isópacas), alcances en kilómetros, drenajes y proyección de la cámara magmática. |
-| **3D** | Edificio volcánico procedural con órbita manual (arrastrar para rotar, rueda para acercar), pluma de partículas y flujos sobre la ladera. |
+| **Perfil** | Sección geológica A–A′ (oeste–este) del terreno: basamento, capas de lava y piroclastos del edificio, conducto y cámara magmática; en superficie, vegetación, poblaciones, columna eruptiva y flujos. |
+| **Planta** | Mapa del terreno con relieve sombreado, coberturas, ríos, vías, puentes y poblaciones; isópacas del depósito de caída, zona de balísticos y flujos encauzados por los valles. Admite acercar (rueda), mover (arrastre) y volver al encuadre automático. |
+| **3D** | Terreno texturizado con poblaciones, columna eruptiva volumétrica y flujos sobre el relieve. Órbita manual, encuadres predefinidos (general, cráter, población) y **corte geológico** por la línea A–A′. |
 | **Completa** | Las tres vistas anteriores de forma simultánea. |
 | **Conceptos** | Glosario técnico de apoyo (ver más abajo). |
 
@@ -43,6 +55,7 @@ Todas las vistas comparten un mismo motor de simulación, de modo que responden 
 - **Parámetros del magma:** índice de explosividad (VEI 0–6), viscosidad/composición (basáltico → riolítico) y contenido de volátiles (0–100 %).
 - **Condiciones del terreno y la atmósfera:** casquete glaciar (habilita lahares), dirección del viento mediante dial y velocidad (0–140 km/h).
 - **Control de la erupción:** iniciar ascenso de magma, desencadenar erupción, **pausar/reanudar** y reiniciar.
+- **Iluminación:** día (colores reales del terreno) o noche (incandescencia y luces de las poblaciones).
 
 ### Fenómenos representados
 
@@ -53,9 +66,15 @@ Todas las vistas comparten un mismo motor de simulación, de modo que responden 
 - Lahares
 - Emisión de gases
 
+### Paisaje sintético y exposición
+
+El terreno se genera en el navegador a partir de funciones deterministas: un estratovolcán con cráter, cárcavas y coladas antiguas sobre una cordillera, seis valles con sus ríos y una zonación altitudinal de coberturas (cultivos y pastos, bosque altoandino, páramo, superpáramo, roca y casquete glaciar opcional). Incluye una vía principal, vías secundarias, puentes, una cabecera municipal, un centro poblado, veredas y municipios vecinos.
+
+Los flujos (lava, CDP y lahares) siguen la red de drenaje de ese relieve. Las edificaciones alcanzadas por cada fenómeno se resaltan en las tres vistas y se cuentan por población.
+
 ### Panel de telemetría
 
-Altura de la columna, VEI, temperatura del magma, alcance de las CDP, sismicidad/tremor en tiempo real, productos activos en superficie y **estado de alerta** según el esquema de cuatro colores del Servicio Geológico Colombiano.
+Altura de la columna, VEI, temperatura del magma, alcance de las CDP, sismicidad/tremor en tiempo real, productos activos en superficie, **estado de alerta** según el esquema de cuatro colores del Servicio Geológico Colombiano y conteo esquemático de **edificaciones alcanzadas** por población.
 
 ### Glosario integrado
 
@@ -70,6 +89,7 @@ El comportamiento del simulador sigue principios establecidos de la vulcanologí
 - La escala de intensidad corresponde al **Índice de Explosividad Volcánica (VEI)**.
 - La distribución espacial de los peligros (balísticos proximales, CDP a distancias intermedias, lahares y ceniza a mayor distancia) reproduce el patrón documentado en el registro global de víctimas volcánicas.
 - Los **estados de alerta** siguen el esquema vigente del Servicio Geológico Colombiano (cuatro colores, sin numeración, desde 2023).
+- El concepto de **exposición (elementos expuestos)** remite a la definición de la Ley 1523 de 2012, artículo 4, modificado por la Ley 2474 de 2025.
 
 ### Referencias
 
@@ -77,6 +97,8 @@ El comportamiento del simulador sigue principios establecidos de la vulcanologí
 - Brown, S. K., Jenkins, S. F., Sparks, R. S. J., Odbert, H., & Auker, M. R. (2017). Volcanic fatalities database: analysis of volcanic threat with distance and victim classification. *Journal of Applied Volcanology, 6*, 15. <https://doi.org/10.1186/s13617-017-0067-4>
 - Auker, M. R., Sparks, R. S. J., Siebert, L., Crosweller, H. S., & Ewert, J. (2013). A statistical analysis of the global historical volcanic fatalities record. *Journal of Applied Volcanology, 2*, 2. <https://doi.org/10.1186/2191-5040-2-2>
 - Servicio Geológico Colombiano. *Estados de alerta por actividad volcánica en Colombia.* <https://www2.sgc.gov.co/Paginas/estados-de-alerta-volcanes.aspx>
+- Congreso de Colombia. *Ley 1523 de 2012*, por la cual se adopta la política nacional de gestión del riesgo de desastres. <https://www1.funcionpublica.gov.co/eva/gestornormativo/norma_pdf.php?i=47141>
+- Congreso de Colombia. *Ley 2474 de 2025*, por la cual se modifica la Ley 1523 de 2012. <https://www.funcionpublica.gov.co/eva/gestornormativo/norma_pdf.php?i=260785>
 
 ---
 
@@ -87,7 +109,10 @@ El comportamiento del simulador sigue principios establecidos de la vulcanologí
 >
 > - Las vistas y magnitudes son representaciones **esquemáticas**; no reproducen valores cuantitativos validados.
 > - **No constituye pronóstico ni evaluación oficial de amenaza volcánica.**
-> - La separación direccional de algunos flujos (por ejemplo, CDP y lahares en sectores distintos de la vista en planta) es una elección de visualización para facilitar la lectura, no un comportamiento natural de estos fenómenos.
+> - El relieve, los ríos, las vías y las poblaciones son **sintéticos**: no corresponden a ningún volcán ni lugar real.
+> - Los anchos de los flujos y su reparto entre valles son valores esquemáticos del modelo, no resultados de una modelación numérica.
+> - En el perfil la escala vertical está exagerada y el subsuelo es esquemático; en 3D el relieve está exagerado 1,45 veces; las edificaciones se dibujan agrandadas para que sean visibles.
+> - El conteo de edificaciones alcanzadas ilustra el concepto de exposición; **no es una evaluación de riesgo**.
 > - Para información oficial sobre volcanes en Colombia, consulte al [Servicio Geológico Colombiano](https://www2.sgc.gov.co/).
 
 ---
@@ -129,7 +154,7 @@ observatorio-vulcanologico-virtual/
 ## Tecnologías
 
 - **HTML5, CSS3 y JavaScript (ES6+)** sin frameworks ni proceso de compilación.
-- **Canvas 2D** para las vistas de perfil y planta, con motor de partículas propio.
+- **Canvas 2D** para las vistas de perfil y planta, con motor de partículas propio y terreno procedimental generado en el navegador.
 - **Three.js r128** (vía CDN) para la vista tridimensional, con degradación elegante si no está disponible.
 - Tipografías: Space Grotesk, JetBrains Mono e Inter.
 
@@ -137,18 +162,19 @@ observatorio-vulcanologico-virtual/
 
 ## Cómo citar
 
-Alpala Aguilar, J. A. (2026). *Observatorio Vulcanológico Virtual — Simulador de erupciones volcánicas* [Software]. <https://jorgealpala.github.io/observatorio-vulcanologico-virtual/>
+Alpala Aguilar, J. A. (2026). *Simulador didáctico de erupciones volcánicas — Observatorio Vulcanológico Virtual* [Software]. Subdirección para el Conocimiento del Riesgo, Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD). <https://jorgealpala.github.io/observatorio-vulcanologico-virtual/>
 
 <details>
 <summary>BibTeX</summary>
 
 ```bibtex
 @software{alpala2026observatorio,
-  author  = {Alpala Aguilar, Jorge Armando},
-  title   = {Observatorio Vulcanológico Virtual — Simulador de erupciones volcánicas},
-  year    = {2026},
-  url     = {https://jorgealpala.github.io/observatorio-vulcanologico-virtual/},
-  note    = {Recurso educativo de visualización conceptual}
+  author       = {Alpala Aguilar, Jorge Armando},
+  title        = {Simulador didáctico de erupciones volcánicas — Observatorio Vulcanológico Virtual},
+  year         = {2026},
+  organization = {Subdirección para el Conocimiento del Riesgo, UNGRD},
+  url          = {https://jorgealpala.github.io/observatorio-vulcanologico-virtual/},
+  note         = {Recurso educativo de visualización conceptual}
 }
 ```
 
@@ -159,7 +185,8 @@ Alpala Aguilar, J. A. (2026). *Observatorio Vulcanológico Virtual — Simulador
 ## Contacto
 
 **Jorge Armando Alpala Aguilar**
-📧 [jorge.alpala.1987@gmail.com](mailto:jorge.alpala.1987@gmail.com)
+Subdirección para el Conocimiento del Riesgo — UNGRD
+📧 [jorge.alpala@gestiondelriesgo.gov.co](mailto:jorge.alpala@gestiondelriesgo.gov.co)
 
 ¿Sugerencias, correcciones técnicas o ideas para nuevas funcionalidades? Puedes abrir un [issue](https://github.com/jorgealpala/observatorio-vulcanologico-virtual/issues) o escribir directamente.
 

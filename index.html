@@ -193,6 +193,8 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
 .views{position:relative;flex:1;min-height:0;padding:10px;gap:10px}
 .view{position:absolute;inset:10px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#070a0f;display:none}
 .view canvas,.view #three{width:100%;height:100%;display:block}
+#cvPlan{cursor:grab;touch-action:none}#cvPlan:active{cursor:grabbing}
+#three{cursor:grab;touch-action:none}#three:active{cursor:grabbing}
 .view-tag{position:absolute;left:9px;top:9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--text-dim);background:rgba(7,10,15,.7);border:1px solid var(--line);padding:4px 8px;border-radius:6px;text-transform:uppercase;pointer-events:none;z-index:3;backdrop-filter:blur(4px)}
 .view-hint{position:absolute;right:9px;bottom:9px;font-family:var(--mono);font-size:9px;color:var(--text-mute);background:rgba(7,10,15,.65);padding:3px 7px;border-radius:5px;pointer-events:none;z-index:3}
 .plan-note{position:absolute;left:9px;right:9px;bottom:9px;font-family:var(--mono);font-size:9px;line-height:1.45;color:var(--text-mute);background:rgba(7,10,15,.8);border:1px solid var(--line);border-left:2px solid var(--signal);padding:5px 9px;border-radius:5px;pointer-events:none;z-index:3;backdrop-filter:blur(4px)}
@@ -204,7 +206,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
 .views[data-mode=plan] .view--plan{display:block}
 .views[data-mode=three] .view--three{display:block}
 .views[data-mode=complete]{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
-.views[data-mode=complete] .view{position:static;inset:auto;display:block}
+.views[data-mode=complete] .view{position:relative;inset:auto;display:block;min-height:0;min-width:0}
 .views[data-mode=complete] .view--concepts{display:none}
 .views[data-mode=complete] .view--legend{display:flex}
 .view--legend{flex-direction:column;background:var(--rock);padding:0}
@@ -226,6 +228,29 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
 .con-card .term .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
 .con-card .def{font-size:11.5px;color:var(--text-mute);line-height:1.55}
 .con-card .def em{color:var(--text-dim);font-style:normal;font-weight:600}
+
+/* ---------- interruptor de iluminación, fichas y exposición ---------- */
+.lightsw{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--text-dim);padding:6px 11px;border:1px solid var(--line);border-radius:7px;background:var(--rock-3);display:flex;align-items:center;gap:6px}
+.lightsw:hover{border-color:var(--signal-dim);color:var(--text)}
+.lightsw.on{color:#c9d6ff;border-color:#3a4f86;background:#101a38}
+.chips{position:absolute;right:9px;top:9px;display:flex;gap:5px;z-index:4;flex-wrap:wrap;justify-content:flex-end;max-width:72%}
+.chips--left{left:9px;right:auto;top:38px;justify-content:flex-start}
+.chip{font-family:var(--mono);font-size:9.5px;color:var(--text-dim);background:rgba(7,13,29,.74);border:1px solid var(--line);border-radius:6px;padding:5px 9px;backdrop-filter:blur(4px)}
+.chip:hover{color:var(--text);border-color:var(--signal-dim)}
+.chip.on{color:var(--signal);border-color:var(--signal-dim);background:rgba(51,42,10,.88)}
+.chip:focus-visible,.lightsw:focus-visible,.tab:focus-visible,.btn:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.expo-list{display:flex;flex-direction:column;gap:7px}
+.expo{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11.5px;color:var(--text-mute)}
+.expo .nm{color:var(--text-dim)}
+.expo .nm small{display:block;font-family:var(--mono);font-size:9px;color:var(--text-mute);margin-top:1px}
+.expo .tg{font-family:var(--mono);font-size:9.5px;text-align:right;display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.expo .tg b{font-weight:500;padding:1px 5px;border-radius:4px;color:#10151f}
+.x-lahar{background:#b08a62}.x-pdc{background:#c9a59b}.x-lava{background:#f08a4a}.x-ash{background:#aab0ba}
+.expo-note{font-size:10px;color:var(--text-mute);line-height:1.45;margin-top:9px}
+/* en la vista completa los paneles son pequeños: se simplifican los rótulos superpuestos */
+.views[data-mode=complete] .plan-note,.views[data-mode=complete] .view-hint{display:none}
+.views[data-mode=complete] .chips{top:36px;left:9px;right:9px;max-width:none;justify-content:flex-start}
+@media (max-width:760px){.views[data-mode=complete] .three-legend{display:none}.chips{max-width:none;left:9px;justify-content:flex-end}.chips--left{justify-content:flex-start}}
 
 /* ---------- pie / citación ---------- */
 .cite{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:11px 18px;border-top:1px solid var(--line);background:linear-gradient(0deg,var(--rock-2),var(--rock))}
@@ -337,7 +362,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
       <div class="section">
         <div class="section__title">Escenario</div>
         <div class="field-row">
-          <div class="field-label"><span class="name">Volcán de referencia</span></div>
+          <div class="field-label"><span class="name">Escenario tipo</span></div>
           <select id="scenario">
             <option value="effusive">Volcán efusivo</option>
             <option value="strato">Estratovolcán explosivo</option>
@@ -387,8 +412,8 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
         <div class="wind-wrap">
           <div class="dial" id="windDial">
             <svg viewBox="0 0 78 78" width="78" height="78">
-              <circle cx="39" cy="39" r="36" fill="#161b27" stroke="#27303f"/>
-              <g font-family="JetBrains Mono" font-size="7" fill="#6c778a" text-anchor="middle">
+              <circle cx="39" cy="39" r="36" fill="#111b36" stroke="#25365c"/>
+              <g font-family="JetBrains Mono" font-size="7" fill="#6f7c96" text-anchor="middle">
                 <text x="39" y="12">N</text><text x="68" y="42">E</text><text x="39" y="73">S</text><text x="11" y="42">O</text>
               </g>
               <g id="windArrow" transform="rotate(90 39 39)">
@@ -440,30 +465,37 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h11v16H6a2 2 0 0 0-2 2z"/><path d="M9 7h5M9 11h5"/></svg>Conceptos
         </button>
         <span class="grow"></span>
+        <button class="lightsw" id="btnLight" aria-pressed="false" title="Cambiar entre iluminación diurna y nocturna"><span class="ix">☀</span> Día</button>
       </nav>
 
       <div class="views" id="views" data-mode="profile">
         <section class="view view--profile">
           <canvas id="cvProfile"></canvas>
-          <div class="view-tag">Perfil · sección vertical</div>
-          <div class="view-hint" id="profileHint">corte del edificio y conducto</div>
+          <div class="view-tag">Perfil · sección A–A′</div>
+          <div class="view-hint" id="profileHint">sección oeste–este · escala vertical exagerada · subsuelo esquemático</div>
         </section>
         <section class="view view--plan">
           <canvas id="cvPlan"></canvas>
           <div class="view-tag">Planta · vista cenital</div>
-          <div class="plan-note">La separación direccional de CDP y lahares (en sectores distintos) es una configuración del programa para facilitar su lectura, no un comportamiento natural de estos fenómenos.</div>
+          <div class="chips chips--left"><button class="chip" id="chipFit" title="Volver al encuadre automático">Ajustar vista</button></div>
+          <div class="plan-note">Terreno, ríos, vías y poblaciones sintéticos. Los flujos siguen la red de drenaje del relieve. Rueda: acercar · arrastrar: mover · doble clic: ajustar.</div>
         </section>
         <section class="view view--three">
           <div id="three"></div>
           <div class="view-tag">3D · edificio volcánico</div>
+          <div class="chips" id="chips3d">
+            <button class="chip on" data-cam="general">Vista general</button>
+            <button class="chip" data-cam="crater">Cráter</button>
+            <button class="chip" data-cam="town">Población</button>
+            <button class="chip" id="chipCut" aria-pressed="false" title="Corta el edificio por la línea A–A′ para ver el interior">Corte geológico</button>
+          </div>
           <div class="three-legend">
             <span><i style="background:#ec6021"></i>Lava</span>
-            <span><i style="background:#b6443a"></i>CDP</span>
-            <span><i style="background:#8a6a3a"></i>Lahar</span>
-            <span><i style="background:#9aa6b8"></i>Pluma / ceniza</span>
-            <span><i style="background:#d23a1a;opacity:.6"></i>Cámara magmática</span>
+            <span><i style="background:#b9a79b"></i>CDP</span>
+            <span><i style="background:#7a5a3c"></i>Lahar</span>
+            <span><i style="background:#8d8a88"></i>Columna / ceniza</span>
           </div>
-          <div class="view-hint">arrastra para orbitar · rueda para zoom</div>
+          <div class="view-hint">arrastra para orbitar · rueda para zoom · relieve exagerado ×1,45</div>
         </section>
         <aside class="view view--legend">
           <div class="legend-body" id="legendBodyMirror"></div>
@@ -553,7 +585,9 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
               <h3>Simulación</h3>
               <div class="con-grid">
                 <div class="con-card"><div class="term">Isópacas</div><div class="def">Líneas que unen puntos de igual espesor de ceniza acumulada. Su forma alargada refleja la dirección dominante del viento durante la erupción.</div></div>
-                <div class="con-card"><div class="term">Naturaleza del modelo</div><div class="def">Las vistas y magnitudes son una representación <em>esquemática</em> de los principios anteriores, con fines didácticos; no reproducen valores cuantitativos validados. La separación direccional de algunos flujos (p. ej. CDP y lahares en sectores distintos) es una elección de visualización, no un comportamiento natural.</div></div>
+                <div class="con-card"><div class="term">Naturaleza del modelo</div><div class="def">Las vistas y magnitudes son una representación <em>esquemática</em> de los principios anteriores, con fines didácticos; no reproducen valores cuantitativos validados. El relieve, los ríos, las vías y las poblaciones son <em>sintéticos</em>: no corresponden a ningún volcán ni lugar real. Los flujos siguen la red de drenaje de ese relieve. En la vista 3D el relieve está exagerado 1,45 veces y, en todas las vistas, las edificaciones se dibujan agrandadas para que sean visibles.</div></div>
+                <div class="con-card"><div class="term">Perfil A–A′</div><div class="def">Corte vertical del terreno a lo largo de la línea A–A′ del mapa (oeste–este, por el cráter). La escala vertical está exagerada y las profundidades del subsuelo son esquemáticas.</div></div>
+                <div class="con-card"><div class="term">Exposición (elementos expuestos)</div><div class="def">Personas, animales, medios de vida, bienes e infraestructura que, por su ubicación, pueden ser afectados por un fenómeno peligroso (definición completa en la <em>Ley 1523 de 2012</em>, art. 4, modificado por la <em>Ley 2474 de 2025</em>). El simulador lo ilustra resaltando y contando las edificaciones alcanzadas por cada fenómeno; no es una evaluación de riesgo.</div></div>
               </div>
             </div>
           </div>
@@ -581,13 +615,19 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
       <div class="telem-block">
         <div class="bt">Productos en superficie</div>
         <div class="prod-list" id="prodList">
-          <div class="prod" data-p="ash"><span class="sw" style="background:var(--p-ash)"></span><span class="nm">Caída de ceniza (tefra)</span><span class="mt">—</span></div>
+          <div class="prod" data-p="ash"><span class="sw" style="background:var(--p-ash)"></span><span class="nm">Caída de ceniza</span><span class="mt">—</span></div>
           <div class="prod" data-p="ball"><span class="sw" style="background:var(--p-ball)"></span><span class="nm">Proyectiles balísticos</span><span class="mt">—</span></div>
           <div class="prod" data-p="pdc"><span class="sw" style="background:var(--p-pdc)"></span><span class="nm">Corrientes de densidad (CDP)</span><span class="mt">—</span></div>
           <div class="prod" data-p="lava"><span class="sw" style="background:var(--p-lava)"></span><span class="nm">Flujos de lava</span><span class="mt">—</span></div>
           <div class="prod" data-p="lahar"><span class="sw" style="background:var(--p-lahar)"></span><span class="nm">Lahares</span><span class="mt">—</span></div>
           <div class="prod" data-p="gas"><span class="sw" style="background:var(--p-gas)"></span><span class="nm">Emisión de gases</span><span class="mt">—</span></div>
         </div>
+      </div>
+
+      <div class="telem-block">
+        <div class="bt">Poblaciones · edificaciones alcanzadas</div>
+        <div class="expo-list" id="expoList"></div>
+        <div class="expo-note">Conteo esquemático sobre el paisaje sintético del modelo; no es una evaluación de riesgo.</div>
       </div>
 
       <div class="legend-body" id="legendBody">
@@ -644,6 +684,7 @@ const S={
   auto:false,               // si rising pasa solo a climax
   pulse:0,                  // disparo de colapso (CDP)
   paused:false,             // simulación en pausa
+  night:false,              // iluminación: día / noche
 };
 
 /* ---------- estilos eruptivos ---------- */
@@ -658,7 +699,7 @@ const STYLES={
     rates:{gas:1,ash:1,ball:.5,lava:0,pdc:.8,lahar:0,fountain:0}},
 };
 
-/* ---------- escenarios (volcanes de Colombia) ---------- */
+/* ---------- escenarios tipo (genéricos) ---------- */
 const SCENARIOS={
   effusive:{name:'Volcán efusivo',style:'hawaiian',vei:1,visc:15,gas:32,glacier:false,wind:90},
   strato:{name:'Estratovolcán explosivo',style:'vulcanian',vei:3,visc:62,gas:60,glacier:false,wind:90},
@@ -694,8 +735,570 @@ function columnMaxKm(){
 }
 function magmaTempC(){return Math.round(lerp(1160,770,S.visc/100));}
 
+/* alcances potenciales (km) de cada producto para los parámetros actuales */
+function reaches(){
+  const v=clamp(S.vei,0,6);
+  const pdc=[1,2,4,7.5,13,20,30][v]*(0.5+S.visc/120);
+  const lava=lerp(5,1.2,S.visc/100)*[0.5,0.8,1.1,1.2,1.1,1,1][v];
+  const lahar=S.glacier?[3,6,11,18,28,42,60][v]:0;
+  const ash=[3,6,12,20,32,50,75][v]*(0.7+S.windSpd/200);
+  const ball=[0.5,0.9,1.6,2.6,3.6,4.5,5][v];
+  return{pdc,lava,lahar,ash,ball};
+}
+/* viento: vector unitario (Este, Norte) hacia donde sopla */
+function windVecEN(){const r=S.windDir*Math.PI/180;return[Math.sin(r),Math.cos(r)];}
+/* ============================================================
+   MUNDO SINTÉTICO — relieve, coberturas, ríos, vías y poblaciones
+   Un único modelo (en km) compartido por perfil, planta y 3D.
+   x = Este, y = Norte, origen en el cráter. Alturas en km sobre el nivel base.
+   ============================================================ */
+const World=(function(){
+  const D2R=Math.PI/180;
+  const HR=2.25, LC=3.3, RRIM=0.52, CDEPTH=0.33, Z0=3.0;   // relieve del borde, long. característica, cráter, altitud base (km)
+  const CFLOOR=HR-CDEPTH;                                   // cota del fondo del cráter
+  const NV=6;
+  const s01=(a,b,x)=>{const t=x<=a?0:x>=b?1:(x-a)/(b-a);return t*t*(3-2*t);};
+  const wrapPI=a=>{a=(a+Math.PI)%TAU;if(a<0)a+=TAU;return a-Math.PI;};
+
+  /* ---------- ruido determinista ---------- */
+  function hash2(ix,iy){let h=(Math.imul(ix,374761393)+Math.imul(iy,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296;}
+  function vnoise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+    const a=hash2(ix,iy),b=hash2(ix+1,iy),c=hash2(ix,iy+1),d=hash2(ix+1,iy+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+  function fbm(x,y,oct){let s=0,a=0.5,f=1,n=0;for(let i=0;i<oct;i++){s+=a*vnoise(x*f+17.3*i,y*f-9.1*i);n+=a;a*=0.5;f*=2.03;}return s/n;}
+  const GX=new Float32Array(16),GY=new Float32Array(16);for(let i=0;i<16;i++){GX[i]=Math.cos((i+0.37)*TAU/16);GY[i]=Math.sin((i+0.37)*TAU/16);}
+  function ih(ix,iy){let h=(Math.imul(ix,374761393)+Math.imul(iy,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);return (h^(h>>>16))&15;}
+  function gnoise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+    const u=fx*fx*fx*(fx*(fx*6-15)+10),v=fy*fy*fy*(fy*(fy*6-15)+10);
+    let k=ih(ix,iy);const a=GX[k]*fx+GY[k]*fy;k=ih(ix+1,iy);const b=GX[k]*(fx-1)+GY[k]*fy;
+    k=ih(ix,iy+1);const c=GX[k]*fx+GY[k]*(fy-1);k=ih(ix+1,iy+1);const d=GX[k]*(fx-1)+GY[k]*(fy-1);
+    return (a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v)*1.41;}                       // ≈ −1..1
+  function fbmG(x,y,oct){let s=0,a=0.5,n=0;for(let i=0;i<oct;i++){s+=a*gnoise(x,y);n+=a;a*=0.5;const t=(x*0.8-y*0.6)*2.03+5.2;y=(x*0.6+y*0.8)*2.03-3.1;x=t;}return s/n;}
+  /* multifractal de crestas: cordilleras con filos y vaguadas */
+  function ridgedG(x,y,oct){let s=0,a=0.5,w=1,n=0;for(let i=0;i<oct;i++){let v=1-Math.abs(gnoise(x,y));v*=v*w;w=v*1.8;if(w>1)w=1;s+=a*v;n+=a;a*=0.5;const t=(x*0.8-y*0.6)*2.07+5.2;y=(x*0.6+y*0.8)*2.07-3.1;x=t;}return s/n;}
+  function ridged(x,y,oct){let s=0,a=0.5,f=1,n=0;for(let i=0;i<oct;i++){let v=1-Math.abs(2*vnoise(x*f+7.7*i,y*f+3.9*i)-1);v*=v;s+=a*v;n+=a;a*=0.5;f*=2.07;}return s/n;}
+  /* ruido periódico en u (azimut) para las cárcavas radiales del cono */
+  function vnoiseP(u,v,P){const ix=Math.floor(u),iy=Math.floor(v),fx=u-ix,fy=v-iy,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+    const i0=((ix%P)+P)%P,i1=(i0+1)%P;const a=hash2(i0,iy),b=hash2(i1,iy),c=hash2(i0,iy+1),d=hash2(i1,iy+1);return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;}
+  function gullies(az,r,oct){let u=(az/TAU+0.5)*22,v=r*0.40,P=22,s=0,a=0.55,n=0;
+    for(let i=0;i<oct;i++){const k=1-Math.abs(2*vnoiseP(u,v+11.3*i,P)-1);s+=a*k;n+=a;a*=0.5;u*=2;v*=2.2;P*=2;}return s/n;}
+  function rng(seed){return function(){seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+
+  /* ---------- red de drenaje: 6 valles radiales con meandros ---------- */
+  const VDEF=[
+    {a:20, da:34, r0:9, r1:60, o1:.34,L1:.95,p1:.4, o2:.12,L2:.40,p2:1.9, o3:1.25,L3:2.7,p3:.7, o4:.55,L4:1.25,p4:2.0, f0:11,f1:24, sc:1.00},
+    {a:82, da:11, r0:3, r1:18, o1:.10,L1:.62,p1:2.2,o2:.05,L2:.31,p2:.3,  o3:1.20,L3:2.5,p3:2.6,o4:.50,L4:1.10,p4:.6,  f0:17,f1:30, sc:1.10},
+    {a:142,da:-22,r0:9, r1:55, o1:.36,L1:.90,p1:1.3,o2:.12,L2:.37,p2:.5,  o3:1.35,L3:2.9,p3:4.1,o4:.55,L4:1.30,p4:5.0, f0:11,f1:24, sc:1.00},
+    {a:200,da:36, r0:9, r1:60, o1:.32,L1:1.0,p1:3.3,o2:.13,L2:.42,p2:2.4, o3:1.20,L3:2.6,p3:1.5,o4:.50,L4:1.20,p4:3.3, f0:11,f1:24, sc:0.90},
+    {a:264,da:4,  r0:3, r1:14, o1:.10,L1:.66,p1:.9, o2:.05,L2:.33,p2:1.7, o3:1.10,L3:2.8,p3:5.2,o4:.50,L4:1.15,p4:1.1, f0:13,f1:26, sc:1.05},
+    {a:322,da:-28,r0:9, r1:55, o1:.34,L1:.92,p1:2.0,o2:.12,L2:.39,p2:.2,  o3:1.30,L3:3.0,p3:3.0,o4:.55,L4:1.28,p4:4.2, f0:11,f1:24, sc:0.95},
+  ];
+  const RMAX=140, DS=0.05, NT=Math.round(RMAX/DS)+1;
+  const VAZ=VDEF.map(v=>{const T=new Float32Array(NT);
+    for(let k=0;k<NT;k++){const r=k*DS;
+      const off=s01(2,6,r)*(v.o1*Math.sin(r/v.L1+v.p1)+v.o2*Math.sin(r/v.L2+v.p2))+s01(v.f0,v.f1,r)*(v.o3*Math.sin(r/v.L3+v.p3)+v.o4*Math.sin(r/v.L4+v.p4));
+      T[k]=(v.a+v.da*s01(v.r0,v.r1,r))*D2R+off/Math.max(r,1.5);}
+    return T;});
+  function valleyAz(i,r){const f=r/DS,k=f|0,T=VAZ[i];return k>=NT-1?T[NT-1]:T[k]+(T[k+1]-T[k])*(f-k);}
+  function valleyPoint(i,r,off){const a=valleyAz(i,r),sx=Math.sin(a),cy=Math.cos(a);off=off||0;return[r*sx+off*cy,r*cy-off*sx];}
+  /* eje de cada valle muestreado cada 0,1 km: x, y, normal (lado horario) */
+  const VL_DS=0.1, VL_N=Math.round((RMAX-3)/VL_DS);
+  const VLINE=[];for(let i=0;i<NV;i++){const A=new Float32Array(VL_N*4);
+    for(let k=0;k<VL_N;k++){const r=Math.max(k*VL_DS,0.05),p=valleyPoint(i,r),p2=valleyPoint(i,r+0.05);let tx=p2[0]-p[0],ty=p2[1]-p[1];const l=Math.hypot(tx,ty)||1;
+      A[k*4]=p[0];A[k*4+1]=p[1];A[k*4+2]=ty/l;A[k*4+3]=-tx/l;}VLINE.push(A);}
+  const VD=r=>0.20*s01(1.3,4.2,r)*(1-0.55*s01(14,60,r));      // profundidad del valle (km)
+  const VW=r=>Math.min(0.16+0.048*r,1.25);                     // semiancho característico (km)
+  const VF=r=>0.28*VW(r)*s01(6,14,r);                          // fondo plano (llanura aluvial)
+  let _vi=0,_vd=0,_vc=0;
+  /* valle más cercano a (r,az): deja índice, distancia lateral con signo y perfil 0..1 */
+  function nearValley(r,az){let best=9,bi=0;
+    for(let i=0;i<NV;i++){const d=wrapPI(az-valleyAz(i,r));if(Math.abs(d)<Math.abs(best)){best=d;bi=i;}}
+    _vi=bi;_vd=best*r;
+    const dd=Math.max(Math.abs(_vd)-VF(r),0)/(VW(r)*VDEF[bi].sc);_vc=Math.exp(-dd*dd);}
+
+  const pol=(r,azDeg)=>[r*Math.sin(azDeg*D2R),r*Math.cos(azDeg*D2R)];
+  /* ---------- poblaciones (posición y tamaño) ---------- */
+  const towns=[
+    {id:0,n:'Cabecera municipal',x:9.6, y:0.0,  R:0.62,ang:8*D2R, big:1},
+    {id:1,n:'Centro poblado',    x:-7.0,y:0.05, R:0.36,ang:-14*D2R,big:1},
+    {id:2,n:'Vereda',x:pol(6.5,50)[0], y:pol(6.5,50)[1], R:0.17,ang:.5},
+    {id:3,n:'Vereda',x:pol(7.6,110)[0],y:pol(7.6,110)[1],R:0.17,ang:-.3},
+    {id:4,n:'Vereda',x:pol(7.6,171)[0],y:pol(7.6,171)[1],R:0.18,ang:.9},
+    {id:5,n:'Vereda',x:pol(7.4,229)[0],y:pol(7.4,229)[1],R:0.16,ang:.2},
+    {id:6,n:'Vereda',x:pol(6.3,293)[0],y:pol(6.3,293)[1],R:0.17,ang:-.7},
+    {id:7,n:'Vereda',x:pol(7.0,351)[0],y:pol(7.0,351)[1],R:0.17,ang:.4},
+    {id:8, n:'Municipio vecino',x:valleyPoint(1,24,0.75)[0], y:valleyPoint(1,24,0.75)[1], R:0.85,ang:.3,far:1,big:1},
+    {id:9, n:'Municipio vecino',x:valleyPoint(4,19,0.6)[0],  y:valleyPoint(4,19,0.6)[1],  R:0.6, ang:-.2,far:1,big:1},
+    {id:10,n:'Ciudad',          x:valleyPoint(2,33,-0.9)[0], y:valleyPoint(2,33,-0.9)[1], R:1.35,ang:.6,far:1,big:1},
+    {id:11,n:'Municipio vecino',x:valleyPoint(0,45,0.8)[0],  y:valleyPoint(0,45,0.8)[1],  R:0.8, ang:-.5,far:1,big:1},
+  ];
+
+  /* ---------- altura del terreno ---------- */
+  const NOTCH_E=84*D2R, NOTCH_W=264*D2R;
+  const PCX=5.0*Math.sin(232*D2R), PCY=5.0*Math.cos(232*D2R);   // cono adventicio
+  /* coladas de lava antiguas en las laderas: lóbulos con bordes (levées) y frente abruptos */
+  const LOBES=[{a:50,c:7,r0:0.75,r1:3.7,w:0.34,t:0.022,age:0.3},{a:113,c:-6,r0:0.8,r1:4.5,w:0.40,t:0.026,age:0.65},
+    {a:172,c:5,r0:0.7,r1:3.1,w:0.30,t:0.020,age:0.15},{a:296,c:-8,r0:0.8,r1:4.0,w:0.36,t:0.024,age:0.5},{a:350,c:6,r0:0.75,r1:2.8,w:0.28,t:0.020,age:0.8}];
+  let _lob=0,_lobAge=0;
+  function lobes(r,az){_lob=0;if(r<0.6||r>4.8)return 0;let add=0;
+    for(let i=0;i<LOBES.length;i++){const L=LOBES[i];if(r<L.r0-0.05||r>L.r1+0.05)continue;
+      const t=(r-L.r0)/(L.r1-L.r0),ac=(L.a+L.c*t*t*2)*D2R;
+      const d=Math.abs(r*wrapPI(az-ac)),w=L.w*(0.45+0.65*s01(0,0.75,t))*(0.85+0.3*vnoise(r*2.1+L.a,L.a*0.37));
+      const ends=s01(0,0.4,L.r1-r)*s01(0,0.3,r-L.r0),m=(1-s01(0.55,1.0,d/w))*ends;
+      if(m>0){add+=L.t*(m+0.22*Math.exp(-Math.pow((d/w-0.8)/0.16,2))*ends);if(m>_lob){_lob=m;_lobAge=L.age;}}}
+    return add;}
+  function height(x,y,lod){
+    const r=Math.sqrt(x*x+y*y), az=Math.atan2(x,y);
+    const dE=wrapPI(az-NOTCH_E)/0.42, dW=wrapPI(az-NOTCH_W)/0.36;
+    const rimH=HR*(1+0.03*Math.sin(2*az+1.1)+0.018*Math.sin(5*az+0.3))-0.10*Math.exp(-dE*dE)-0.055*Math.exp(-dW*dW);
+    let hc;
+    if(r<RRIM){const t=r/RRIM,b=1-t*t;hc=CFLOOR+(rimH-CFLOOR)*(1-b*b);}   // cráter: fondo plano y borde irregular
+    else hc=rimH*Math.exp(-(r-RRIM)/LC);
+    let carve=0,q=1;_vc=0;_vd=99;
+    if(r>1.0){nearValley(r,az);const k=s01(1.0,2.4,r);carve=VD(r)*VDEF[_vi].sc*_vc;_vc*=k;q=1-_vc;}
+    /* las poblaciones se asientan en terrenos suaves */
+    let tf=1;
+    for(let i=0;i<towns.length;i++){const t=towns[i];if(!t.big)continue;const dx=x-t.x,dy=y-t.y,d2=dx*dx+dy*dy,R2=t.R*t.R;if(d2<R2*20)tf*=0.15+0.85*s01(R2*0.8,R2*20,d2);}
+    let n=0;
+    /* cordillera: eje N–S que se eleva fuera del macizo + montañas de filos y vaguadas */
+    const axis=Math.exp(-x*x/900);
+    const mAmp=s01(5.5,14,r)*(0.22+0.60*axis);
+    if(mAmp>0){
+      const wx=x+2.2*gnoise(x*0.045+8.1,y*0.045-2.7),wy=y+2.2*gnoise(x*0.045-5.3,y*0.045+6.9);   // deformación del dominio
+      n+=0.46*axis*s01(8,24,r)+(ridgedG(wx*0.074+1.3,wy*0.074-4.2,lod>1?3:lod>0?4:5)-0.30)*1.5*mAmp;}
+    n+=fbmG(x*0.21+9.2,y*0.21+4.4,3)*0.085*(0.3+0.7*s01(3,9,r));
+    if(lod<1)n+=fbmG(x*1.1-2.2,y*1.1+6.6,3)*0.022*(r<RRIM?0.3:1);
+    if(r<11.5&&r>0.42&&lod<2){
+      const ag=0.105*s01(0.45,2.0,r)*(1-s01(5.5,11.5,r));
+      n+=ag*(gullies(az,r,lod<1?3:2)-0.52);
+    }
+    let h=hc+n*q*tf-carve-0.0125*Math.max(r-1.5,0)-0.0032*x*s01(4,30,r)+lobes(r,az)*q;
+    const px=x-PCX,py=y-PCY,pd=px*px+py*py;
+    if(pd<6)h+=0.24*Math.exp(-pd/0.49)-0.06*Math.exp(-pd/0.029);
+    return h;
+  }
+
+  /* ---------- coberturas del suelo ---------- */
+  /* Zonación altitudinal andina (sobre un nivel base ~3000 m s. n. m.):
+     cultivos y pastos en lo bajo y suave · bosque altoandino en laderas y cañadas ·
+     páramo · superpáramo/arenales · roca · nieve (si hay glaciar)            */
+  const CW=new Float32Array(6);   // 0 cultivos · 1 bosque · 2 páramo · 3 arenal · 4 roca · 5 nieve
+  let _n1=0;
+  function coverW(x,y,h,slope,vc,r,az){
+    const n1=fbm(x*0.9+11.3,y*0.9+7.7,3);_n1=n1;
+    const alt=h+(n1-0.5)*0.22;
+    const cone=1-s01(7,12,r);
+    const rock=Math.min(1,s01(1.18,1.5,alt)*cone+s01(0.62,0.95,slope)*s01(0.35,0.9,alt)+(r<RRIM*1.2?1:0));
+    const sand=s01(0.88,1.18,alt)*cone*(1-rock);
+    const par=s01(0.36,0.56,alt)*(1-s01(0.95,1.2,alt)*cone)*(1-rock);
+    const low=1-s01(0.36,0.58,alt);
+    const farmable=(1-s01(0.085,0.21,slope))*(1-s01(0.22,0.44,alt));
+    const patch=s01(0.60,0.70,fbm(x*0.55+31.2,y*0.55-12.4,2))*0.85;          // relictos de bosque entre cultivos
+    const rip=vc*vc*s01(2.5,5,r)*(1-s01(7,13,r))*0.9;                          // bosque de galería en las cañadas del cono
+    const farm=low*farmable*(1-patch)*(1-rip);
+    CW[0]=farm;CW[1]=Math.max(low*(1-farm/Math.max(low,1e-3)),0)*(1-rock*0.8);
+    CW[2]=par+1e-3;CW[3]=sand;CW[4]=rock;
+    const sl=1.52+0.10*Math.sin(az-0.7)+0.26*(n1-0.5)+0.20*(fbm(x*2.6+3.3,y*2.6+9.1,2)-0.5);
+    CW[5]=s01(sl-0.06,sl+0.09,h)*(r<RRIM*0.8?0.3:1);
+  }
+  const PCOL=[[150,166,104],[138,158,94],[124,148,86],[146,162,98],[108,136,76],[164,170,112],[174,174,120],[150,134,102],[136,120,94],[128,152,90],[142,160,100],[118,142,82]];
+  const CC=[0,0,0];
+  function parcel(x,y,lod){
+    if(lod>1){const t=vnoise(x*0.9+3,y*0.9+8);CC[0]=lerp(128,150,t);CC[1]=lerp(146,162,t);CC[2]=lerp(88,100,t);return;}
+    const wx=x+0.6*(vnoise(x*0.23+5,y*0.23+2)-0.5),wy=y+0.6*(vnoise(x*0.23-7,y*0.23+13)-0.5);
+    const rot=vnoise(x*0.09+40,y*0.09-3)<0.5?0.36:-0.62,cr=Math.cos(rot),sr=Math.sin(rot);
+    let u=(wx*cr+wy*sr)/0.30,v=(-wx*sr+wy*cr)/0.21;
+    let iu=Math.floor(u),iv=Math.floor(v),fu=u-iu,fv=v-iv;
+    if(hash2(iu*3+1,iv*5+2)<0.4){if(fu>0.5){iu=iu*2+1;fu=(fu-0.5)*2;}else{iu=iu*2;fu*=2;}iv+=977;}
+    const id=hash2(iu*7+3,iv*13+5),c=PCOL[(id*PCOL.length)|0];
+    let k=0.93+0.14*hash2(iu+101,iv-55);
+    const mixm=lod>0?0.55:0.22;
+    if(lod<1){if(fu<0.06||fv<0.08)k*=0.80;else if(id>0.6&&(((fv*6)|0)&1))k*=0.965;}
+    CC[0]=lerp(c[0],140,mixm)*k;CC[1]=lerp(c[1],156,mixm)*k;CC[2]=lerp(c[2],96,mixm)*k;
+  }
+  function pixColor(x,y,h,slope,vc,r,az,lod,out,lob,lobAge){
+    coverW(x,y,h,slope,vc,r,az);
+    const n1=_n1,n2=vnoise(x*5.1+1.7,y*5.1+9.1);
+    let R=0,G=0,B=0,ws=0,w;
+    w=CW[2];R+=w*(lerp(92,128,n1)+(n2-.5)*14);G+=w*(lerp(98,118,n1)+(n2-.5)*12);B+=w*(lerp(58,74,n1)+(n2-.5)*8);ws+=w;
+    w=CW[3];if(w>0){R+=w*lerp(120,146,n2);G+=w*lerp(111,134,n2);B+=w*lerp(100,118,n2);ws+=w;}
+    w=CW[4];if(w>0){let r0=lerp(80,110,n2),g0=lerp(75,102,n2),b0=lerp(72,96,n2);
+      if(r<1.7){const k=s01(0.45,0.7,fbm(x*2.2+40,y*2.2-8,2))*(1-s01(0.9,1.7,r))*0.6;r0=lerp(r0,126,k);g0=lerp(g0,82,k);b0=lerp(b0,66,k);
+        const su=s01(0.80,0.92,vnoise(x*9.3+3,y*9.3+11))*(1-s01(0.30,0.62,r))*0.8;r0=lerp(r0,208,su);g0=lerp(g0,200,su);b0=lerp(b0,140,su);}
+      R+=w*r0;G+=w*g0;B+=w*b0;ws+=w;}
+    w=CW[1];if(w>0){const t=n2*0.7+n1*0.3;R+=w*lerp(42,66,t);G+=w*lerp(62,88,t);B+=w*lerp(40,54,t);ws+=w;}
+    w=CW[0];if(w>0.01){parcel(x,y,lod);R+=w*CC[0];G+=w*CC[1];B+=w*CC[2];ws+=w;}
+    R/=ws;G/=ws;B/=ws;
+    if(lob>0.02){const k=s01(0.12,0.7,lob)*(0.6-0.4*lobAge),g=lerp(56,80,vnoise(x*14+5,y*14+3));
+      R=lerp(R,g+6,k);G=lerp(G,g,k);B=lerp(B,g-3,k);}
+    const warm=s01(0.15,1.1,-h)*(CW[0]+0.5*CW[1])/ws, t3=vnoise(x*0.06+70,y*0.06-20)-0.5;      // tierras bajas más cálidas y secas
+    out[0]=R*(1+0.10*warm+0.06*t3);out[1]=G*(1+0.02*warm+0.03*t3);out[2]=B*(1-0.10*warm-0.04*t3);
+  }
+
+  /* ---------- sección A–A′ (y = 0, Oeste→Este) ---------- */
+  const SEC_X0=-26, SEC_DX=0.02, SEC_N=Math.round(52/SEC_DX)+1;
+  const secH=new Float32Array(SEC_N), secC=new Uint8Array(SEC_N), secSnow=new Float32Array(SEC_N);
+  (function(){for(let k=0;k<SEC_N;k++){secH[k]=height(SEC_X0+k*SEC_DX,0,0);}
+    for(let k=0;k<SEC_N;k++){const x=SEC_X0+k*SEC_DX,r=Math.abs(x),az=x>=0?Math.PI/2:-Math.PI/2;
+      const sl=Math.abs((secH[Math.min(k+3,SEC_N-1)]-secH[Math.max(k-3,0)])/(6*SEC_DX));
+      height(x,0,0);coverW(x,0,secH[k],sl,_vc,r,az);let bi=0;for(let i=1;i<5;i++)if(CW[i]>CW[bi])bi=i;secC[k]=bi;secSnow[k]=CW[5];}})();
+  function secHAt(x){const f=(x-SEC_X0)/SEC_DX;if(f<=0)return secH[0];if(f>=SEC_N-1)return secH[SEC_N-1];const k=f|0;return secH[k]+(secH[k+1]-secH[k])*(f-k);}
+  function secCAt(x){const k=clamp(Math.round((x-SEC_X0)/SEC_DX),0,SEC_N-1);return secC[k];}
+  function secSnowAt(x){const k=clamp(Math.round((x-SEC_X0)/SEC_DX),0,SEC_N-1);return secSnow[k];}
+
+  /* ---------- ríos, vías, poblaciones ---------- */
+  function along(i,rA,rB,off,step){const out=[],n=Math.max(1,Math.round(Math.abs(rB-rA)/step));for(let k=0;k<=n;k++)out.push(valleyPoint(i,rA+(rB-rA)*k/n,off));return out;}
+  function spline(pts,step){const out=[];
+    for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(i-1,0)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(i+2,pts.length-1)];
+      const n=Math.max(2,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/step));
+      for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;
+        out.push(0.5*(2*p1[0]+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+                 0.5*(2*p1[1]+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3));}}
+    const L=pts[pts.length-1];out.push(L[0],L[1]);return Float32Array.from(out);}
+  const rivers=[];for(let i=0;i<NV;i++){const a=[];for(let r=1.7;r<=RMAX-2;r+=(r<16?0.12:r<45?0.4:1.2)){const p=valleyPoint(i,r);a.push(p[0],p[1]);}rivers.push(Float32Array.from(a));}
+
+  const T=i=>[towns[i].x,towns[i].y];
+  /* vías: 0 = principal pavimentada, 1 = secundaria */
+  const roadDefs=[
+    {k:0,p:[...along(1,58,11.2,0.6,1).map(p=>p), [10.3,-0.08],T(0),[9.2,0.35],pol(8.9,74),pol(8.5,62),pol(8.1,42),pol(7.9,22),pol(7.9,5),pol(7.8,347),pol(7.7,333),pol(7.6,312),pol(7.4,296),pol(7.2,282),[-7.25,0.5],T(1),[-7.6,-0.02],...along(4,8.2,60,0.6,1)]},
+    {k:1,p:[T(0),[9.3,-0.7],pol(8.4,103),T(3),pol(7.5,126),pol(7.4,141),pol(7.5,156),T(4),pol(7.6,186),pol(7.4,200),pol(7.4,214),T(5),pol(7.3,244),pol(7.2,258),[-7.0,-0.75],T(1)]},
+    {k:1,p:[pol(8.4,103),pol(7.2,99),pol(5.6,100),pol(4.4,97),[3.27,-0.46]]},
+    {k:1,p:[pol(8.1,48),T(2),pol(5.6,54)]},
+    {k:1,p:[pol(7.8,349),T(7),pol(6.1,356)]},
+    {k:1,p:[pol(7.4,296),T(6),pol(5.5,290)]},
+    {k:0,p:[pol(7.4,141),...along(2,8.4,62,0.7,1)]},
+    {k:0,p:[pol(7.9,22),...along(0,8.8,70,-0.7,1)]},
+  ];
+  const roads=roadDefs.map(d=>({k:d.k,pts:spline(d.p,0.12)}));
+  const stations=[{t:'sis',x:3.27,y:-0.46,n:'Estación sísmica'},{t:'gnss',x:-4.1,y:1.7,n:'Estación GNSS'},{t:'cam',x:8.7,y:2.5,n:'Cámara de vigilancia'}];
+
+  /* puentes: cruces vía–río */
+  const bridges=[];
+  (function(){for(const rd of roads){const P=rd.pts;for(let i=0;i+3<P.length;i+=2){const ax=P[i],ay=P[i+1],bx=P[i+2],by=P[i+3];
+      const ra=Math.hypot(ax,ay),rb=Math.hypot(bx,by);if(ra<1.5)continue;
+      for(let v=0;v<NV;v++){const da=wrapPI(Math.atan2(ax,ay)-valleyAz(v,ra)),db=wrapPI(Math.atan2(bx,by)-valleyAz(v,rb));
+        if(da*db<0&&Math.abs(da)<0.3&&Math.abs(db)<0.3){const t=Math.abs(da)/(Math.abs(da)+Math.abs(db));bridges.push({x:ax+(bx-ax)*t,y:ay+(by-ay)*t,ang:Math.atan2(by-ay,bx-ax),k:rd.k});}}}}})();
+
+  /* edificaciones (huella exagerada para ser legible a escala de km) */
+  const buildings=[];
+  (function(){const R=rng(20261112);
+    function add(x,y,ang,town,sz){const r=Math.hypot(x,y),az=Math.atan2(x,y);nearValley(r,az);
+      if(Math.abs(_vd)<0.085)return;                                  // no sobre el cauce
+      for(const rd of roads){const P=rd.pts;for(let i=0;i<P.length;i+=2){const dx=P[i]-x,dy=P[i+1]-y;if(dx*dx+dy*dy<0.0016)return;}}
+      const s=sz||1;buildings.push({x,y,ang,town,w:(0.050+0.022*R())*s,d:(0.040+0.016*R())*s,hh:(0.030+0.018*R())*s,roof:R()<0.55?0:R()<0.7?1:2,v:_vi,s:r,dl:_vd,z:height(x,y,0),hit:0});}
+    for(const t of towns){const g=t.far?0.2:0.115,ca=Math.cos(t.ang),sa=Math.sin(t.ang),m=Math.ceil(t.R/g);
+      for(let j=-m;j<=m;j++)for(let i=-m;i<=m;i++){
+        const lx=i*g,ly=j*g,rr=Math.hypot(lx,ly)/t.R;
+        if(rr>0.78+0.3*R())continue;
+        if(t.id===0&&i===0&&j===0)continue;                         // plaza
+        const nb=t.big?(rr<0.55?2:1):1;
+        for(let b=0;b<nb;b++){if(R()<(t.big?0.10:0.25))continue;
+          const ox=lx+(nb>1?(b?0.027:-0.027):0)+(R()-0.5)*0.012,oy=ly+(R()-0.5)*0.03;
+          add(t.x+ox*ca-oy*sa,t.y+ox*sa+oy*ca,t.ang,t.id,t.far?1.5:1);}}}
+    /* iglesia de la cabecera (frente a la plaza) */
+    const t0=towns[0];t0.church={x:t0.x-0.105*Math.sin(t0.ang),y:t0.y+0.105*Math.cos(t0.ang),ang:t0.ang};
+    /* fincas dispersas a lo largo de las vías */
+    for(const rd of roads){const P=rd.pts;let acc=0;
+      for(let i=2;i<P.length;i+=2){acc+=Math.hypot(P[i]-P[i-2],P[i+1]-P[i-1]);
+        if(acc>0.55+0.5*R()){acc=0;const x=P[i],y=P[i+1],r=Math.hypot(x,y);if(r<5.2||r>46)continue;
+          let inT=false;for(const t of towns)if(Math.hypot(x-t.x,y-t.y)<t.R+0.25){inT=true;break;}
+          if(inT||R()<0.35)continue;
+          const a=Math.atan2(P[i+1]-P[i-1],P[i]-P[i-2]),sd=(R()<.5?-1:1)*(0.09+0.10*R());
+          add(x-Math.sin(a)*sd,y+Math.cos(a)*sd,a,-1,1);}}}
+  })();
+
+  /* ---------- niveles de mapa (texturas precalculadas) ---------- */
+  const LV=[{half:14,n:1024,lod:0},{half:42,n:896,lod:1},{half:126,n:640,lod:2}];
+  const SUN_MAP=(function(){const v=[-0.5,0.5,0.72],l=Math.hypot(v[0],v[1],v[2]);return v.map(c=>c/l);})();   // NO, 45°
+  const SUN_3D=(function(){const v=[-0.62,-0.35,0.70],l=Math.hypot(v[0],v[1],v[2]);return v.map(c=>c/l);})();  // OSO
+  const tmp=[0,0,0];
+  function rowsH(L,j0,j1){const n=L.n,half=L.half,px=L.px,lod=L.lod,Hh=L.H,Vc=L.Vc,Lb=L.Lb;
+    for(let j=j0;j<j1;j++){const y=half-(j+0.5)*px;for(let i=0;i<n;i++){const x=-half+(i+0.5)*px,k=j*n+i;
+      Hh[k]=height(x,y,lod);Vc[k]=_vc*255;Lb[k]=_lob>0?(Math.round(_lob*15)|(Math.round(_lobAge*15)<<4)):0;}}}
+  function rowsC(L,ja,jb){const n=L.n,half=L.half,px=L.px,lod=L.lod,Hh=L.H,Vc=L.Vc,Lb=L.Lb,A=L.mapPix,B=L.texPix;
+    const zf=lod===0?2.0:lod===1?2.1:2.6;
+    for(let j=ja;j<jb;j++){const y=half-(j+0.5)*px,j0=j>0?j-1:j,j1=j<n-1?j+1:j;
+      for(let i=0;i<n;i++){const x=-half+(i+0.5)*px,i0=i>0?i-1:i,i1=i<n-1?i+1:i,k=j*n+i;
+        const h=Hh[k],gx=(Hh[j*n+i1]-Hh[j*n+i0])/((i1-i0)*px),gy=(Hh[j0*n+i]-Hh[j1*n+i])/((j1-j0)*px);
+        const slope=Math.sqrt(gx*gx+gy*gy),r=Math.sqrt(x*x+y*y),az=Math.atan2(x,y),lb=Lb[k];
+        pixColor(x,y,h,slope,Vc[k]/255,r,az,lod,tmp,(lb&15)/15,(lb>>4)/15);
+        let nx=-gx*zf,ny=-gy*zf,nl=1/Math.sqrt(nx*nx+ny*ny+1);
+        const im=Math.max(0,(nx*SUN_MAP[0]+ny*SUN_MAP[1]+SUN_MAP[2])*nl),sm=0.26+1.04*im;
+        nx=-gx*1.2;ny=-gy*1.2;nl=1/Math.sqrt(nx*nx+ny*ny+1);
+        const i3=Math.max(0,(nx*SUN_3D[0]+ny*SUN_3D[1]+SUN_3D[2])*nl),s3=0.66+0.48*i3;
+        const o=k*4;
+        A[o]=tmp[0]*sm;A[o+1]=tmp[1]*sm;A[o+2]=tmp[2]*(sm*0.96+0.04);A[o+3]=255;
+        B[o]=tmp[0]*s3;B[o+1]=tmp[1]*s3;B[o+2]=tmp[2]*s3;B[o+3]=255;
+        /* curvas de nivel (sólo en el mapa y donde hay pendiente) */
+        if(lod<2&&slope>0.07&&i<n-1&&j<n-1){const st=lod===0?0.1:0.25,c0=Math.floor(h/st),c1=Math.floor(Hh[k+1]/st),c2=Math.floor(Hh[k+n]/st);
+          if(c1!==c0||c2!==c0){const idx=Math.max(c0,c1,c2)%5===0?0.72:0.86;A[o]*=idx;A[o+1]*=idx;A[o+2]*=idx;}}
+      }}}
+  function allocLevel(L){const n=L.n;L.px=2*L.half/n;L.H=new Float32Array(n*n);L.Vc=new Uint8Array(n*n);L.Lb=new Uint8Array(n*n);
+    L.mapPix=new Uint8ClampedArray(n*n*4);L.texPix=new Uint8ClampedArray(n*n*4);}
+  /* desvanece los bordes de un lienzo para fundirlo con el nivel más grueso que lo rodea */
+  function feather(cv,frac){const n=cv.width,m=Math.round(n*frac),c=cv.getContext('2d');c.save();c.globalCompositeOperation='destination-out';
+    const strips=[[0,0,0,m,0,0,n,m],[0,n,0,n-m,0,n-m,n,m],[0,0,m,0,0,0,m,n],[n,0,n-m,0,n-m,0,m,n]];
+    for(const q of strips){const g=c.createLinearGradient(q[0],q[1],q[2],q[3]);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(q[4],q[5],q[6],q[7]);}
+    c.restore();return cv;}
+  function featherCopy(src,frac){const cv=document.createElement('canvas');cv.width=cv.height=src.width;cv.getContext('2d').drawImage(src,0,0);return feather(cv,frac);}
+  function finishLevel(L,i){L.map=makeCanvas(L.n,L.mapPix);L.tex=makeCanvas(L.n,L.texPix);L.mapPix=L.texPix=L.Vc=L.Lb=null;
+    paintVectors(L.map.getContext('2d'),L);paintVectors(L.tex.getContext('2d'),L);
+    if(i<2){feather(L.map,0.05);L.texF=featherCopy(L.tex,0.07);}
+    if(i>0)L.H=null;L.ready=true;}
+  function computeLevel(L){allocLevel(L);rowsH(L,0,L.n);rowsC(L,0,L.n);}   // (pruebas)
+  /* nieve/glaciar: capa aparte para poder activarla sin recalcular el terreno */
+  const SNOW={half:3.6,n:384};
+  function computeSnow(){const n=SNOW.n,half=SNOW.half,px=2*half/n;
+    const A=new Uint8ClampedArray(n*n*4),B=new Uint8ClampedArray(n*n*4),e=px*1.5;
+    for(let j=0;j<n;j++){const y=half-(j+0.5)*px;for(let i=0;i<n;i++){const x=-half+(i+0.5)*px,o=(j*n+i)*4;
+        const r=Math.sqrt(x*x+y*y);if(r>half){continue;}
+        const az=Math.atan2(x,y),h=height(x,y,0),vc=_vc;
+        const gx=(height(x+e,y,0)-height(x-e,y,0))/(2*e),gy=(height(x,y+e,0)-height(x,y-e,0))/(2*e),slope=Math.sqrt(gx*gx+gy*gy);
+        coverW(x,y,h,slope,vc,r,az);const a=CW[5]*(1-0.55*s01(0.75,1.15,slope));if(a<0.01)continue;
+        let nx=-gx*1.7,ny=-gy*1.7,nl=1/Math.sqrt(nx*nx+ny*ny+1);
+        const im=Math.max(0,(nx*SUN_MAP[0]+ny*SUN_MAP[1]+SUN_MAP[2])*nl);
+        nx=-gx*1.2;ny=-gy*1.2;nl=1/Math.sqrt(nx*nx+ny*ny+1);
+        const i3=Math.max(0,(nx*SUN_3D[0]+ny*SUN_3D[1]+SUN_3D[2])*nl);
+        const g=vnoise(x*9+2,y*9+5)*10-34*(1-s01(0.45,1.05,r))*vnoise(x*4+8,y*4+1),cre=s01(0.55,0.9,slope)*18;
+        A[o]=lerp(150,250,im)-cre+g;A[o+1]=lerp(172,252,im)-cre+g;A[o+2]=lerp(205,255,im)-cre*0.5+g;A[o+3]=a*255;
+        B[o]=lerp(196,250,i3)-cre+g;B[o+1]=lerp(208,252,i3)-cre+g;B[o+2]=lerp(226,255,i3)-cre*0.5+g;B[o+3]=a*255;}}
+    SNOW.mapPix=A;SNOW.texPix=B;SNOW.px=px;}
+
+  /* ---------- pintura vectorial sobre las texturas ---------- */
+  function strokePoly(c,P,k2p,half){c.beginPath();let pen=false;
+    for(let i=0;i<P.length;i+=2){const x=P[i],y=P[i+1];if(Math.abs(x)>half+2||Math.abs(y)>half+2){pen=false;continue;}
+      const X=(x+half)*k2p,Y=(half-y)*k2p;if(pen)c.lineTo(X,Y);else{c.moveTo(X,Y);pen=true;}}c.stroke();}
+  const ROOF=[[176,92,62],[188,192,196],[150,148,142]], ROOF_HIT=[70,62,58];
+  function paintVectors(c,L){const half=L.half,k2p=L.n/(2*half);
+    c.lineJoin='round';c.lineCap='round';
+    /* ríos: ancho creciente aguas abajo, con playas de grava en los tramos bajos */
+    for(let i=0;i<NV;i++){const P=rivers[i];let a=0;
+      while(a<P.length-2){const r0=Math.hypot(P[a],P[a+1]);let b=a+2;while(b<P.length-2&&Math.hypot(P[b],P[b+1])<r0*1.35+1.2)b+=2;
+        const seg=P.subarray(a,b+2),rm=(r0+Math.hypot(P[b],P[b+1]))/2,wk=0.016+0.0024*Math.min(rm,60);
+        if(rm>6){c.strokeStyle='rgba(182,174,156,.5)';c.lineWidth=Math.max(1.2,wk*2.6*k2p);strokePoly(c,seg,k2p,half);}
+        c.strokeStyle='rgb(88,122,140)';c.lineWidth=Math.max(0.7,wk*k2p);strokePoly(c,seg,k2p,half);a=b;}}
+    /* huella urbana */
+    for(const t of towns){if(Math.abs(t.x)>half||Math.abs(t.y)>half)continue;
+      const X=(t.x+half)*k2p,Y=(half-t.y)*k2p,Rp=t.R*k2p;
+      const g=c.createRadialGradient(X,Y,Rp*0.2,X,Y,Rp*1.08);g.addColorStop(0,'rgba(178,170,156,.85)');g.addColorStop(0.75,'rgba(170,164,148,.6)');g.addColorStop(1,'rgba(170,164,148,0)');
+      c.fillStyle=g;c.beginPath();c.arc(X,Y,Rp*1.08,0,TAU);c.fill();}
+    /* vías */
+    for(const rd of roads){
+      if(rd.k===0){c.strokeStyle='rgba(214,208,196,.9)';c.lineWidth=Math.max(1.8,0.075*k2p);strokePoly(c,rd.pts,k2p,half);
+        c.strokeStyle='rgb(74,74,78)';c.lineWidth=Math.max(0.9,0.036*k2p);strokePoly(c,rd.pts,k2p,half);}
+      else{c.strokeStyle='rgba(196,176,136,.95)';c.lineWidth=Math.max(0.9,0.034*k2p);strokePoly(c,rd.pts,k2p,half);}}
+    /* edificaciones */
+    if(L.lod<2)for(const b of buildings){if(Math.abs(b.x)>half||Math.abs(b.y)>half)continue;
+      const X=(b.x+half)*k2p,Y=(half-b.y)*k2p,w=Math.max(1.3,b.w*k2p),d=Math.max(1.1,b.d*k2p),col=ROOF[b.roof];
+      c.save();c.translate(X,Y);c.rotate(-b.ang);c.fillStyle='rgba(40,36,32,.45)';c.fillRect(-w/2+0.6,-d/2+0.6,w,d);
+      c.fillStyle=`rgb(${col[0]},${col[1]},${col[2]})`;c.fillRect(-w/2,-d/2,w,d);c.restore();}
+  }
+  function makeCanvas(n,pix){const cv=document.createElement('canvas');cv.width=cv.height=n;const c=cv.getContext('2d');
+    c.putImageData(new ImageData(pix,n,n),0,0);return cv;}
+  function ensure(i){const L=LV[i];if(L.ready)return L;allocLevel(L);rowsH(L,0,L.n);rowsC(L,0,L.n);finishLevel(L,i);return L;}
+  function ensureSnow(){if(SNOW.map)return SNOW;computeSnow();SNOW.map=makeCanvas(SNOW.n,SNOW.mapPix);SNOW.tex=makeCanvas(SNOW.n,SNOW.texPix);SNOW.mapPix=SNOW.texPix=null;SNOW.ready=true;return SNOW;}
+  /* construcción por tramos (no bloquea la interfaz): nivel 0 → nieve → 1 → 2 */
+  let progress=0;
+  function buildAll(onLevel){const queue=[0,'snow',1,2];let qi=0,row=0,pass=0;
+    function step(){const t0=performance.now();
+      while(performance.now()-t0<24){const it=queue[qi];
+        if(it===undefined){progress=1;return;}
+        if(it==='snow'){ensureSnow();onLevel&&onLevel('snow');qi++;continue;}
+        const L=LV[it];if(L.ready){qi++;continue;}
+        if(!L.H)allocLevel(L);
+        const j1=Math.min(row+6,L.n);
+        if(pass===0){rowsH(L,row,j1);row=j1;if(row>=L.n){row=0;pass=1;}}
+        else{rowsC(L,row,j1);row=j1;if(row>=L.n){finishLevel(L,it);row=0;pass=0;qi++;onLevel&&onLevel(it);}}
+        if(it===0)progress=(pass*L.n+row)/(2*L.n);
+      }
+      setTimeout(step,0);}
+    step();}
+  function setQuality(small){if(small){LV[0].n=768;LV[1].n=640;LV[2].n=448;SNOW.n=288;}}
+  /* altura interpolada del nivel de detalle (para 3D); fuera de él, evaluación directa */
+  function hAt(x,y){const L=LV[0];if(!L.H||Math.abs(x)>=L.half-L.px||Math.abs(y)>=L.half-L.px)return height(x,y,0);
+    const fx=(x+L.half)/L.px-0.5,fy=(L.half-y)/L.px-0.5,i=fx|0,j=fy|0,u=fx-i,v=fy-j,n=L.n,H=L.H,k=j*n+i;
+    return (H[k]*(1-u)+H[k+1]*u)*(1-v)+(H[k+n]*(1-u)+H[k+n+1]*u)*v;}
+  /* coordenadas de valle de un punto: índice, distancia a lo largo y lateral */
+  function valleyCoords(x,y){const r=Math.hypot(x,y);nearValley(r,Math.atan2(x,y));return{v:_vi,s:r,dl:_vd};}
+
+  return {HR,LC,RRIM,CDEPTH,CFLOOR,Z0,NV,D2R,s01,wrapPI,hash2,vnoise,fbm,rng,height,hAt,valleyAz,valleyPoint,valleyCoords,VD,VW,VF,VLINE,VL_DS,VL_N,
+    SEC_X0,SEC_DX,SEC_N,secH,secHAt,secCAt,secSnowAt,rivers,roads,towns,buildings,bridges,stations,LV,SNOW,ensure,ensureSnow,
+    ROOF,ROOF_HIT,SUN_3D,computeLevel,computeSnow,buildAll,setQuality,get progress(){return progress;},LOBES};
+})();
+/* ============================================================
+   CORTE GEOLÓGICO A–A′ — pintor compartido (perfil 2D y bloque 3D)
+   Recibe funciones de proyección X(km) e Y(km) y dibuja:
+   basamento estratificado, edificio de lavas y piroclastos,
+   conducto y cámara magmática.
+   ============================================================ */
+const Section=(function(){
+  const CH={z:-4.3,ax:3.1,az:0.95};      // cámara: profundidad del centro (km bajo el nivel base) y semiejes (km)
+  const CW0=0.10;                         // semiancho del conducto (km), exagerado para que sea legible
+  const s01=World.s01;
+  const hTop=x=>World.secHAt(x);
+  /* techo del basamento: superficie anterior al volcán */
+  const baseTop=x=>Math.min(hTop(x)-0.05,-0.09-0.0125*Math.max(Math.abs(x)-1.5,0)-0.0032*x+0.035*Math.sin(x*0.55+0.8));
+  const BANDS=[[0,'#7d6c58'],[0.42,'#6f6558'],[0.95,'#62605c'],[1.7,'#5a5c64'],[2.7,'#50535e'],[4.0,'#484a57'],[5.8,'#3f414e'],[8.2,'#373946'],[12,'#2f313d']];
+  const bandZ=(k,x)=>baseTop(x)-BANDS[k][0]-(0.05+0.045*k)*Math.sin(x/(2.6+0.7*k)+k*1.9)-0.02*k*Math.sin(x*0.9+k);
+  const LAYC=['#5f5854','#8c7964','#565150','#9a8771','#6a5a50','#847260','#4f4a49','#927f6a','#75584a','#5b5552'];
+  function chamberPath(c,X,Y,k){c.beginPath();
+    for(let i=0;i<=48;i++){const a=i/48*TAU,r=(1+0.07*Math.sin(3*a+1)+0.05*Math.sin(5*a+2.2)+0.035*Math.sin(7*a+0.4))*(k||1);
+      const x=X(CH.ax*r*Math.cos(a)),y=Y(CH.z+CH.az*r*Math.sin(a)*(Math.sin(a)>0?1.15:0.9));if(i)c.lineTo(x,y);else c.moveTo(x,y);}
+    c.closePath();}
+  const condHalf=z=>CW0*(1+0.9*s01(World.CFLOOR-0.45,World.CFLOOR,z))*(1+0.25*Math.sin(z*5.1));
+  function conduitPath(c,X,Y,z0,z1){c.beginPath();const n=40;
+    for(let i=0;i<=n;i++){const z=z0+(z1-z0)*i/n;const x=X(-condHalf(z)+0.03*Math.sin(z*2.3)),y=Y(z);if(i)c.lineTo(x,y);else c.moveTo(x,y);}
+    for(let i=n;i>=0;i--){const z=z0+(z1-z0)*i/n;c.lineTo(X(condHalf(z)+0.03*Math.sin(z*2.3)),Y(z));}
+    c.closePath();}
+  const roofZ=()=>CH.z+CH.az*1.05;
+
+  /* ---- roca (estático) ---- */
+  function paintRock(c,X,Y,x0,x1,zB){
+    const R=World.rng(77123),N=Math.max(60,Math.ceil(Math.abs(X(x1)-X(x0))/2)),xs=new Float32Array(N+1);
+    for(let i=0;i<=N;i++)xs[i]=x0+(x1-x0)*i/N;
+    const poly=(fa,fb)=>{c.beginPath();for(let i=0;i<=N;i++){const x=xs[i];if(i)c.lineTo(X(x),Y(fa(x)));else c.moveTo(X(x),Y(fa(x)));}
+      for(let i=N;i>=0;i--){const x=xs[i];c.lineTo(X(x),Y(fb(x)));}c.closePath();};
+    /* basamento en bandas plegadas suavemente */
+    for(let k=0;k<BANDS.length;k++){const top=k===0?baseTop:(x=>bandZ(k,x)),bot=k<BANDS.length-1?(x=>bandZ(k+1,x)):(()=>zB-1);
+      poly(top,x=>Math.max(bot(x),zB-1));c.fillStyle=BANDS[k][1];c.fill();}
+    /* textura: trazos de estratificación y moteado */
+    c.save();poly(baseTop,()=>zB-1);c.clip();
+    for(let k=1;k<BANDS.length;k++){c.strokeStyle='rgba(0,0,0,.22)';c.lineWidth=1;c.beginPath();for(let i=0;i<=N;i++){const x=xs[i],y=Y(bandZ(k,x));if(i)c.lineTo(X(x),y);else c.moveTo(X(x),y);}c.stroke();
+      c.strokeStyle='rgba(255,240,220,.07)';c.beginPath();for(let i=0;i<=N;i++){const x=xs[i],y=Y(bandZ(k,x))+2;if(i)c.lineTo(X(x),y);else c.moveTo(X(x),y);}c.stroke();}
+    const area=Math.abs((X(x1)-X(x0))*(Y(zB)-Y(0)));
+    for(let i=0,n=Math.min(2600,area/260);i<n;i++){const x=x0+(x1-x0)*R(),z=zB*R(),px=X(x),py=Y(z);if(z>baseTop(x))continue;
+      const l=2+5*R();c.strokeStyle=R()<0.5?'rgba(0,0,0,.16)':'rgba(255,235,210,.09)';c.lineWidth=1;c.beginPath();c.moveTo(px,py);c.lineTo(px+l,py+(R()-0.5)*1.6);c.stroke();}
+    /* fallas esquemáticas */
+    c.strokeStyle='rgba(20,18,22,.38)';c.lineWidth=1.2;
+    for(const fx of [-9.5,-5.2,6.4,11.2]){if(fx<x0||fx>x1)continue;c.beginPath();c.moveTo(X(fx),Y(baseTop(fx)));c.lineTo(X(fx+0.9*Math.sign(fx)),Y(zB));c.stroke();}
+    const g=c.createLinearGradient(0,Y(0),0,Y(zB));g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.42)');c.fillStyle=g;c.fillRect(X(x0)-2,Y(0),X(x1)-X(x0)+4,Y(zB)-Y(0)+2);
+    c.restore();
+    /* edificio: capas alternas de lava y piroclastos, paralelas a la ladera */
+    c.save();poly(hTop,baseTop);c.clip();
+    c.fillStyle='#6b5e55';c.fillRect(X(x0)-2,Y(3),X(x1)-X(x0)+4,Y(zB)-Y(3));
+    let d=0.035;
+    for(let k=0;k<26;k++){const d0=d,th=0.05+0.085*R();d+=th;const w0=0.5+R(),w1=R()*6;
+      const fa=x=>hTop(x)-d0*(1+0.25*Math.sin(x*w0+w1)),fb=x=>hTop(x)-d*(1+0.25*Math.sin(x*w0+w1+0.6));
+      poly(fa,fb);c.fillStyle=LAYC[k%LAYC.length];c.fill();
+      if(k%3===1){c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=0.8;c.stroke();}}
+    /* edificio antiguo (núcleo) */
+    c.beginPath();for(let i=0;i<=N;i++){const x=xs[i],z=Math.min(1.25*Math.exp(-x*x/3.4)-0.05,hTop(x)-0.3);if(i)c.lineTo(X(x),Y(z));else c.moveTo(X(x),Y(z));}
+    c.lineTo(X(x1),Y(zB));c.lineTo(X(x0),Y(zB));c.closePath();c.fillStyle='rgba(58,50,48,.62)';c.fill();c.strokeStyle='rgba(20,16,16,.4)';c.lineWidth=1;c.stroke();
+    for(let i=0;i<Math.min(900,area/700);i++){const x=x0+(x1-x0)*R(),z=baseTop(x)+(hTop(x)-baseTop(x))*R();c.fillStyle=R()<0.5?'rgba(0,0,0,.18)':'rgba(255,230,200,.10)';c.fillRect(X(x),Y(z),1.6,1.2);}
+    /* alteración hidrotermal bajo el cráter */
+    {const cx=X(0),cy=Y(1.75),rr=Math.abs(X(0.95)-X(0));const h=c.createRadialGradient(cx,cy,0,cx,cy,rr);h.addColorStop(0,'rgba(222,208,138,.42)');h.addColorStop(1,'rgba(222,208,138,0)');c.fillStyle=h;c.fillRect(cx-rr,cy-rr,rr*2,rr*2);}
+    /* diques */
+    c.strokeStyle='rgba(96,52,36,.85)';c.lineWidth=1.6;c.beginPath();c.moveTo(X(-0.05),Y(0.5));c.lineTo(X(-1.5),Y(1.02));c.moveTo(X(0.05),Y(1.0));c.lineTo(X(1.15),Y(1.42));c.stroke();
+    c.restore();
+    /* aureola térmica + cámara (cuerpo frío) + alimentación profunda */
+    {c.save();const cx=X(0),cy=Y(CH.z),rx=Math.abs(X(CH.ax*1.5)-X(0)),ry=Math.abs(Y(CH.z-CH.az*2.4)-Y(CH.z));c.translate(cx,cy);c.scale(1,ry/rx);
+      const h=c.createRadialGradient(0,0,rx*0.4,0,0,rx);h.addColorStop(0,'rgba(150,48,22,.55)');h.addColorStop(1,'rgba(150,48,22,0)');c.fillStyle=h;c.beginPath();c.arc(0,0,rx,0,TAU);c.fill();c.restore();}
+    c.fillStyle='#3a1510';c.beginPath();c.moveTo(X(-0.16),Y(CH.z-CH.az*0.6));c.lineTo(X(0.16),Y(CH.z-CH.az*0.6));c.lineTo(X(0.34),Y(zB));c.lineTo(X(-0.30),Y(zB));c.closePath();c.fill();
+    chamberPath(c,X,Y,1.06);c.fillStyle='#4a1a10';c.fill();
+    chamberPath(c,X,Y,1);c.fillStyle='#6a2012';c.fill();c.strokeStyle='rgba(30,10,6,.8)';c.lineWidth=1.4;c.stroke();
+    conduitPath(c,X,Y,roofZ()-0.15,World.CFLOOR);c.fillStyle='#2a1a17';c.fill();c.strokeStyle='rgba(12,8,8,.7)';c.lineWidth=1;c.stroke();
+  }
+
+  /* ---- magma (dinámico): cámara incandescente y columna en el conducto ---- */
+  function paintMagma(c,X,Y,level,act,t){
+    const pulse=0.5+0.5*Math.sin(t*2)*clamp(act,0,1),cx=X(0),cy=Y(CH.z),rx=Math.abs(X(CH.ax)-X(0));
+    c.save();chamberPath(c,X,Y,0.94);c.clip();
+    c.translate(cx,cy);c.scale(1,Math.abs(Y(CH.z-CH.az)-Y(CH.z))/rx);
+    const g=c.createRadialGradient(0,0,2,0,0,rx*1.05);g.addColorStop(0,thermCss(0.80+0.2*pulse));g.addColorStop(0.55,thermCss(0.58+0.1*pulse));g.addColorStop(1,thermCss(0.30));
+    c.fillStyle=g;c.fillRect(-rx*1.1,-rx*1.1,rx*2.2,rx*2.2);c.restore();
+    /* alimentación profunda */
+    c.fillStyle=thermCss(0.42,0.75);c.beginPath();c.moveTo(X(-0.07),Y(CH.z-CH.az*0.7));c.lineTo(X(0.07),Y(CH.z-CH.az*0.7));c.lineTo(X(0.13),Y(CH.z-CH.az*3.2));c.lineTo(X(-0.11),Y(CH.z-CH.az*3.2));c.closePath();c.fill();
+    /* magma en el conducto */
+    const z0=roofZ()-0.2,zf=lerp(roofZ()+0.25,World.CFLOOR-0.02,clamp(level,0,1));
+    c.save();conduitPath(c,X,Y,z0,zf);c.clip();
+    const mg=c.createLinearGradient(0,Y(zf),0,Y(z0));mg.addColorStop(0,thermCss(0.96));mg.addColorStop(1,thermCss(0.62));
+    c.fillStyle=mg;c.fillRect(X(-0.6),Y(zf),X(0.6)-X(-0.6),Y(z0)-Y(zf));
+    if(level>0.2){c.fillStyle=thermCss(1,0.6);for(let b=0;b<6;b++){const z=z0+(zf-z0)*((t*0.35+b*0.17)%1);c.beginPath();c.arc(X((World.hash2(b,(t*3)|0)-0.5)*0.1),Y(z),1.3+World.hash2(b+9,(t*2)|0)*1.4,0,TAU);c.fill();}}
+    c.restore();
+  }
+  return {CH,CW0,hTop,baseTop,paintRock,paintMagma,roofZ,condHalf};
+})();
+/* ============================================================
+   FLUJOS, DEPÓSITOS Y EXPOSICIÓN — estado único para las tres vistas
+   Los flujos siguen la red de drenaje del relieve (seis valles).
+   Frentes en km medidos a lo largo del cauce desde el cráter.
+   ============================================================ */
+const FLOW={
+  pdc:new Float32Array(6), lah:new Float32Array(6), lav:new Float32Array(6),          // frentes
+  pdcAct:new Float32Array(6), lahAct:new Float32Array(6), lavAct:new Float32Array(6), // actividad reciente 0..1
+  pdcSup:0, lahSup:0, lavSup:0,      // material aportado (0..1 del alcance potencial)
+  ash:0, ashDep:0, ball:0,           // frente de la pluma (km), depósito de caída (0..1), radio balístico alcanzado (km)
+  lavCool:1, vei:0, ver:0,
+  /* reparto por valle: el cauce oriental (1) y el occidental (4) son los del perfil A–A′ */
+  W:{pdc:[0.72,1.0,0.86,0.62,0.92,0.78], lah:[0.8,1.0,0.72,0.6,0.9,0.76], lav:[0,1.0,0,0,0.55,0]},
+  PDC0:0.5, LAV0:0.5, LAH0:1.5,
+};
+/* semiancho de afectación (km) a la distancia s cuando el frente va en F */
+function wPdc(s,F){return (0.22+0.03*s+0.16*Math.exp(-s/1.3))*(0.72+0.11*FLOW.vei)*Math.sqrt(clamp((F-s)/0.9,0,1));}
+function wLah(s,F){return Math.min((0.10+0.013*s)*(0.7+0.15*FLOW.vei),1.1)*Math.sqrt(clamp((F-s)/0.6,0,1))*clamp((s-FLOW.LAH0)/0.6+0.3,0.3,1);}
+function wLav(s,F){return Math.min(0.08+0.035*s,0.28)*Math.sqrt(clamp((F-s)/0.35,0,1));}
+
+/* elipse del depósito de caída para una fracción f del frente de la pluma (km) */
+const _el={cx:0,cy:0,a:0,b:0,ux:0,uy:1};
+function ashEllipse(f){const w=windVecEN(),A=FLOW.ash*f,e=clamp(S.windSpd/60,0,1);
+  _el.ux=w[0];_el.uy=w[1];_el.cx=w[0]*A*0.55*e;_el.cy=w[1]*A*0.55*e;_el.a=A*(0.45+0.17*e);_el.b=A*(0.45-0.20*e);return _el;}
+const ISO=[0.32,0.62,1.0];   // isópacas: mayor → menor espesor
+
+/* ---------- exposición de edificaciones (esquemática) ---------- */
+const EXPO={lahar:0,pdc:0,lava:0,ash:0,ver:0,total:World.buildings.length,
+  towns:World.towns.map(()=>({n:0,lahar:0,pdc:0,lava:0,ash:0}))};
+for(const b of World.buildings)if(b.town>=0)EXPO.towns[b.town].n++;
+function updateExposure(){
+  const F=FLOW,el=ashEllipse(ISO[0]),hasAsh=F.ashDep>0.25&&el.a>0.05;let ch=false;
+  for(const b of World.buildings){
+    let hit=b.hit&7;const v=b.v,s=b.s,d=Math.abs(b.dl);
+    if(F.lah[v]>F.LAH0&&s>=F.LAH0&&s<=F.lah[v]&&d<=wLah(s,F.lah[v]))hit|=1;
+    if(s<=F.pdc[v]&&d<=wPdc(s,F.pdc[v]))hit|=2;
+    if(s<=F.lav[v]&&d<=wLav(s,F.lav[v]))hit|=4;
+    if(hasAsh){const dx=b.x-el.cx,dy=b.y-el.cy,u=dx*el.ux+dy*el.uy,w=-dx*el.uy+dy*el.ux;if((u*u)/(el.a*el.a)+(w*w)/(el.b*el.b)<=1)hit|=8;}
+    if(hit!==b.hit){b.hit=hit;ch=true;}
+  }
+  if(!ch)return;
+  EXPO.lahar=EXPO.pdc=EXPO.lava=EXPO.ash=0;for(const t of EXPO.towns)t.lahar=t.pdc=t.lava=t.ash=0;
+  for(const b of World.buildings){const h=b.hit;if(!h)continue;const t=b.town>=0?EXPO.towns[b.town]:null;
+    if(h&1){EXPO.lahar++;if(t)t.lahar++;}if(h&2){EXPO.pdc++;if(t)t.pdc++;}if(h&4){EXPO.lava++;if(t)t.lava++;}if(h&8){EXPO.ash++;if(t)t.ash++;}}
+  EXPO.ver++;
+}
+function resetFlows(){const F=FLOW;
+  F.pdc.fill(0);F.lah.fill(0);F.lav.fill(0);F.pdcAct.fill(0);F.lahAct.fill(0);F.lavAct.fill(0);
+  F.pdcSup=F.lahSup=F.lavSup=0;F.ash=F.ashDep=F.ball=0;F.lavCool=1;F.vei=S.vei;F.ver++;
+  for(const b of World.buildings)b.hit=0;
+  EXPO.lahar=EXPO.pdc=EXPO.lava=EXPO.ash=0;for(const t of EXPO.towns)t.lahar=t.pdc=t.lava=t.ash=0;EXPO.ver++;
+}
+function stepFlows(dt){
+  if(dt<=0)return;
+  const R=reaches(),r=productRates(),F=FLOW;
+  if(S.phase==='climax')F.vei=Math.max(F.vei,S.vei);
+  F.pdcSup=clamp(F.pdcSup+r.pdc*(S.pulse>0?1.5:0.3)*dt/2.4,0,1);
+  F.lahSup=clamp(F.lahSup+r.lahar*dt/4.2,0,1);
+  F.lavSup=clamp(F.lavSup+r.lava*dt/6.5,0,1);
+  for(let v=0;v<6;v++){
+    let tg=R.pdc*F.W.pdc[v]*F.pdcSup;
+    if(tg>F.PDC0&&F.pdc[v]<tg){if(F.pdc[v]<F.PDC0)F.pdc[v]=F.PDC0;
+      F.pdc[v]=Math.min(tg,F.pdc[v]+(R.pdc/3.4)*dt*(0.25+0.75*(1-F.pdc[v]/tg)));F.pdcAct[v]=1;}
+    else F.pdcAct[v]=Math.max(0,F.pdcAct[v]-dt/1.8);
+    tg=F.LAH0+(R.lahar*F.W.lah[v]-F.LAH0)*F.lahSup;
+    if(F.lahSup>0.02&&R.lahar>F.LAH0&&F.lah[v]<tg){if(F.lah[v]<F.LAH0)F.lah[v]=F.LAH0;
+      F.lah[v]=Math.min(tg,F.lah[v]+(R.lahar/8.5)*dt*(0.35+0.65*(1-F.lah[v]/tg)));F.lahAct[v]=1;}
+    else F.lahAct[v]=Math.max(0,F.lahAct[v]-dt/2.5);
+    tg=R.lava*F.W.lav[v]*F.lavSup;
+    if(F.W.lav[v]>0&&tg>F.LAV0&&F.lav[v]<tg){if(F.lav[v]<F.LAV0)F.lav[v]=F.LAV0;
+      F.lav[v]=Math.min(tg,F.lav[v]+(R.lava/9)*dt*(0.3+0.7*(1-F.lav[v]/tg)));F.lavAct[v]=1;}
+    else F.lavAct[v]=Math.max(0,F.lavAct[v]-dt/3);
+  }
+  if(r.ash>0.05){F.ash=Math.min(R.ash,F.ash+R.ash/8*(0.45+S.windSpd/110)*dt);F.ashDep=clamp(F.ashDep+r.ash*dt/9,0,1);}
+  if(r.ball>0.05)F.ball=Math.max(F.ball,R.ball*clamp(S.intensity,0,1));
+  F.lavCool=r.lava>0.04?Math.max(0,F.lavCool-dt/1.5):Math.min(1,F.lavCool+dt/16);
+}
+/* frente máximo actual de cada producto (km) — telemetría */
+function maxFront(a){let m=0;for(let i=0;i<6;i++)if(a[i]>m)m=a[i];return m;}
+
 /* ---------- motor de fases ---------- */
-function setPhase(p){S.phase=p;S.t=0;}
+function setPhase(p){const prev=S.phase;S.phase=p;S.t=0;if(prev==='repose'&&(p==='rising'||p==='climax'))resetFlows();}
 function stepSim(dt){
   S.tGlobal+=dt; S.t+=dt;
   const st=STYLES[S.style];
@@ -705,6 +1308,7 @@ function stepSim(dt){
       S.magmaLevel=smooth(S.magmaLevel,0.04,1.2,dt);
       S.seismic=smooth(S.seismic,0.05+Math.abs(randn())*0.02,4,dt);
       S.inflation=smooth(S.inflation,0,1,dt);
+      S.pulse=0;
       break;
     case 'rising':{
       const dur=6.5;
@@ -722,7 +1326,7 @@ function stepSim(dt){
       S.magmaLevel=1;
       S.inflation=smooth(S.inflation,0.55,0.6,dt);   // se desinfla algo al erupcionar
       S.seismic=clamp(0.55+S.intensity*0.4+Math.abs(randn())*0.13,0,1);
-      // colapsos esporádicos -> pulso CDP (pliniana/vulcaniana)
+      // colapsos esporádicos de la columna -> pulso de CDP
       S.pulse=Math.max(0,S.pulse-dt);
       const collapseProb=(st.rates.pdc>0.6?0.9:0.25)*dt;
       if(S.intensity>0.6 && Math.random()<collapseProb) S.pulse=1;
@@ -740,9 +1344,10 @@ function stepSim(dt){
       break;}
   }
   S.columnKm=smooth(S.columnKm, S.intensity*columnMaxKm()*(STYLES[S.style].colMax<1.5?0.25:1), 2.6, dt);
+  stepFlows(dt);
 }
 
-/* nivel de alerta a partir de la fase/intensidad */
+/* estado de alerta a partir de la fase (esquema de colores del SGC, 2023) */
 function alertState(){
   if(S.phase==='climax') return['Rojo','Erupción en curso','var(--a-red)',true];
   if(S.phase==='waning') return['Naranja','Descenso de actividad','var(--a-orange)',false];
@@ -753,662 +1358,886 @@ function alertState(){
   return['Verde','Activo en reposo','var(--a-green)',false];
 }
 /* ============================================================
-   VISTA PERFIL — corte vertical + física de partículas
+   VISTA PERFIL — sección A–A′ (oeste–este) del terreno sintético:
+   corte geológico, paisaje, columna eruptiva y flujos
    ============================================================ */
 const Profile=(function(){
   const cv=$('cvProfile'); const ctx=cv.getContext('2d');
   let W=0,H=0,DPR=1;
-  let cx,groundY,summitY,coneHalf,craterHalf,craterDepth,chamberY,pxPerKm,topMargin;
-  const P=[]; const MAX=2200;
-  const acc={gas:0,ash:0,ball:0,lava:0,pdc:0,lahar:0,fountain:0};
+  let cx,groundY,summitY,topMargin,chamberY,kx,ky,kyD,craterHalf,craterY,coneHalf,zB;
+  const ZC=-0.5;                                   // por debajo de esta cota la profundidad se dibuja comprimida
+  const RIM=Math.max(World.secHAt(World.RRIM),World.secHAt(-World.RRIM));
+  const VE_=1, VW_=4;                              // valles que acompañan el perfil: oriental y occidental
+  let ty=null,skyL=null,earthL=null,dirty=true;
+  let pcv=null,pc=null;const PS=0.5;                  // capa de nubes a media resolución (el humo no pierde con ello)
+  const houses=[];
+  const P=[]; const MAX=1500;
+  const acc={gas:0,col:0,ball:0,fountain:0,pdcE:0,pdcW:0,fall:0};
+  const MONO='"JetBrains Mono",ui-monospace,monospace';
+
+  const X=x=>cx+x*kx, invX=px=>(px-cx)/kx;
+  const Y=z=>z>=ZC?groundY-z*ky:groundY-ZC*ky+(ZC-z)*kyD;
+  function terrainY(px){if(!ty)return groundY;if(px<=0)return ty[0];if(px>=W)return ty[ty.length-1];const i=px|0,f=px-i;return ty[i]+(ty[i+1]-ty[i])*f;}
+  function colTopY(){return summitY-(summitY-topMargin)*Math.pow(clamp(S.columnKm/14,0,1),0.5);}
+  const span=()=>Math.max(40,craterY-colTopY());
+  const windX=()=>windVecEN()[0]*(S.windSpd/140);    // componente del viento sobre el perfil (E = +x)
 
   function resize(){
-    const r=cv.getBoundingClientRect();DPR=Math.min(window.devicePixelRatio||1,2);
-    W=Math.max(40,r.width);H=Math.max(40,r.height);
+    const r=cv.getBoundingClientRect();if(r.width<8||r.height<8)return;          // vista oculta: se conserva la geometría
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=Math.max(40,Math.round(r.width));H=Math.max(40,Math.round(r.height));
     cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
-    cx=W*0.5; groundY=H*0.70; summitY=H*0.40; topMargin=H*0.035;
-    coneHalf=Math.min(W*0.34,260); craterHalf=coneHalf*0.10; craterDepth=H*0.028;
-    chamberY=H*0.84; pxPerKm=(summitY-topMargin);
-  }
-  function terrainY(x){
-    const dx=Math.abs(x-cx);
-    if(dx>=coneHalf) return groundY;
-    const d=dx/coneHalf;
-    let y=groundY-(groundY-summitY)*Math.pow(1-d,1.28);
-    if(dx<craterHalf){const cr=dx/craterHalf;y=lerp(summitY+craterDepth,summitY,cr*cr);}
-    return y;
-  }
-  function colTopY(){return summitY-(summitY-topMargin)*Math.pow(clamp(S.columnKm/14,0,1),0.5);}
-  const windPx=()=> Math.cos((S.windDir-90)*Math.PI/180)*0 + (S.windDir>=0? Math.cos((90-S.windDir)*Math.PI/180):0); // placeholder
-  function windX(){ // componente horizontal del viento proyectada (E=+x)
-    const a=(90-S.windDir)*Math.PI/180; return Math.cos(a)*(S.windSpd/140);
+    cx=W*0.5;groundY=H*0.66;summitY=H*0.435;topMargin=H*0.035;chamberY=H*0.86;
+    kx=Math.min(W/26.6,37.8);ky=Math.min((groundY-summitY)/RIM,kx*2.4);summitY=groundY-RIM*ky;kyD=(chamberY-(groundY-ZC*ky))/(ZC-Section.CH.z);
+    craterHalf=World.RRIM*kx;craterY=Y(World.CFLOOR);coneHalf=9*kx;
+    zB=ZC-(H+4-(groundY-ZC*ky))/kyD;
+    ty=new Float32Array(W+2);for(let i=0;i<=W+1;i++)ty[i]=Y(World.secHAt(invX(i)));
+    dirty=true;
+    pcv=document.createElement('canvas');pcv.width=Math.ceil(W*PS);pcv.height=Math.ceil(H*PS);pc=pcv.getContext('2d');
+    const hint=$('profileHint');if(hint)hint.textContent='sección oeste–este · exageración vertical ×'+(ky/kx).toFixed(1).replace('.',',')+' · subsuelo esquemático';
   }
 
-  /* ---- emisión ---- */
-  function spawn(){
-    if(S.paused)return;
-    const r=productRates(); const dt=1/60;
-    const craterY=summitY+craterDepth*0.4;
-    const emit=(key,rate,fn)=>{acc[key]+=rate*dt;while(acc[key]>=1){acc[key]-=1;if(P.length<MAX)fn();}};
-
-    emit('gas', r.gas*9, ()=>P.push(mk('gas',cx+rand(-craterHalf,craterHalf),craterY,rand(-.2,.2),-rand(.8,1.7),rand(7,16),rand(.9,1.6))));
-    emit('ash', r.ash*40, ()=>{const side=Math.random()<.5?-1:1;const p=mk('ash',cx+rand(-craterHalf*.55,craterHalf*.55),craterY,rand(-.2,.2),-rand(4.2,6.4),rand(2,5),rand(2.2,4.2));p.side=side;p.big=Math.random()<.16;P.push(p);});
-    emit('ball', r.ball*5, ()=>{const dir=Math.random()<.5?-1:1;P.push(mk('ball',cx+rand(-craterHalf,craterHalf),craterY,dir*rand(.6,2.6),-rand(4,7.5),rand(2.5,5),0));});
-    emit('fountain', r.fountain*16,()=>{P.push(mk('fountain',cx+rand(-craterHalf,craterHalf),craterY,rand(-1.1,1.1),-rand(3,6),rand(2,4),0));});
-    emit('lava', r.lava*7,()=>{const dir=Math.random()<.5?-1:1;P.push(mk('lava',cx+dir*craterHalf*.7,terrainY(cx+dir*craterHalf*.7)-2,dir*rand(.2,.6),0,rand(4,7),0,dir));});
-    // CDP: salen por pulso (colapso) o flujo continuo
-    const pdcRate=r.pdc*(4+ (S.pulse>0?22:0));
-    emit('pdc', pdcRate,()=>{const dir=Math.random()<.5?-1:1;P.push(mk('pdc',cx+dir*craterHalf,craterY+craterDepth*.3,dir*rand(2.2,3.6),rand(-.5,.6),rand(5,9),0,dir));});
-    emit('lahar', r.lahar*5,()=>{const dir=Math.random()<.5?-1:1;P.push(mk('lahar',cx+dir*coneHalf*.34,terrainY(cx+dir*coneHalf*.34),dir*rand(1.4,2.4),0,rand(4,7),0,dir));});
+  /* ---------- capas estáticas ---------- */
+  function mkLayer(){const c=document.createElement('canvas');c.width=W*DPR;c.height=H*DPR;const g=c.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);return[c,g];}
+  function buildSky(){
+    const [c,g]=mkLayer(),N=S.night,R=World.rng(4411);
+    const sky=g.createLinearGradient(0,0,0,groundY);
+    if(N){sky.addColorStop(0,'#03060e');sky.addColorStop(0.6,'#0a1630');sky.addColorStop(1,'#1c2b4c');}
+    else{sky.addColorStop(0,'#3b74b6');sky.addColorStop(0.55,'#86b3de');sky.addColorStop(1,'#dbe9f3');}
+    g.fillStyle=sky;g.fillRect(0,0,W,H);
+    if(N){for(let i=0;i<170;i++){const x=R()*W,y=R()*groundY*0.92,a=0.25+0.7*R()*(1-y/groundY);g.fillStyle=`rgba(232,238,255,${a})`;g.fillRect(x,y,R()<0.12?1.6:1,R()<0.12?1.6:1);}
+      const mx=W*0.84,my=H*0.11;const m=g.createRadialGradient(mx,my,2,mx,my,46);m.addColorStop(0,'rgba(230,236,255,.95)');m.addColorStop(0.16,'rgba(220,228,250,.9)');m.addColorStop(0.2,'rgba(160,180,230,.16)');m.addColorStop(1,'rgba(160,180,230,0)');g.fillStyle=m;g.fillRect(mx-46,my-46,92,92);}
+    /* nubes */
+    for(let i=0;i<6;i++){const x=R()*W,y=groundY*(0.52+0.34*R()),s=(10+16*R())*Math.max(0.6,W/900);
+      for(let k=0;k<7;k++){const px=x+(R()-0.5)*s*5.2,py=y+(R()-0.5)*s*0.45,rr=s*(0.6+0.7*R());const gr=g.createRadialGradient(px,py,0,px,py,rr);
+        gr.addColorStop(0,N?'rgba(60,76,112,.26)':'rgba(255,255,255,.55)');gr.addColorStop(1,N?'rgba(60,76,112,0)':'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(px-rr,py-rr,rr*2,rr*2);}}
+    /* cordilleras lejanas, con perspectiva atmosférica */
+    const ranges=N?[['#16223d',0.085,0.0031,0.012],['#111b31',0.06,0.0052,0.004],['#0c1526',0.036,0.0083,-0.004]]
+                  :[['#a9c4dd',0.085,0.0031,0.012],['#8eaec6',0.06,0.0052,0.004],['#7a9b8f',0.036,0.0083,-0.004]];
+    ranges.forEach((rg,k)=>{g.fillStyle=rg[0];g.beginPath();g.moveTo(0,H);
+      for(let x=0;x<=W;x+=3)g.lineTo(x,groundY-H*rg[3]-H*rg[1]*World.fbm(x*rg[2]*(900/Math.max(W,500))+k*7.3,k*3.1+0.5,4)*1.6);
+      g.lineTo(W,H);g.closePath();g.fill();});
+    skyL=c;
   }
-  function mk(type,x,y,vx,vy,size,life,dir){return{type,x,y,vx,vy,size,age:0,life:life||0,dir:dir||0,px:x,py:y,seed:rand(TAU)};}
+  const SKIN=['#86a157','#3f5f39','#7f7d4a','#93887a','#645d58'];
+  function crossings(P_){const out=[];for(let i=0;i+3<P_.length;i+=2){const y0=P_[i+1],y1=P_[i+3];if((y0<=0&&y1>0)||(y0>=0&&y1<0)){const t=y0/(y0-y1);out.push(P_[i]+(P_[i+2]-P_[i])*t);}}return out;}
+  function buildEarth(){
+    const [c,g]=mkLayer(),R=World.rng(90210),x0=invX(-3),x1=invX(W+3),sc=clamp(kx/30,0.55,1.15);
+    houses.length=0;houses.river=houses.station=undefined;
+    Section.paintRock(g,X,Y,x0,x1,zB);
+    const inTown=xk=>Math.abs(xk-World.towns[0].x)<World.towns[0].R*0.95||Math.abs(xk-World.towns[1].x)<World.towns[1].R*0.95;
+    /* suelo y cobertura a lo largo de la superficie */
+    g.lineJoin='round';g.lineCap='butt';
+    g.strokeStyle='#3b2f27';g.lineWidth=5;g.beginPath();for(let i=0;i<=W;i+=2){if(i)g.lineTo(i,ty[i]+2);else g.moveTo(i,ty[i]+2);}g.stroke();
+    let i0=0,c0=-1;
+    for(let i=0;i<=W+2;i+=2){const xk=invX(i),cl=i>W?-2:(inTown(xk)?9:World.secCAt(xk));
+      if(cl!==c0){if(c0>=0){g.strokeStyle=c0===9?'#b5ad9f':SKIN[c0];g.lineWidth=4;g.beginPath();for(let k=i0;k<=Math.min(i,W);k+=2){if(k===i0)g.moveTo(k,ty[k]);else g.lineTo(k,ty[k]);}g.stroke();}i0=i;c0=cl;}}
+    /* glaciar */
+    if(S.glacier){g.beginPath();let pen=false;const top=[];
+      for(let i=0;i<=W;i++){const w=World.secSnowAt(invX(i));if(w>0.3){top.push([i,ty[i]-(2.5+6.5*w)*sc,ty[i]+1]);}else if(top.length){snowPoly(g,top);top.length=0;}}
+      if(top.length)snowPoly(g,top);}
+    /* vegetación */
+    for(let i=5;i<W-4;i+=3+((R()*4)|0)){const xk=invX(i),cl=World.secCAt(xk),y=ty[i];
+      if(inTown(xk)||(S.glacier&&World.secSnowAt(xk)>0.3))continue;
+      if(cl===1){if(R()<0.86)tree(g,i,y,(6+7*R())*sc,R);}
+      else if(cl===0){if(R()<0.07)tree(g,i,y,(6+5*R())*sc,R);else{g.fillStyle=['#9bb564','#7c9a4c','#b3b46a','#8a7556'][(R()*4)|0];g.fillRect(i-1.5,y-2.2,3.4,2.2);}}
+      else if(cl===2){if(R()<0.5){g.strokeStyle=R()<0.5?'#a6a465':'#6f7340';g.lineWidth=1;g.beginPath();g.moveTo(i,y);g.lineTo(i-1.2,y-3*sc);g.moveTo(i,y);g.lineTo(i+1.3,y-2.6*sc);g.stroke();}}
+      else if(R()<0.12){g.fillStyle='#4e4845';g.beginPath();g.ellipse(i,y-1,2+R()*2,1.4+R(),0,0,TAU);g.fill();}}
+    /* río (cruce de un cauce con la sección) */
+    for(let v=0;v<World.NV;v++)for(const xc of crossings(World.rivers[v])){if(Math.abs(xc)<2)continue;const px=X(xc);if(px<8||px>W-8)continue;
+      const w=Math.max(9,0.16*kx),y=terrainY(px);g.fillStyle='#b9b2a0';g.beginPath();g.ellipse(px,y+0.5,w*0.9,2.6,0,0,TAU);g.fill();
+      g.fillStyle='#5b88a6';g.beginPath();g.ellipse(px,y+0.6,w*0.55,1.9,0,0,TAU);g.fill();houses.river=px;}
+    /* vías (cruce con la sección, fuera de los poblados) */
+    for(const rd of World.roads)for(const xc of crossings(rd.pts)){if(inTown(xc))continue;const px=X(xc);if(px<8||px>W-8)continue;
+      const y=terrainY(px);g.fillStyle=rd.k===0?'#4a4a4e':'#b9a37a';g.fillRect(px-5*sc,y-1.5,10*sc,3);}
+    /* estación de monitoreo sobre la ladera */
+    for(const st of World.stations){if(Math.abs(st.y)>0.6)continue;const px=X(st.x),y=terrainY(px),s=sc;
+      g.strokeStyle='#d7dde6';g.lineWidth=1.3;g.beginPath();g.moveTo(px,y);g.lineTo(px,y-15*s);g.stroke();
+      g.strokeStyle='#52d6cf';g.beginPath();g.moveTo(px-4*s,y-12*s);g.lineTo(px+4*s,y-12*s);g.moveTo(px-2.5*s,y-9*s);g.lineTo(px+2.5*s,y-9*s);g.stroke();
+      g.fillStyle='#dfe3e8';g.fillRect(px+3*s,y-5*s,6*s,5*s);g.fillStyle='#22324e';g.fillRect(px-10*s,y-6*s,7*s,3.4*s);houses.station=px;}
+    /* edificaciones próximas a la línea del perfil */
+    const near=World.buildings.filter(b=>Math.abs(b.y)<0.26).sort((a,b)=>Math.abs(b.y)-Math.abs(a.y));
+    for(const b of near){const px=X(b.x);if(px<4||px>W-4)continue;const f=1-0.3*Math.abs(b.y)/0.26;
+      house(g,px,terrainY(px)+1,Math.max(7,b.w*kx*1.3)*f,b,R);}
+    {const ch=World.towns[0].church,px=X(ch.x),y=terrainY(px)+1,w=Math.max(10,0.11*kx);
+      g.fillStyle='#efe8d6';g.fillRect(px-w*0.2,y-w*1.0,w*1.2,w*1.0);g.fillStyle='#a44f35';g.beginPath();g.moveTo(px-w*0.3,y-w);g.lineTo(px+w*0.4,y-w*1.42);g.lineTo(px+w*1.1,y-w);g.closePath();g.fill();
+      g.fillStyle='#f4eede';g.fillRect(px-w*0.72,y-w*1.9,w*0.52,w*1.9);g.fillStyle='#a44f35';g.beginPath();g.moveTo(px-w*0.8,y-w*1.9);g.lineTo(px-w*0.46,y-w*2.45);g.lineTo(px-w*0.12,y-w*1.9);g.closePath();g.fill();
+      g.strokeStyle='#3a3a3a';g.lineWidth=1;g.beginPath();g.moveTo(px-w*0.46,y-w*2.45);g.lineTo(px-w*0.46,y-w*2.8);g.moveTo(px-w*0.58,y-w*2.66);g.lineTo(px-w*0.34,y-w*2.66);g.stroke();
+      g.fillStyle='#4a3524';g.fillRect(px+w*0.3,y-w*0.42,w*0.22,w*0.42);g.fillStyle='#3d4a5a';g.fillRect(px-w*0.56,y-w*1.5,w*0.2,w*0.3);}
+    /* noche: se oscurece el terreno y se encienden ventanas */
+    if(S.night){g.globalCompositeOperation='source-atop';g.fillStyle='rgba(5,9,26,.76)';g.fillRect(0,0,W,H);g.globalCompositeOperation='source-over';
+      for(const h of houses){g.fillStyle='rgba(255,214,130,.95)';g.fillRect(h.x-h.w*0.22,h.y-h.w*0.36,Math.max(1.4,h.w*0.16),Math.max(1.4,h.w*0.16));}}
+    earthL=c;
+  }
+  function snowPoly(g,top){g.beginPath();g.moveTo(top[0][0],top[0][2]);for(const p of top)g.lineTo(p[0],p[1]);for(let k=top.length-1;k>=0;k--)g.lineTo(top[k][0],top[k][2]);g.closePath();
+    g.fillStyle='#f3f7fb';g.fill();g.strokeStyle='rgba(150,180,214,.9)';g.lineWidth=1;g.beginPath();for(let k=0;k<top.length;k++){if(k)g.lineTo(top[k][0],top[k][2]-0.6);else g.moveTo(top[k][0],top[k][2]-0.6);}g.stroke();}
+  function tree(g,x,y,h,R){g.strokeStyle='#3b2a1c';g.lineWidth=1.2;g.beginPath();g.moveTo(x,y+1);g.lineTo(x,y-h*0.5);g.stroke();
+    g.fillStyle=['#2f5230','#3d6338','#27472b','#355a31'][(R()*4)|0];g.beginPath();g.ellipse(x,y-h*0.66,h*0.34,h*0.42,0,0,TAU);g.fill();
+    g.fillStyle='rgba(150,190,110,.22)';g.beginPath();g.ellipse(x-h*0.1,y-h*0.78,h*0.16,h*0.18,0,0,TAU);g.fill();}
+  const ROOFC=['#b3573a','#aeb4ba','#8c8a85'];
+  function house(g,x,y,w,b,R){const hh=w*0.52,rh=w*0.36;
+    g.fillStyle='#ece5d3';g.fillRect(x-w/2,y-hh,w,hh);g.fillStyle='rgba(0,0,0,.14)';g.fillRect(x+w*0.18,y-hh,w*0.32,hh);
+    g.fillStyle=ROOFC[b.roof];g.beginPath();g.moveTo(x-w*0.6,y-hh);g.lineTo(x,y-hh-rh);g.lineTo(x+w*0.6,y-hh);g.closePath();g.fill();
+    g.fillStyle='#4a3524';g.fillRect(x-w*0.08,y-hh*0.55,w*0.16,hh*0.55);g.fillStyle='#3d4a5a';g.fillRect(x-w*0.34,y-hh*0.72,w*0.16,w*0.16);
+    houses.push({x,y,w,hh,rh,b});}
+  function layers(){if(!dirty&&skyL&&earthL)return;buildSky();buildEarth();dirty=false;}
 
-  /* ---- física ---- */
+  /* ---------- nubes de partículas: texturas con volumen ---------- */
+  const SPR={};
+  (function(){
+    function puff(base,hi,lo,seed){const n=72,c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d'),R=World.rng(seed);
+      g.fillStyle=base;g.shadowColor=base;g.shadowBlur=7;
+      for(let i=0;i<11;i++){const a=R()*TAU,d=R()*13,r=8+R()*8;g.beginPath();g.arc(36+Math.cos(a)*d,36+Math.sin(a)*d,r,0,TAU);g.fill();}
+      g.shadowBlur=0;g.shadowColor='transparent';g.globalCompositeOperation='source-atop';
+      const lg=g.createLinearGradient(14,10,58,62);lg.addColorStop(0,hi);lg.addColorStop(0.5,base);lg.addColorStop(1,lo);g.fillStyle=lg;g.fillRect(0,0,n,n);
+      for(let i=0;i<5;i++){const a=R()*TAU,d=R()*15,r=8+R()*9,gr=g.createRadialGradient(36+Math.cos(a)*d-2,36+Math.sin(a)*d-2,0,36+Math.cos(a)*d,36+Math.sin(a)*d,r);
+        gr.addColorStop(0,hi);gr.addColorStop(1,'rgba(0,0,0,0)');g.globalAlpha=0.2;g.fillStyle=gr;g.beginPath();g.arc(36+Math.cos(a)*d,36+Math.sin(a)*d,r,0,TAU);g.fill();}
+      g.globalAlpha=1;g.globalCompositeOperation='source-over';return c;}
+    SPR.day={dark:[puff('#55504d','#8a847e','#2c2928',1),puff('#5d5754','#928b85','#302d2b',2),puff('#4e4a48','#827c77','#292625',11)],mid:[puff('#7a7571','#b5aea7','#48443f',3),puff('#827c77','#bdb6ae','#4d4944',4),puff('#75706c','#aea7a0','#45413d',12)],
+      light:[puff('#a6a09a','#dcd6cf','#6c6762',5),puff('#aea8a1','#e2dcd5','#736d67',6),puff('#9e9892','#d5cfc8','#67625d',13)],pdc:[puff('#a69a8d','#d9cfc2','#6d635a',7),puff('#b0a497','#e0d6c9','#746a60',8),puff('#9d9184','#d0c6b9','#675d54',14)],steam:[puff('#e6ebf0','#ffffff','#b4bec9',9)]};
+    SPR.night={dark:[puff('#221f22','#4a3a36','#0c0b0e',1),puff('#262326','#523f39','#0e0d10',2)],mid:[puff('#2c2d36','#4a4d5c','#14151b',3),puff('#30313b','#4f5262','#16171e',4)],
+      light:[puff('#3a3d4a','#5f6578','#1c1e27',5),puff('#3e414f','#656b80','#1f212b',6)],pdc:[puff('#4a4040','#80605a','#221c1e',7),puff('#4f4444','#88665f','#251f21',8)],steam:[puff('#6a7184','#9aa3ba','#3a4050',9)]};
+  })();
+  function sprite(kind,i){const set=S.night?SPR.night:SPR.day,a=set[kind];return a[i%a.length];}
+
+  /* ---------- emisión ---------- */
+  function mk(o){o.age=0;if(P.length<MAX)P.push(o);return o;}
+  function spawn(dt){
+    const r=productRates(),sp=span(),wx=windX();
+    const emit=(key,rate,fn)=>{acc[key]+=rate*dt;while(acc[key]>=1){acc[key]-=1;fn();}};
+    /* gases y vapor */
+    emit('gas',r.gas*7,()=>mk({type:'gas',off:rand(-1,1),ztop:rand(28,70)*(0.6+S.gas/160)*(H/600),tau:rand(1.2,2),life:rand(3,5),rot:rand(TAU),k:(Math.random()*9)|0}));
+    /* columna eruptiva: empuje de gas → región convectiva → paraguas */
+    emit('col',r.ash*60,()=>mk({type:'col',off:rand(-1,1),side:Math.random()<0.5?-1:1,ztop:sp*rand(0.80,1.04),tau:rand(0.85,1.5),life:rand(6,10),
+      rot:rand(TAU),rs:rand(0.6,1),u:rand(0.35,1.25),sp,k:(Math.random()*9)|0}));
+    /* caída de ceniza desde el paraguas */
+    emit('fall',r.ash*18*clamp(S.columnKm/4,0.2,1),()=>{const cT=colTopY(),U=Math.min(sp*0.62,coneHalf*1.15);mk({type:'fall',x:cx+wx*sp*0.55+(wx>0.02?rand(-0.25,1.25):wx<-0.02?rand(-1.25,0.25):rand(-1,1))*U,y:cT+rand(8,sp*0.3),vy:rand(26,50),life:9});});
+    /* balísticos y fuentes de lava */
+    const Rb=reaches().ball*kx,g=0.9*H;
+    emit('ball',r.ball*7,()=>{const T=rand(1.0,1.9),dir=Math.random()<0.5?-1:1;mk({type:'ball',x:cx+rand(-.5,.5)*craterHalf,y:craterY-2,vx:dir*rand(0.2,1)*Rb/T,vy:-g*T/2,size:rand(1.6,3.2),life:4});});
+    emit('fountain',r.fountain*46,()=>{const h=rand(0.35,1)*H*0.13*(0.6+S.gas/120),v=Math.sqrt(2*g*h);mk({type:'fountain',x:cx+rand(-.5,.5)*craterHalf,y:craterY-1,vx:rand(-1,1)*v*0.22,vy:-v,size:rand(1.4,2.8),life:3});});
+    /* CDP: nube turbulenta que desciende pegada a la ladera hasta el frente */
+    for(const [key,v,dir] of [['pdcE',VE_,1],['pdcW',VW_,-1]]){const act=FLOW.pdcAct[v],F=FLOW.pdc[v];if(act<0.03||F<=FLOW.PDC0)continue;
+      emit(key,30*act,()=>{const s0=Math.random()<0.45?Math.max(F-Math.random()*1.2,0.5):rand(0.5,Math.max(0.6,F*0.5));
+        mk({type:'pdc',dir,v,x:cx+dir*s0*kx,y:0,spd:rand(1.6,3.2)*kx,hov:rand(2,8),r:rand(6,11)*clamp(kx/30,0.6,1.1),life:rand(2.2,4.2),rot:rand(TAU),k:(Math.random()*9)|0});});}
+  }
+
+  /* ---------- física ---------- */
   function update(dt){
-    const g=42*dt; const wx=windX();
-    const cTop=colTopY(); const craterY=summitY+craterDepth*0.4;
-    const span=Math.max(40,craterY-cTop);
-    for(let i=P.length-1;i>=0;i--){
-      const p=P[i]; p.age+=dt; p.px=p.x; p.py=p.y;
+    if(dt<=0)return;const g=0.9*H,wx=windX();
+    for(let i=P.length-1;i>=0;i--){const p=P[i];p.age+=dt;
       switch(p.type){
-        case 'gas':{
-          p.vy-=18*dt*(1-clamp(p.age/3,0,.8)); p.vy+=g*0.12;
-          p.vx=smooth(p.vx, wx*5,1.5,dt)+randn()*0.25;
-          p.x+=p.vx; p.y+=p.vy; p.size+=10*dt; 
-          if(p.y<cTop-30||p.age>5||p.y>terrainY(p.x)) P.splice(i,1);
-          break;}
-        case 'ash':{
-          const rel=clamp((craterY-p.y)/span,0,1.3);
-          if(rel<0.14){ p.vy-=160*dt*(1-rel*5); p.vx*=0.92; p.vx+=wx*3*dt; }
-          else if(rel<0.88){ p.vy-=92*dt*(1-rel)*1.15; p.vy+=g*0.38; p.vx+=(randn()*0.9*(0.3+rel)+wx*6)*dt; p.size+=6*dt; }
-          else { p.vy*=Math.pow(0.10,dt); p.vy+=g*0.22; p.vx+=(p.side*rand(2,5.5)+wx*22)*dt; p.size+=5*dt; }
-          if(p.big) p.vy+=g*0.8;
-          p.x+=p.vx; p.y+=p.vy;
-          if(p.y>terrainY(p.x)){ if(rel<0.35){P.splice(i,1);} else {p.vy=0;p.vx*=0.86;p.y=terrainY(p.x);p.settle=(p.settle||0)+dt; if(p.settle>1.2)P.splice(i,1);} }
-          else if(p.x<-60||p.x>W+60||p.age>18) P.splice(i,1);
-          break;}
-        case 'ball':{
-          p.vy+=g*1.05; p.vx+=wx*1.5*dt; p.x+=p.vx; p.y+=p.vy;
-          const ty=terrainY(p.x);
-          if(p.y>=ty){ if(Math.abs(p.vy)>2.4 && p.age<2.2){p.y=ty;p.vy*=-0.32;p.vx*=0.55;} else P.splice(i,1); }
-          else if(p.age>4) P.splice(i,1);
-          break;}
-        case 'fountain':{
-          p.vy+=g*1.0; p.vx+=wx*0.6*dt; p.x+=p.vx;p.y+=p.vy;
-          const ty=terrainY(p.x);
-          if(p.y>=ty){ // alimenta lava
-            if(Math.random()<.5 && P.length<MAX){const dir=p.x<cx?-1:1;P.push(mk('lava',p.x,ty-2,dir*rand(.2,.5),0,rand(3,6),0,dir));}
-            P.splice(i,1);
-          } else if(p.age>2.5)P.splice(i,1);
-          break;}
-        case 'lava':{
-          const dir=p.dir||(p.x<cx?-1:1);
-          const sp=lerp(1.9,0.5,S.visc/100)*clamp(1-p.age/9,0.05,1);
-          p.x+=dir*sp; const ty=terrainY(p.x);
-          p.y=smooth(p.y,ty-1.5,8,dt);
-          p.cool=clamp(p.age/8 + Math.abs(p.x-cx)/(coneHalf*1.5),0,1);
-          if(Math.abs(p.x-cx)>coneHalf*1.5 || p.age>11) {p.frozen=true;}
-          if(p.age>16)P.splice(i,1);
-          break;}
-        case 'pdc':{
-          const dir=p.dir||(p.x<cx?-1:1);
-          const sp=lerp(5.5,3.4,clamp(p.age/3,0,1));
-          p.x+=dir*sp*(0.6+0.4*Math.sin(p.seed+p.age*4)); 
-          const ty=terrainY(p.x);
-          p.y=smooth(p.y,ty-rand(2,10)-p.age*1.5,6,dt); // se eleva la nube
-          p.size+=10*dt; p.cool=clamp(p.age/4,0,1);
-          // co-ignimbrita: ceniza ascendente
-          if(Math.random()<0.5 && P.length<MAX){const a=mk('ash',p.x,p.y,randn()*0.4,-rand(1.5,3.5),rand(2,4),0);a.side=dir;a.coign=true;P.push(a);}
-          if(Math.abs(p.x-cx)>coneHalf*2.4||p.age>7)P.splice(i,1);
-          break;}
-        case 'lahar':{
-          const dir=p.dir||(p.x<cx?-1:1);
-          const sp=2.6*clamp(1-p.age/12,.15,1);
-          p.x+=dir*sp; const ty=terrainY(p.x);
-          p.y=smooth(p.y,ty-1,9,dt); p.size+=4*dt;
-          if(Math.abs(p.x-cx)>coneHalf*2.0||p.age>14)P.splice(i,1);
-          break;}
-      }
+        case 'ball':case 'fountain':{p.px=p.x;p.py=p.y;p.vy+=g*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const tyy=terrainY(p.x);
+          if(p.y>=tyy&&p.vy>0){if(p.type==='ball'&&P.length<MAX&&p.x>0&&p.x<W)P.push({type:'dust',x:p.x,y:tyy-2,age:0,life:0.9,r:rand(4,8),rot:rand(TAU),k:(Math.random()*9)|0});P.splice(i,1);}
+          else if(p.age>p.life||p.x<-30||p.x>W+30)P.splice(i,1);break;}
+        case 'fall':{p.y+=p.vy*dt;p.x+=wx*46*dt;if(p.y>=terrainY(p.x)||p.age>p.life||p.x<-10||p.x>W+10)P.splice(i,1);break;}
+        case 'pdc':{const lim=cx+p.dir*FLOW.pdc[p.v]*kx;p.x+=p.dir*p.spd*dt;if((p.x-lim)*p.dir>0){p.x=lim;p.spd*=0.2;}p.hov+=9*dt;p.y=terrainY(p.x)-p.hov;p.r+=8*dt;if(p.age>p.life||p.x<-40||p.x>W+40)P.splice(i,1);break;}
+        case 'dust':{p.y-=10*dt;p.r+=6*dt;if(p.age>p.life)P.splice(i,1);break;}
+        default:if(p.age>p.life)P.splice(i,1);
+      }}
+  }
+
+  /* ---------- dibujo de flujos y depósitos sobre la superficie ---------- */
+  function surf(xa,xb,off){const a=clamp(Math.min(xa,xb),0,W),b=clamp(Math.max(xa,xb),0,W);if(b-a<1)return false;ctx.beginPath();
+    for(let x=a;x<=b;x+=2){const y=terrainY(x)+off;if(x===a)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.lineTo(b,terrainY(b)+off);return true;}
+  function drawFlows(){
+    const F=FLOW,t=S.tGlobal;ctx.lineCap='round';ctx.lineJoin='round';
+    /* manto de ceniza (depósito de caída), más grueso cerca del cráter y a sotavento */
+    if(F.ashDep>0.03){const w=windVecEN()[0],L=(0.3*F.ash+1.2)*kx;ctx.strokeStyle=S.night?'rgba(120,122,130,.9)':'rgba(186,182,178,.95)';
+      for(let x=0;x<W;x+=10){const d=x-cx,down=w>0.15?d:w<-0.15?-d:Math.abs(d)*0.8,th=F.ashDep*4.2*Math.exp(-Math.max(down,0)/L)*(down>-1.2*kx?1:Math.exp((down+1.2*kx)/(0.8*kx)));
+        if(th<0.35||Math.abs(d)<craterHalf*0.7)continue;ctx.lineWidth=th;ctx.beginPath();ctx.moveTo(x,terrainY(x)-th*0.5);ctx.lineTo(x+10,terrainY(x+10)-th*0.5);ctx.stroke();}}
+    for(const [v,dir] of [[VE_,1],[VW_,-1]]){
+      const rim=cx+dir*craterHalf*0.9;
+      /* depósito de CDP */
+      if(F.pdc[v]>F.PDC0){if(surf(rim,cx+dir*F.pdc[v]*kx,-1.2)){ctx.strokeStyle=S.night?'rgba(110,98,96,.95)':'rgba(170,152,140,.96)';ctx.lineWidth=3.4;ctx.stroke();}}
+      /* lahar */
+      if(F.lah[v]>F.LAH0+0.05){const xa=cx+dir*F.LAH0*kx,xb=cx+dir*F.lah[v]*kx;
+        if(surf(xa,xb,-1.6)){ctx.strokeStyle=S.night?'#3b2c20':'#6b4c33';ctx.lineWidth=4.6;ctx.stroke();ctx.strokeStyle=S.night?'rgba(120,96,70,.7)':'rgba(170,134,96,.8)';ctx.lineWidth=1.4;ctx.setLineDash([5,7]);ctx.lineDashOffset=-dir*t*40;ctx.stroke();ctx.setLineDash([]);}
+        if(F.lahAct[v]>0.05){const fx=clamp(xb,0,W);ctx.fillStyle=`rgba(150,112,76,${0.95*F.lahAct[v]})`;ctx.beginPath();ctx.ellipse(fx,terrainY(fx)-3,6,3.6,0,0,TAU);ctx.fill();}}
+      /* lava: costra oscura con núcleo incandescente que se enfría */
+      if(F.lav[v]>F.LAV0){const xb=cx+dir*F.lav[v]*kx,hot=1-F.lavCool;
+        if(surf(rim,xb,-1.8)){ctx.strokeStyle='#2a201d';ctx.lineWidth=6.2;ctx.stroke();
+          if(hot>0.04){ctx.shadowColor=thermCss(0.8,1);ctx.shadowBlur=S.night?16:8;ctx.strokeStyle=thermCss(lerp(0.4,0.86,hot),0.97);ctx.lineWidth=3.4;ctx.stroke();ctx.shadowBlur=0;
+            ctx.strokeStyle=thermCss(0.98,0.85*hot);ctx.lineWidth=1.3;ctx.setLineDash([9,6]);ctx.lineDashOffset=-dir*t*22;ctx.stroke();ctx.setLineDash([]);}}}
     }
+    /* edificaciones alcanzadas */
+    for(const h of houses){const f=h.b.hit;if(!f)continue;
+      if(f&4){ctx.fillStyle='rgba(28,20,18,.92)';ctx.fillRect(h.x-h.w*0.62,h.y-h.hh-h.rh,h.w*1.24,h.hh+h.rh);}
+      else if(f&2){ctx.fillStyle='rgba(70,62,58,.86)';ctx.fillRect(h.x-h.w*0.62,h.y-h.hh-h.rh,h.w*1.24,h.hh+h.rh);}
+      else if(f&1){ctx.fillStyle='rgba(104,76,50,.94)';ctx.fillRect(h.x-h.w*0.62,h.y-h.hh*0.62,h.w*1.24,h.hh*0.62+1);}
+      else if(f&8){ctx.fillStyle='rgba(176,172,168,.8)';ctx.beginPath();ctx.moveTo(h.x-h.w*0.6,h.y-h.hh);ctx.lineTo(h.x,h.y-h.hh-h.rh);ctx.lineTo(h.x+h.w*0.6,h.y-h.hh);ctx.closePath();ctx.fill();}}
   }
 
-  /* ---- dibujo de escenografía ---- */
-  function drawScene(){
-    // cielo crepuscular
-    const sky=ctx.createLinearGradient(0,0,0,groundY);
-    sky.addColorStop(0,'#0a1424');sky.addColorStop(0.55,'#142036');sky.addColorStop(0.85,'#33304a');sky.addColorStop(1,'#5a4150');
-    ctx.fillStyle=sky;ctx.fillRect(0,0,W,groundY);
-    // resplandor del cráter en el cielo durante erupción
-    if(S.intensity>0.05){const gl=ctx.createRadialGradient(cx,summitY,0,cx,summitY,coneHalf*2.2);
-      gl.addColorStop(0,`rgba(236,96,33,${0.18*S.intensity})`);gl.addColorStop(1,'rgba(236,96,33,0)');
-      ctx.fillStyle=gl;ctx.fillRect(0,0,W,groundY);}
-    // subsuelo con estratos
-    const strata=['#241c20','#2c2228','#211a1f','#322530','#272029'];
-    const bands=6;const bh=(H-groundY)/bands;
-    for(let i=0;i<bands;i++){ctx.fillStyle=strata[i%strata.length];ctx.fillRect(0,groundY+i*bh,W,bh+1);}
-    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,groundY,W,2);
-
-    // EDIFICIO (cono) relleno con estratos del aparato volcánico
-    ctx.save();
-    ctx.beginPath();ctx.moveTo(cx-coneHalf,groundY);
-    for(let x=cx-coneHalf;x<=cx+coneHalf;x+=3)ctx.lineTo(x,terrainY(x));
-    ctx.lineTo(cx+coneHalf,groundY);ctx.closePath();ctx.clip();
-    const cone=ctx.createLinearGradient(0,summitY,0,groundY);
-    cone.addColorStop(0,'#574a52');cone.addColorStop(0.5,'#43373f');cone.addColorStop(1,'#332a31');
-    ctx.fillStyle=cone;ctx.fillRect(cx-coneHalf,summitY-10,coneHalf*2,groundY-summitY+20);
-    // capas internas (paralelas a la superficie)
-    ctx.lineWidth=1;
-    for(let k=1;k<=7;k++){const off=k*((groundY-summitY)/8);ctx.beginPath();
-      for(let x=cx-coneHalf;x<=cx+coneHalf;x+=4){const y=terrainY(x)+off;ctx.lineTo(x,y);}
-      ctx.strokeStyle=k%2?'rgba(0,0,0,.16)':'rgba(255,220,200,.05)';ctx.stroke();}
-    ctx.restore();
-
-    // CÁMARA MAGMÁTICA + CONDUCTO (corte visible)
-    const tphase=0.5+0.5*Math.sin(S.tGlobal*2)*clamp(S.magmaLevel+S.intensity,0,1);
-    // halo de la cámara
-    const ch=ctx.createRadialGradient(cx,chamberY,4,cx,chamberY,coneHalf*1.05);
-    ch.addColorStop(0,thermCss(0.8+0.2*tphase,0.95));ch.addColorStop(0.45,thermCss(0.45,0.6));ch.addColorStop(1,'rgba(120,20,10,0)');
-    ctx.fillStyle=ch;ctx.beginPath();ctx.ellipse(cx,chamberY,coneHalf*0.95,H*0.10,0,0,TAU);ctx.fill();
-    ctx.strokeStyle='rgba(120,30,16,.55)';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(cx,chamberY,coneHalf*0.95,H*0.10,0,0,TAU);ctx.stroke();
-    // conducto
-    const condW=craterHalf*1.5;
-    const fillTop=lerp(chamberY-H*0.05, summitY+craterDepth, clamp(S.magmaLevel,0,1));
-    // tubo (roca)
-    ctx.fillStyle='#1a1216';ctx.fillRect(cx-condW,summitY+craterDepth, condW*2, chamberY-summitY);
-    // magma dentro
-    const mg=ctx.createLinearGradient(0,fillTop,0,chamberY);
-    mg.addColorStop(0,thermCss(0.92,0.95));mg.addColorStop(1,thermCss(0.55,0.95));
-    ctx.fillStyle=mg;ctx.fillRect(cx-condW*0.78,fillTop,condW*1.56,chamberY-fillTop);
-    // burbujeo
-    if(S.magmaLevel>0.2){ctx.fillStyle=thermCss(1,0.5);for(let b=0;b<5;b++){const by=fillTop+rand(0,(chamberY-fillTop)*0.7);ctx.beginPath();ctx.arc(cx+rand(-condW*0.5,condW*0.5),by,rand(1,2.6),0,TAU);ctx.fill();}}
-    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.2;ctx.strokeRect(cx-condW,summitY+craterDepth,condW*2,chamberY-summitY);
-
-    // borde del cráter por encima del conducto
-    ctx.fillStyle='#3a2f36';ctx.beginPath();
-    ctx.moveTo(cx-craterHalf*1.7,summitY+craterDepth*0.3);
-    ctx.quadraticCurveTo(cx-craterHalf*0.4,summitY+craterDepth*1.1,cx,summitY+craterDepth*0.95);
-    ctx.quadraticCurveTo(cx+craterHalf*0.4,summitY+craterDepth*1.1,cx+craterHalf*1.7,summitY+craterDepth*0.3);
-    ctx.lineTo(cx+craterHalf*1.7,summitY+craterDepth*2);ctx.lineTo(cx-craterHalf*1.7,summitY+craterDepth*2);ctx.closePath();ctx.fill();
-
-    // glaciar
-    if(S.glacier){ctx.save();ctx.beginPath();ctx.moveTo(cx-coneHalf,groundY);
-      for(let x=cx-coneHalf;x<=cx+coneHalf;x+=3)ctx.lineTo(x,terrainY(x));ctx.lineTo(cx+coneHalf,groundY);ctx.closePath();ctx.clip();
-      const snowY=lerp(summitY,groundY,0.42);
-      ctx.fillStyle='rgba(228,238,248,.92)';
-      ctx.beginPath();for(let x=cx-coneHalf;x<=cx+coneHalf;x+=3){const ty=terrainY(x);if(ty<snowY){ctx.lineTo(x,ty-1.5);}}
-      ctx.lineTo(cx+coneHalf,snowY);ctx.lineTo(cx-coneHalf,snowY);ctx.closePath();ctx.fill();
-      ctx.restore();}
-    // inflación (línea de deformación)
-    if(S.inflation>0.05){ctx.strokeStyle=`rgba(82,214,207,${0.25*S.inflation})`;ctx.setLineDash([4,4]);ctx.lineWidth=1.2;
-      ctx.beginPath();for(let x=cx-coneHalf;x<=cx+coneHalf;x+=4)ctx.lineTo(x,terrainY(x)-6*S.inflation*Math.pow(1-Math.abs(x-cx)/coneHalf,2));ctx.stroke();ctx.setLineDash([]);}
-  }
-
-  /* ---- dibujo de partículas ---- */
+  /* ---------- partículas ---------- */
+  function blit(img,x,y,r,rot,a,sx,sy){pc.globalAlpha=a;pc.setTransform(PS,0,0,PS,x*PS,y*PS);if(sx)pc.scale(sx,sy||1);if(rot)pc.rotate(rot);pc.drawImage(img,-r,-r,r*2,r*2);}
   function drawParticles(){
-    // 1) flujos pegados al suelo primero (lava, lahar, pdc cuerpo)
+    const wx=windX(),N=S.night,g0=craterY;
+    /* resplandor de la boca eruptiva */
+    if(S.intensity>0.05||(N&&S.magmaLevel>0.5)){const k=Math.max(S.intensity,N?S.magmaLevel*0.25:0),rr=craterHalf*(N?9:4.5)*(0.5+k);
+      const gl=ctx.createRadialGradient(cx,craterY-4,0,cx,craterY-4,rr);gl.addColorStop(0,`rgba(255,170,70,${(N?0.75:0.4)*k})`);gl.addColorStop(0.4,`rgba(236,96,33,${(N?0.32:0.14)*k})`);gl.addColorStop(1,'rgba(236,96,33,0)');
+      ctx.globalCompositeOperation='lighter';ctx.fillStyle=gl;ctx.fillRect(cx-rr,craterY-4-rr,rr*2,rr*2);ctx.globalCompositeOperation='source-over';}
+    /* caída de ceniza: velos bajo el paraguas */
+    ctx.strokeStyle=N?'rgba(120,124,140,.20)':'rgba(84,80,78,.22)';ctx.lineWidth=1.4;ctx.beginPath();
+    for(const p of P)if(p.type==='fall'){ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-wx*10,p.y-15);}
+    ctx.stroke();
+    /* nubes: columna, gases y CDP */
+    pc.setTransform(1,0,0,1,0,0);pc.globalAlpha=1;pc.globalCompositeOperation='source-over';pc.clearRect(0,0,pcv.width,pcv.height);
     for(const p of P){
-      if(p.type==='lava'){
-        const t=p.frozen?0.05:lerp(0.95,0.25,p.cool||0);
-        ctx.fillStyle=thermCss(t, p.frozen?1:0.95);
-        ctx.shadowColor=thermCss(0.8,0.9);ctx.shadowBlur=p.frozen?0:12;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.6,0,TAU);ctx.fill();ctx.shadowBlur=0;
-      } else if(p.type==='lahar'){
-        ctx.fillStyle=`rgba(${110+randn()*8|0},${82},${56},0.92)`;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.65,0,TAU);ctx.fill();
-      } else if(p.type==='pdc'){
-        // cuerpo denso caliente
-        const t=lerp(0.55,0.12,p.cool||0);
-        ctx.fillStyle=`rgba(${thermRGB(t).join(',')},0.55)`;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.8,0,TAU);ctx.fill();
-      }
+      if(p.type==='col'){const t=p.age,z=p.ztop*(1-Math.exp(-t/p.tau)),f=z/p.sp,Rc=craterHalf*0.5+0.105*z,tu=1.9*p.tau,du=Math.max(0,t-tu);
+        let x=cx+p.off*Rc*0.7+wx*0.55*z*z/Math.max(p.sp,60),y=g0-z;
+        if(du>0){const e=1-Math.exp(-du/2.2);x+=p.side*p.u*Math.min(p.sp*0.62,coneHalf*1.15)*e+wx*du*40;y+=du*1.6-p.sp*0.03*p.u*e;}
+        const r=Rc*(0.8+0.5*p.rs)*(1+0.16*du),a=Math.min(1,t/0.22)*(t>p.life*0.62?Math.max(0,1-(t-p.life*0.62)/(p.life*0.38)):1)*0.94;
+        blit(sprite(f<0.2?'dark':f<0.6?'mid':'light',p.k),x,y,r,p.rot+t*0.25*p.side,a,du>0?1+0.9*Math.min(du/2.5,1):0,du>0?0.72:0);
+        if(N&&f<0.3&&a>0.1){pc.setTransform(PS,0,0,PS,0,0);pc.globalCompositeOperation='lighter';pc.globalAlpha=(0.3-f)*1.6*a*S.intensity;pc.fillStyle='#ff7a2a';pc.beginPath();pc.arc(x,y+r*0.2,r*0.8,0,TAU);pc.fill();pc.globalCompositeOperation='source-over';}}
+      else if(p.type==='gas'){const t=p.age,z=p.ztop*(1-Math.exp(-t/p.tau)),x=cx+p.off*craterHalf*0.5+wx*z*1.6+wx*t*22,r=craterHalf*0.5+0.22*z;
+        blit(sprite('steam',0),x,g0-z-2,r,p.rot,Math.min(1,t/0.4)*Math.max(0,1-t/p.life)*0.5);}
+      else if(p.type==='pdc'||p.type==='dust'){const t=p.age,a=Math.min(1,t/0.2)*Math.max(0,1-t/p.life)*(p.type==='pdc'?0.9:0.7);blit(sprite('pdc',p.k),p.x,p.y,p.r,p.rot,a);}
     }
-    // 2) columna / gas / ceniza (additivo suave para densidad)
-    ctx.globalCompositeOperation='lighter';
-    for(const p of P){
-      if(p.type==='gas'){
-        const a=clamp(0.10*(1-p.age/5),0,0.12);ctx.fillStyle=`rgba(210,218,232,${a})`;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,TAU);ctx.fill();
-      }
-    }
-    ctx.globalCompositeOperation='source-over';
-    for(const p of P){
-      if(p.type==='ash'){
-        const rel=clamp((summitY+craterDepth*0.4-p.y)/Math.max(40,(summitY+craterDepth*0.4-colTopY())),0,1);
-        const g=p.coign?lerp(70,150,Math.random()):lerp(150,86,rel); // base más oscura
-        const a=p.settle?0.7:clamp(0.5*(1-p.age/16)+0.18,0.06,0.7);
-        ctx.fillStyle=`rgba(${g|0},${(g*0.96)|0},${(g*0.95)|0},${a})`;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.85,0,TAU);ctx.fill();
-      }
-    }
-    // 3) incandescentes (bombas, fuente) por encima con glow
-    for(const p of P){
-      if(p.type==='ball'||p.type==='fountain'){
-        const t=clamp(1-p.age/(p.type==='ball'?2.6:2),0.1,1);
-        // estela
-        ctx.strokeStyle=thermCss(t,0.5);ctx.lineWidth=p.size*0.5;ctx.lineCap='round';
-        ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(p.x,p.y);ctx.stroke();
-        ctx.fillStyle=thermCss(t,0.95);ctx.shadowColor=thermCss(0.85,1);ctx.shadowBlur=8;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.5,0,TAU);ctx.fill();ctx.shadowBlur=0;
-      }
-    }
+    ctx.drawImage(pcv,0,0,W,H);
+    /* incandescentes: balísticos y fuentes */
+    ctx.lineCap='round';
+    for(const p of P){if(p.type!=='ball'&&p.type!=='fountain')continue;const t=clamp(1-p.age/(p.type==='ball'?2.4:1.6),0.12,1);
+      ctx.strokeStyle=thermCss(t,0.55);ctx.lineWidth=p.size*0.7;ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(p.x,p.y);ctx.stroke();
+      ctx.fillStyle=N||p.type==='fountain'?thermCss(t,0.96):thermCss(t*0.8,0.96);ctx.shadowColor=thermCss(0.85,1);ctx.shadowBlur=N?10:5;ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.62,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      if(!N&&p.type==='ball'){ctx.fillStyle='rgba(40,34,32,.9)';ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.34,0,TAU);ctx.fill();}}
   }
 
-  /* ---- etiquetas según fase ---- */
+  /* ---------- etiquetas ---------- */
   function label(x1,y1,x2,y2,txt,color){
-    ctx.strokeStyle=color||'rgba(154,166,184,.5)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
-    ctx.fillStyle=color||'rgba(200,210,224,.9)';ctx.font='10px "JetBrains Mono"';
-    const right=x2>cx;ctx.textAlign=right?'left':'right';
-    ctx.fillText(txt,x2+(right?5:-5),y2+3);ctx.textAlign='left';
-    ctx.fillStyle=color||'rgba(154,166,184,.7)';ctx.beginPath();ctx.arc(x1,y1,2,0,TAU);ctx.fill();
+    ctx.font='10px '+MONO;const w=ctx.measureText(txt).width+12,right=x2>=x1,bx=right?x2:x2-w,by=y2-9;
+    const lx=clamp(bx,4,W-w-4),ly=clamp(by,4,H-22);
+    ctx.strokeStyle='rgba(8,14,28,.55)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(right?lx:lx+w,ly+9);ctx.stroke();
+    ctx.strokeStyle=color||'rgba(230,236,246,.95)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(right?lx:lx+w,ly+9);ctx.stroke();
+    ctx.fillStyle='rgba(8,14,28,.80)';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(lx,ly,w,18,5);else ctx.rect(lx,ly,w,18);ctx.fill();
+    ctx.fillStyle=color||'rgba(230,236,246,.95)';ctx.textAlign='left';ctx.fillText(txt,lx+6,ly+12.5);
+    ctx.beginPath();ctx.arc(x1,y1,2.4,0,TAU);ctx.fill();ctx.strokeStyle='rgba(8,14,28,.8)';ctx.lineWidth=1;ctx.stroke();
   }
   function drawLabels(){
-    ctx.save();
-    if(S.phase==='rising'||S.phase==='repose'){
-      label(cx-coneHalf*0.45,chamberY+H*0.02,cx-coneHalf*0.74,chamberY+H*0.055,'Cámara magmática','rgba(247,183,51,.85)');
-      const condMidY=(summitY+craterDepth+chamberY)/2;
-      if(S.phase==='rising'){
-        const fillTop=lerp(chamberY-H*0.05,summitY+craterDepth,clamp(S.magmaLevel,0,1));
-        const ay=clamp((fillTop+chamberY)/2,summitY+craterDepth+12,chamberY-12);
-        label(cx+craterHalf*1.5,ay,cx+coneHalf*0.72,ay-H*0.04,'Ascenso del magma','rgba(247,183,51,.92)');
-      } else {
-        label(cx+craterHalf*1.5,condMidY,cx+coneHalf*0.72,condMidY-H*0.04,'Conducto','rgba(236,96,33,.85)');
-      }
-      const exF=cx-coneHalf*0.5, exFy=terrainY(exF);
-      label(exF,exFy,cx-coneHalf*1.05,exFy+H*0.05,'Edificio volcánico','rgba(160,170,185,.82)');
-      label(cx+craterHalf*0.5,summitY+craterDepth*0.5,cx+coneHalf*0.55,summitY-H*0.06,'Cráter','rgba(176,186,200,.88)');
-      if(S.inflation>0.2) label(cx-10,terrainY(cx-10)-12,cx-coneHalf*0.5,summitY-H*0.02,'Deformación / inflación','rgba(82,214,207,.82)');
+    const quiet=S.phase==='rising'||S.phase==='repose',CH=Section.CH,r=productRates();
+    if(quiet){
+      label(X(-CH.ax*0.5),Y(CH.z-0.1),X(-CH.ax*0.5)-coneHalf*0.42,Y(CH.z)+H*0.035,'Cámara magmática','rgba(255,196,84,.98)');
+      const zm=(World.CFLOOR+Section.roofZ())/2;
+      if(S.phase==='rising'){const zl=lerp(Section.roofZ()+0.25,World.CFLOOR-0.02,clamp(S.magmaLevel,0,1));
+        label(X(Section.CW0),Y(Math.min(zl,zm+0.6)),X(0)+coneHalf*0.36,Y(Math.min(zl,zm+0.6))-H*0.02,'Ascenso del magma','rgba(255,196,84,.98)');}
+      else label(X(Section.CW0),Y(zm),X(0)+coneHalf*0.36,Y(zm)-H*0.02,'Conducto','rgba(255,150,96,.98)');
+      const ex=X(-3.4);label(ex,terrainY(ex)+ (groundY-terrainY(ex))*0.45,ex-coneHalf*0.34,terrainY(ex)-H*0.10,'Edificio volcánico');
+      label(cx,craterY-1,cx+coneHalf*0.30,summitY-H*0.085,'Cráter');
+      const big=W>=560;
+      const tx=X(World.towns[0].x);if(big&&tx<W-30)label(tx,terrainY(tx)-16*clamp(kx/30,0.6,1.1),tx-10,terrainY(tx)-H*0.12,'Cabecera municipal');
+      if(big&&houses.station)label(houses.station,terrainY(houses.station)-15*clamp(kx/30,0.6,1.1),houses.station+coneHalf*0.12,terrainY(houses.station)-H*0.105,'Estación de monitoreo','rgba(120,226,220,.98)');
+      if(big&&houses.river&&houses.river<W-40)label(houses.river,terrainY(houses.river),houses.river-4,terrainY(houses.river)+H*0.06,'Río');
+      if(big&&S.glacier){const gx=X(-0.95);label(gx,terrainY(gx)-4,gx-coneHalf*0.22,terrainY(gx)-H*0.075,'Glaciar');}
+      if(big)label(X(-10.5),Y(-1.6),X(-10.5)+8,Y(-1.6)+4,'Basamento','rgba(196,204,220,.95)');
+      if(S.inflation>0.2)label(cx-craterHalf*2.6,terrainY(cx-craterHalf*2.6)-9,cx-coneHalf*0.30,summitY-H*0.03,'Deformación / inflación','rgba(120,226,220,.98)');
     }
     if(S.intensity>0.2){
-      const cTop=colTopY();
-      label(cx,cTop+span()*0.06,cx-coneHalf*0.9,cTop+30,'Región paraguas','rgba(180,190,205,.85)');
-      label(cx+craterHalf,summitY-span()*0.35,cx+coneHalf*0.85,summitY-span()*0.45,'Columna eruptiva','rgba(170,180,195,.85)');
-      label(cx-8,summitY-span()*0.06,cx-coneHalf*0.55,summitY-span()*0.02,'Empuje de gas','rgba(247,183,51,.7)');
-      const r=productRates();
-      if(r.pdc>0.2)  label(cx-coneHalf*0.7,terrainY(cx-coneHalf*0.7)-8,cx-coneHalf*1.15,terrainY(cx-coneHalf*0.9)-26,'CDP / flujo piroclástico','rgba(176,88,76,.95)');
-      if(r.lava>0.15)label(cx+coneHalf*0.6,terrainY(cx+coneHalf*0.6)-4,cx+coneHalf*1.0,terrainY(cx+coneHalf*0.6)+18,'Flujo de lava','rgba(240,106,30,.95)');
-      if(r.lahar>0.1)label(cx+coneHalf*0.8,terrainY(cx+coneHalf*0.8),cx+coneHalf*1.25,terrainY(cx+coneHalf*0.8)+8,'Lahar','rgba(138,106,74,1)');
-      if(r.ash>0.3) label(cx+coneHalf*1.3,summitY+10,cx+coneHalf*1.6,summitY+24,'Caída de ceniza','rgba(154,161,173,.9)');
+      const cT=colTopY(),sp=span(),wx=windX();
+      if(r.ash>0.25&&S.columnKm>1.2){
+        const dw=wx>=0?1:-1;
+        label(cx-dw*sp*0.30,cT+sp*0.07,cx-dw*(sp*0.30+coneHalf*0.30),cT+sp*0.02,'Región paraguas');
+        label(cx+dw*sp*0.07,craterY-sp*0.52,cx+dw*coneHalf*0.50,craterY-sp*0.47,'Columna eruptiva (región convectiva)');
+        label(cx-dw*craterHalf*0.3,craterY-sp*0.08,cx-dw*coneHalf*0.42,craterY-sp*0.22,'Empuje de gas','rgba(255,196,84,.98)');
+        const fx=cx+dw*Math.min(sp*0.62,coneHalf*1.0);label(fx,cT+sp*0.5,fx+dw*18,cT+sp*0.62,'Caída de ceniza');
+      }
+      if(r.fountain>0.2)label(cx+craterHalf*0.3,craterY-H*0.07,cx+coneHalf*0.24,craterY-H*0.12,'Fuente de lava','rgba(255,170,90,.98)');
+      if(r.ball>0.25){const dw=wx>=0?-1:1,bx=cx+dw*reaches().ball*kx*0.7;label(bx,terrainY(bx)-H*0.035,bx+dw*coneHalf*0.20,terrainY(bx)-H*0.02,'Proyectiles balísticos','rgba(255,196,110,.98)');}
     }
-    ctx.restore();
+    const F=FLOW;
+    if(F.pdcAct[VW_]>0.05||F.pdcAct[VE_]>0.05){const v=F.pdcAct[VW_]>0.05?VW_:VE_,d=v===VW_?-1:1,px=clamp(cx+d*F.pdc[v]*kx*0.7,30,W-30);
+      label(px,terrainY(px)-8,px+d*coneHalf*0.16,terrainY(px)+H*0.075,'CDP / flujo piroclástico','rgba(232,190,170,.98)');}
+    if(F.lavAct[VE_]>0.05||(F.lav[VE_]>F.LAV0&&F.lavCool<0.9)){const px=clamp(cx+F.lav[VE_]*kx*0.6,30,W-30);label(px,terrainY(px)-3,px+coneHalf*0.2,terrainY(px)-H*0.075,'Flujo de lava','rgba(255,150,80,.98)');}
+    if(F.lah[VE_]>F.LAH0+0.3&&(F.lahAct[VE_]>0.02||S.phase!=='repose')){const px=clamp(cx+F.lah[VE_]*kx*0.72,30,W-40);label(px,terrainY(px)-3,px+18,terrainY(px)+H*0.07,'Lahar','rgba(214,172,128,.98)');}
   }
-  function span(){return Math.max(40,(summitY+craterDepth*0.4)-colTopY());}
 
-  function draw(dt){
-    drawScene();
-    spawn(); update(dt);
+  function step(dt){if(dt>0&&ty){spawn(dt);update(dt);}}
+  function draw(){
+    layers();
+    ctx.setTransform(DPR,0,0,DPR,0,0);ctx.globalAlpha=1;
+    ctx.drawImage(skyL,0,0,W,H);
+    ctx.drawImage(earthL,0,0,W,H);
+    Section.paintMagma(ctx,X,Y,S.magmaLevel,S.magmaLevel+S.intensity,S.tGlobal);
+    drawFlows();
     drawParticles();
+    if(S.inflation>0.05){ctx.strokeStyle=`rgba(82,214,207,${0.75*S.inflation})`;ctx.setLineDash([4,4]);ctx.lineWidth=1.3;ctx.beginPath();
+      for(let x=Math.max(0,cx-coneHalf*0.7);x<=Math.min(W,cx+coneHalf*0.7);x+=4){const y=terrainY(x)-7*S.inflation*Math.pow(1-Math.abs(x-cx)/(coneHalf*0.7),2)-3;if(x<=cx-coneHalf*0.7+4||x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);}
     drawLabels();
   }
   function reset(){P.length=0;for(const k in acc)acc[k]=0;}
-  return {resize,draw,reset};
+  function relight(){dirty=true;}
+  return {resize,step,draw,reset,relight};
 })();
 /* ============================================================
-   VISTA PLANTA — mapa cenital, dispersión y alcances
+   VISTA PLANTA — mapa del terreno, red vial, poblaciones y fenómenos
    ============================================================ */
 const Plan=(function(){
-  const cv=$('cvPlan'); const ctx=cv.getContext('2d');
-  let W=0,H=0,DPR=1,cx,cy,minR,pxPerKm,planKm;
-  const P=[]; const MAX=1400;
-  const acc={ash:0,lava:0,pdc:0,lahar:0,ball:0};
-  const VALLEYS=[-52,18,92,158,214,286].map(d=>d*Math.PI/180);
-  function windVec(){const r=S.windDir*Math.PI/180;return[Math.sin(r),-Math.cos(r)];}
+  const cv=$('cvPlan'); const mainCtx=cv.getContext('2d'); let ctx=mainCtx;
+  let baseCv=null,baseCtx=null,baseKey='';
+  let W=0,H=0,DPR=1,minR=100;
+  const V={x:0,y:0,ppk:20,auto:true};          // centro del mapa (km) y escala (px por km)
+  const P=[]; const MAXP=700; const acc={ash:0,ball:0};
+  const X=x=>W/2+(x-V.x)*V.ppk, Y=y=>H/2-(y-V.y)*V.ppk;
+  const MONO='"JetBrains Mono",ui-monospace,monospace';
+  const TOWN_ORDER=World.towns.slice().sort((a,b)=>(b.big?1:0)*10+b.R-((a.big?1:0)*10+a.R)).sort((a,b)=>(a.id>1?1:0)-(b.id>1?1:0));
+
+  /* mancha suave para la pluma */
+  const blob=(function(){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');
+    const gr=g.createRadialGradient(32,32,2,32,32,32);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(0.5,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=gr;g.fillRect(0,0,64,64);
+    function tint(r,gc,b){const t=document.createElement('canvas');t.width=t.height=64;const q=t.getContext('2d');q.drawImage(c,0,0);q.globalCompositeOperation='source-in';q.fillStyle=`rgb(${r},${gc},${b})`;q.fillRect(0,0,64,64);return t;}
+    return{ash:tint(132,126,122),ashD:tint(96,90,88),pdc:tint(206,194,180)};})();
 
   function resize(){
-    const r=cv.getBoundingClientRect();DPR=Math.min(window.devicePixelRatio||1,2);
+    const r=cv.getBoundingClientRect();if(r.width<8||r.height<8)return;
+    DPR=Math.min(window.devicePixelRatio||1,2);
     W=Math.max(40,r.width);H=Math.max(40,r.height);
-    cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
-    cx=W*0.5;cy=H*0.5;minR=Math.min(W,H)*0.5-12;
+    cv.width=W*DPR;cv.height=H*DPR;mainCtx.setTransform(DPR,0,0,DPR,0,0);baseKey='';
+    minR=Math.min(W,H)*0.5-10;
+    if(V.auto)V.ppk=minR/autoKm();
   }
-  function reaches(){
-    const v=clamp(S.vei,0,6);
-    const pdc=[1,2,4,7.5,13,20,30][v]*(0.5+S.visc/120);
-    const lava=lerp(5,1.2,S.visc/100)*[0.5,0.8,1.1,1.2,1.1,1,1][v];
-    const lahar=S.glacier?[3,6,11,18,28,42,60][v]:0;
-    const ash=[3,6,12,20,32,50,75][v]*(0.7+S.windSpd/200);
-    return{pdc,lava,lahar,ash};
-  }
-  function updateScale(){const R=reaches();planKm=Math.max(8,R.pdc*1.7,R.lahar*1.15,R.lava*2.4,R.ash*0.5);pxPerKm=minR/planKm;}
+  function autoKm(){const R=reaches();return Math.max(8,R.pdc*1.7,R.lahar*1.15,R.lava*2.4,R.ash*0.5);}
+  function niceStep(km){const p=Math.pow(10,Math.floor(Math.log10(km)));const n=km/p;return (n<1.5?1:n<3.5?2:n<7.5?5:10)*p;}
 
-  function spawn(){
-    if(S.paused)return;
-    const r=productRates(),R=reaches(),dt=1/60;const wv=windVec();
-    const emit=(k,rate,fn)=>{acc[k]+=rate*dt;while(acc[k]>=1){acc[k]-=1;if(P.length<MAX)fn();}};
-    // ceniza: deriva con viento + abanico
-    emit('ash', r.ash*40,()=>{
-      const spread=rand(-0.5,0.5);const speed=rand(.4,1.0)*(0.5+S.windSpd/120);
-      const px=wv[0]+(-wv[1])*spread, py=wv[1]+(wv[0])*spread; // perpendicular para abanico
-      P.push({type:'ash',x:cx,y:cy,vx:px*speed,vy:py*speed,r:0,age:0,size:rand(2,5),reach:R.ash*pxPerKm*rand(.5,1.05)});
-    });
-    // lava por 1-2 valles
-    emit('lava', r.lava*10,()=>{const a=VALLEYS[1]+rand(-.18,.18);P.push({type:'lava',x:cx,y:cy,a,r:rand(0,minR*.05),age:0,size:rand(3,6),reach:R.lava*pxPerKm});});
-    // CDP por valles (abanico)
-    const pdcRate=r.pdc*(8+(S.pulse>0?30:0));
-    emit('pdc', pdcRate,()=>{const a=VALLEYS[(Math.random()*3|0)]+rand(-.4,.4);P.push({type:'pdc',x:cx,y:cy,a,r:rand(0,minR*.04),age:0,size:rand(4,8),reach:R.pdc*pxPerKm});});
-    // lahar por valles
-    emit('lahar', r.lahar*9,()=>{const a=VALLEYS[3+(Math.random()*3|0)]+rand(-.06,.06);P.push({type:'lahar',x:cx,y:cy,a,r:rand(0,minR*.05),age:0,size:rand(3,6),reach:R.lahar*pxPerKm});});
-    // balísticos
-    emit('ball', r.ball*6,()=>{const a=rand(0,TAU);const rr=rand(minR*.04,minR*.10);P.push({type:'ball',x:cx+Math.cos(a)*rr,y:cy+Math.sin(a)*rr,age:0,size:rand(1.5,3)});});
+  /* ---------- interacción: rueda = acercar · arrastre = mover · doble clic = ajustar ---------- */
+  (function(){let drag=false,lx=0,ly=0,pinch=0;
+    const pos=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];};
+    function zoomAt(px,py,f){const wx=V.x+(px-W/2)/V.ppk,wy=V.y-(py-H/2)/V.ppk;V.ppk=clamp(V.ppk*f,2.2,120);V.x=wx-(px-W/2)/V.ppk;V.y=wy+(py-H/2)/V.ppk;V.auto=false;}
+    cv.addEventListener('wheel',e=>{const p=pos(e);zoomAt(p[0],p[1],e.deltaY>0?0.86:1.16);e.preventDefault();},{passive:false});
+    cv.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+    window.addEventListener('mousemove',e=>{if(!drag)return;V.x-=(e.clientX-lx)/V.ppk;V.y+=(e.clientY-ly)/V.ppk;lx=e.clientX;ly=e.clientY;V.auto=false;});
+    window.addEventListener('mouseup',()=>drag=false);
+    cv.addEventListener('dblclick',()=>{V.auto=true;});
+    cv.addEventListener('touchstart',e=>{if(e.touches.length===1){drag=true;lx=e.touches[0].clientX;ly=e.touches[0].clientY;}
+      else if(e.touches.length===2){drag=false;pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}},{passive:true});
+    cv.addEventListener('touchmove',e=>{if(e.touches.length===1&&drag){const t=e.touches[0];V.x-=(t.clientX-lx)/V.ppk;V.y+=(t.clientY-ly)/V.ppk;lx=t.clientX;ly=t.clientY;V.auto=false;e.preventDefault();}
+      else if(e.touches.length===2&&pinch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+        const r=cv.getBoundingClientRect();zoomAt((e.touches[0].clientX+e.touches[1].clientX)/2-r.left,(e.touches[0].clientY+e.touches[1].clientY)/2-r.top,d/pinch);pinch=d;e.preventDefault();}},{passive:false});
+    cv.addEventListener('touchend',()=>{drag=false;pinch=0;});
+  })();
+
+  /* ---------- mapa base ---------- */
+  function drawBase(){
+    ctx.fillStyle='#0d1626';ctx.fillRect(0,0,W,H);
+    const LV=World.LV;
+    if(!LV[0].ready){ctx.fillStyle='rgba(159,171,194,.9)';ctx.font='12px '+MONO;ctx.textAlign='center';
+      ctx.fillText('Generando el relieve… '+Math.round(World.progress*100)+' %',W/2,H/2);ctx.textAlign='left';return false;}
+    const vw=W/2/V.ppk+Math.abs(V.x),vh=H/2/V.ppk+Math.abs(V.y),ext=Math.max(vw,vh);
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    for(let i=2;i>=0;i--){const L=LV[i];if(!L.ready)continue;
+      if(i>0&&LV[i-1].ready&&ext<=LV[i-1].half)continue;          // un nivel más fino ya cubre toda la vista
+      const hk=L.half;ctx.drawImage(L.map,X(-hk),Y(hk),2*hk*V.ppk,2*hk*V.ppk);}
+    if(S.glacier&&World.SNOW.ready){const hk=World.SNOW.half;ctx.drawImage(World.SNOW.map,X(-hk),Y(hk),2*hk*V.ppk,2*hk*V.ppk);}
+    return true;
+  }
+  function strokeKm(Pk,close){ctx.beginPath();let pen=false;const m=30;
+    for(let i=0;i<Pk.length;i+=2){const x=X(Pk[i]),y=Y(Pk[i+1]);
+      if(x<-m||x>W+m||y<-m||y>H+m){if(pen){ctx.lineTo(x,y);pen=false;}continue;}
+      if(pen)ctx.lineTo(x,y);else{if(i>=2)ctx.moveTo(X(Pk[i-2]),Y(Pk[i-1]));else ctx.moveTo(x,y);ctx.lineTo(x,y);pen=true;}}
+    ctx.stroke();}
+  const HITCOL=['','#6a4d34','#57504c','#6a4d34','#241c1a','#241c1a','#241c1a','#241c1a'];
+  function drawStatic(){
+    const k=V.ppk;ctx.lineJoin='round';ctx.lineCap='round';
+    /* ríos y vías nítidos cuando el acercamiento supera la resolución del mapa base */
+    if(k>30){
+      for(let i=0;i<World.NV;i++){ctx.strokeStyle='rgb(92,130,150)';ctx.lineWidth=clamp(0.035*k,1.2,5);strokeKm(World.rivers[i]);}
+      for(const rd of World.roads){
+        if(rd.k===0){ctx.strokeStyle='rgba(222,216,204,.95)';ctx.lineWidth=clamp(0.07*k,2.4,9);strokeKm(rd.pts);
+          ctx.strokeStyle='rgb(72,72,76)';ctx.lineWidth=clamp(0.036*k,1.2,5);strokeKm(rd.pts);}
+        else{ctx.strokeStyle='rgba(200,180,140,.95)';ctx.lineWidth=clamp(0.03*k,1.2,4);strokeKm(rd.pts);}}
+      for(const b of World.bridges){const x=X(b.x),y=Y(b.y);if(x<0||x>W||y<0||y>H)continue;
+        ctx.save();ctx.translate(x,y);ctx.rotate(-b.ang);ctx.fillStyle='#d9d4c8';ctx.strokeStyle='#3c3c40';ctx.lineWidth=1;
+        const l=clamp(0.16*k,6,22),w=clamp(0.05*k,3,8);ctx.fillRect(-l/2,-w/2,l,w);ctx.strokeRect(-l/2,-w/2,l,w);ctx.restore();}
+    }
+    /* estaciones de monitoreo */
+    if(k>14)for(const st of World.stations){const x=X(st.x),y=Y(st.y);if(x<0||x>W||y<0||y>H)continue;
+      ctx.fillStyle='#52d6cf';ctx.strokeStyle='#06282a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x+4.5,y+3.5);ctx.lineTo(x-4.5,y+3.5);ctx.closePath();ctx.fill();ctx.stroke();
+      if(k>26)text(st.n,x+7,y+3,'rgba(190,240,236,.95)',9);}
+  }
+  function drawBuildings(){const k=V.ppk;
+    /* edificaciones: color de cubierta; si fueron alcanzadas, color del fenómeno */
+    if(k>15)for(const b of World.buildings){const x=X(b.x),y=Y(b.y);if(x<-8||x>W+8||y<-8||y>H+8)continue;
+      const w=Math.max(2.2,b.w*k),d=Math.max(1.8,b.d*k),f=b.hit&7;
+      if(!f&&k<=30)continue;                                         // intactas: ya están en el mapa base
+      ctx.save();ctx.translate(x,y);ctx.rotate(-b.ang);
+      if(!f){ctx.fillStyle='rgba(30,26,22,.4)';ctx.fillRect(-w/2+1,-d/2+1,w,d);const c=World.ROOF[b.roof];ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`;}
+      else ctx.fillStyle=HITCOL[f];
+      ctx.fillRect(-w/2,-d/2,w,d);
+      if(f){ctx.strokeStyle='rgba(255,235,200,.7)';ctx.lineWidth=0.8;ctx.strokeRect(-w/2,-d/2,w,d);}
+      else if(k>60){ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=0.7;ctx.beginPath();ctx.moveTo(-w/2,0);ctx.lineTo(w/2,0);ctx.stroke();}   // cumbrera
+      ctx.restore();}
+    if(k>30){const ch=World.towns[0].church,x=X(ch.x),y=Y(ch.y),s=clamp(0.07*k,3,12);
+      ctx.save();ctx.translate(x,y);ctx.rotate(-ch.ang);ctx.fillStyle='#efe9da';ctx.fillRect(-s*0.5,-s,s,s*2);ctx.fillStyle='#b5593c';ctx.fillRect(-s*0.5,-s,s,s*0.7);ctx.restore();}
+  }
+  function text(t,x,y,col,size,align){ctx.font=(size||10)+'px '+MONO;ctx.textAlign=align||'left';
+    ctx.lineWidth=3;ctx.strokeStyle='rgba(8,14,28,.85)';ctx.strokeText(t,x,y);ctx.fillStyle=col||'#e9edf6';ctx.fillText(t,x,y);ctx.textAlign='left';}
+
+  /* ---------- cintas de flujo a lo largo de un valle ---------- */
+  function ribbon(v,s0,F,wfn){const L=World.VLINE[v],ds=World.VL_DS;
+    if(F<=s0+0.05)return false;
+    const st=Math.max(1,Math.round(2.5/(V.ppk*ds))),k0=Math.max(1,Math.ceil(s0/ds)),k1=Math.min(World.VL_N-2,Math.floor(F/ds));
+    const pts=[];for(let k=k0;k<=k1;k+=st)pts.push(k);if(pts[pts.length-1]!==k1)pts.push(k1);
+    ctx.beginPath();
+    for(let i=0;i<pts.length;i++){const k=pts[i],s=k*ds,w=wfn(s,F),o=k*4;const x=X(L[o]+L[o+2]*w),y=Y(L[o+1]+L[o+3]*w);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}
+    /* frente redondeado */
+    {const f=F/ds,k=Math.min(World.VL_N-2,f|0),u=f-k,o=k*4;ctx.lineTo(X(L[o]+(L[o+4]-L[o])*u),Y(L[o+1]+(L[o+5]-L[o+1])*u));}
+    for(let i=pts.length-1;i>=0;i--){const k=pts[i],s=k*ds,w=wfn(s,F),o=k*4;ctx.lineTo(X(L[o]-L[o+2]*w),Y(L[o+1]-L[o+3]*w));}
+    ctx.closePath();return true;}
+  function centerLine(v,s0,F){const L=World.VLINE[v],ds=World.VL_DS,st=Math.max(1,Math.round(2.5/(V.ppk*ds)));
+    const k0=Math.max(1,Math.ceil(s0/ds)),k1=Math.min(World.VL_N-2,Math.floor(F/ds));ctx.beginPath();
+    for(let k=k0;k<=k1;k+=st){const o=k*4;if(k===k0)ctx.moveTo(X(L[o]),Y(L[o+1]));else ctx.lineTo(X(L[o]),Y(L[o+1]));}}
+  function vpt(v,s,off){const L=World.VLINE[v],f=s/World.VL_DS,k=clamp(f|0,0,World.VL_N-2),u=f-k,o=k*4;
+    return[L[o]+(L[o+4]-L[o])*u+L[o+2]*(off||0),L[o+1]+(L[o+5]-L[o+1])*u+L[o+3]*(off||0)];}
+
+  /* ---------- fenómenos ---------- */
+  function drawAshDeposit(){
+    if(FLOW.ash<0.2)return;const cols=['rgba(96,92,90,','rgba(120,116,114,','rgba(148,144,142,'];
+    for(let i=2;i>=0;i--){const e=ashEllipse(ISO[i]);if(e.a*V.ppk<2)continue;
+      const al=(i===0?0.42:i===1?0.30:0.20)*clamp(FLOW.ashDep*1.6,0,1);
+      ctx.save();ctx.translate(X(e.cx),Y(e.cy));ctx.rotate(Math.atan2(-e.uy,e.ux));
+      ctx.beginPath();ctx.ellipse(0,0,e.a*V.ppk,e.b*V.ppk,0,0,TAU);ctx.fillStyle=cols[i]+al+')';ctx.fill();
+      ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(235,235,240,'+(0.5*clamp(FLOW.ashDep*2,0,1))+')';ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);ctx.restore();}
+    if(FLOW.ashDep>0.3&&V.ppk*FLOW.ash>120){const e=ashEllipse(ISO[2]);text('isópacas del depósito de caída',X(e.cx+e.ux*e.a*0.55),Y(e.cy+e.uy*e.a*0.55)-e.b*V.ppk*0.5,'rgba(235,235,240,.9)',9,'center');}
+  }
+  function drawFlows(){
+    const F=FLOW,t=S.tGlobal;
+    /* CDP: depósito + nube activa */
+    for(let v=0;v<6;v++){if(F.pdc[v]<=F.PDC0)continue;const act=F.pdcAct[v];
+      if(ribbon(v,0.35,F.pdc[v],wPdc)){ctx.fillStyle='rgba(158,140,128,.82)';ctx.fill();ctx.strokeStyle='rgba(74,62,56,.7)';ctx.lineWidth=1;ctx.stroke();
+        if(act>0.02){ctx.fillStyle=`rgba(206,194,180,${0.42*act})`;ctx.fill();}}
+      if(act>0.02){for(let i=0;i<7;i++){const s=F.pdc[v]-i*0.16*(1+F.pdc[v]*0.12);if(s<0.4)break;
+          const w=wPdc(Math.max(s-0.3,0.4),F.pdc[v])+0.08,p=vpt(v,s,Math.sin(t*3.1+i*2.2+v)*w*0.5),rr=(w*(0.75+0.3*Math.sin(t*5+i*1.7))+0.05)*V.ppk;
+          ctx.globalAlpha=0.75*act;ctx.drawImage(blob.pdc,X(p[0])-rr,Y(p[1])-rr,rr*2,rr*2);}
+        ctx.globalAlpha=1;}}
+    /* lahares */
+    for(let v=0;v<6;v++){if(F.lah[v]<=F.LAH0+0.05)continue;
+      if(ribbon(v,F.LAH0,F.lah[v],wLah)){ctx.fillStyle='rgba(104,76,50,.95)';ctx.fill();ctx.strokeStyle='rgba(52,36,22,.8)';ctx.lineWidth=1;ctx.stroke();}
+      centerLine(v,F.LAH0,F.lah[v]);ctx.strokeStyle='rgba(156,122,86,.75)';ctx.lineWidth=clamp(0.05*V.ppk,0.8,3);ctx.setLineDash([6,5]);ctx.lineDashOffset=-t*26;ctx.stroke();ctx.setLineDash([]);
+      if(F.lahAct[v]>0.05){const p=vpt(v,F.lah[v]);ctx.fillStyle=`rgba(190,150,104,${0.9*F.lahAct[v]})`;ctx.beginPath();ctx.arc(X(p[0]),Y(p[1]),clamp(0.14*V.ppk,2.5,7),0,TAU);ctx.fill();}}
+    /* lava */
+    for(let v=0;v<6;v++){if(F.lav[v]<=F.LAV0)continue;const hot=1-F.lavCool;
+      if(ribbon(v,0.4,F.lav[v],wLav)){ctx.fillStyle=hot>0.05?thermCss(lerp(0.10,0.55,hot)):'#2a2220';
+        ctx.shadowColor=thermCss(0.75,0.9);ctx.shadowBlur=hot>0.2?10*hot:0;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='rgba(20,14,12,.85)';ctx.lineWidth=1;ctx.stroke();}
+      if(hot>0.05){centerLine(v,0.4,F.lav[v]);ctx.strokeStyle=thermCss(lerp(0.5,0.95,hot),0.95);ctx.lineWidth=clamp(0.07*V.ppk,1,5);ctx.stroke();}}
+  }
+  function spawn(dt){
+    const r=productRates(),R=reaches(),w=windVecEN();
+    const emit=(k,rate,fn)=>{acc[k]+=rate*dt;while(acc[k]>=1){acc[k]-=1;if(P.length<MAXP)fn();}};
+    emit('ash',r.ash*42,()=>{const sp=rand(-0.42,0.42),v=R.ash/6.5*rand(0.55,1.1);
+      P.push({type:'ash',x:rand(-0.2,0.2),y:rand(-0.2,0.2),vx:(w[0]-w[1]*sp)*v,vy:(w[1]+w[0]*sp)*v,age:0,d:0,dark:Math.random()<0.35});});
+    emit('ball',r.ball*9,()=>{const a=rand(TAU),rr=R.ball*Math.pow(Math.random(),0.7)*rand(0.35,1);
+      P.push({type:'ball',x:Math.cos(a)*rr,y:Math.sin(a)*rr,age:0});});
   }
   function update(dt){
     for(let i=P.length-1;i>=0;i--){const p=P[i];p.age+=dt;
-      if(p.type==='ash'){p.x+=p.vx*1.6;p.y+=p.vy*1.6;p.r=Math.hypot(p.x-cx,p.y-cy);p.vx+=randn()*0.05;p.vy+=randn()*0.05;p.size+=4*dt;
-        if(p.r>p.reach||p.age>14)P.splice(i,1);}
-      else if(p.type==='lava'){const sp=lerp(34,10,S.visc/100)*dt;p.r+=sp*clamp(1-p.r/p.reach,.05,1);p.x=cx+Math.cos(p.a)*p.r;p.y=cy+Math.sin(p.a)*p.r;p.cool=clamp(p.r/p.reach,0,1);
-        if(p.r>=p.reach*0.98||p.age>14){p.frozen=true;}if(p.age>20)P.splice(i,1);}
-      else if(p.type==='pdc'){const sp=140*dt;p.r+=sp*clamp(1-p.r/p.reach,.06,1);p.x=cx+Math.cos(p.a)*p.r;p.y=cy+Math.sin(p.a)*p.r;p.size+=18*dt;p.cool=clamp(p.r/p.reach,0,1);
-        if(p.r>=p.reach||p.age>6)P.splice(i,1);}
-      else if(p.type==='lahar'){const sp=90*dt;p.r+=sp*clamp(1-p.r/p.reach,.1,1);p.x=cx+Math.cos(p.a)*p.r;p.y=cy+Math.sin(p.a)*p.r;p.size+=6*dt;
-        if(p.r>=p.reach||p.age>16)P.splice(i,1);}
-      else if(p.type==='ball'){if(p.age>1.5)P.splice(i,1);}
-    }
+      if(p.type==='ash'){p.x+=p.vx*dt;p.y+=p.vy*dt;p.d=Math.hypot(p.x,p.y);if(p.d>FLOW.ash*1.05+0.6||p.age>9)P.splice(i,1);}
+      else if(p.age>0.7)P.splice(i,1);}
   }
-
-  function drawScene(){
-    // relieve
-    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,minR);
-    g.addColorStop(0,'#5a4d44');g.addColorStop(0.12,'#4a4038');g.addColorStop(0.4,'#3a4232');g.addColorStop(0.75,'#2f3a2c');g.addColorStop(1,'#222b22');
-    ctx.fillStyle='#0b0f0a';ctx.fillRect(0,0,W,H);
-    ctx.save();ctx.beginPath();ctx.arc(cx,cy,minR,0,TAU);ctx.clip();ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    // valles (drenajes)
-    ctx.strokeStyle='rgba(20,28,20,.55)';ctx.lineWidth=2.5;
-    for(const a of VALLEYS){ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*minR*0.08,cy+Math.sin(a)*minR*0.08);
-      const wob=a*1.3;ctx.quadraticCurveTo(cx+Math.cos(a+0.12)*minR*0.55,cy+Math.sin(a+0.12)*minR*0.55,cx+Math.cos(a)*minR,cy+Math.sin(a)*minR);ctx.stroke();}
-    ctx.restore();
-    // curvas de nivel + anillos de escala
-    ctx.lineWidth=1;ctx.font='9px "JetBrains Mono"';ctx.textAlign='left';
-    const step=niceStep(planKm);
-    for(let km=step;km<=planKm;km+=step){const rr=km*pxPerKm;if(rr>minR)break;
-      ctx.strokeStyle='rgba(140,160,140,.12)';ctx.beginPath();ctx.arc(cx,cy,rr,0,TAU);ctx.stroke();
-      ctx.fillStyle='rgba(160,176,160,.4)';ctx.fillText(km+' km',cx+rr-26,cy-3);}
-    ctx.strokeStyle='rgba(150,170,150,.25)';ctx.beginPath();ctx.arc(cx,cy,minR,0,TAU);ctx.stroke();
+  function drawPlume(){
+    /* nube en paraguas sobre el cráter + pluma arrastrada por el viento */
+    if(S.columnKm>0.4){const w=windVecEN(),ru=(0.45+0.5*S.columnKm)*V.ppk,ox=w[0]*S.columnKm*0.18,oy=w[1]*S.columnKm*0.18;
+      ctx.globalAlpha=clamp(0.25+0.5*S.intensity,0,0.75);ctx.drawImage(blob.ashD,X(ox)-ru,Y(oy)-ru,ru*2,ru*2);ctx.globalAlpha=1;}
+    for(const p of P){if(p.type!=='ash')continue;const rr=(0.28+0.16*p.d)*V.ppk,a=clamp(0.5*(1-p.d/Math.max(FLOW.ash,1))+0.06,0.04,0.5)*clamp(p.age*3,0,1);
+      ctx.globalAlpha=a;ctx.drawImage(p.dark?blob.ashD:blob.ash,X(p.x)-rr,Y(p.y)-rr,rr*2,rr*2);}
+    ctx.globalAlpha=1;
   }
-  function niceStep(km){const raw=km/5;const p=Math.pow(10,Math.floor(Math.log10(raw)));const n=raw/p;return (n<1.5?1:n<3.5?2:n<7.5?5:10)*p;}
-
-  function drawIsopach(){
-    if(S.columnKm<0.5)return;const wv=windVec();const ang=Math.atan2(wv[1],wv[0]);
-    const R=reaches();const base=R.ash*pxPerKm;
-    const levels=[[0.32,'rgba(120,124,132,0.30)','grueso'],[0.62,'rgba(132,136,144,0.20)','medio'],[1.0,'rgba(150,154,162,0.12)','fino']];
-    for(const [f,col,lab] of levels){
-      const a=base*f, b=a*0.42; // elipse alargada downwind
-      const ecx=cx+wv[0]*a*0.55, ecy=cy+wv[1]*a*0.55;
-      ctx.save();ctx.translate(ecx,ecy);ctx.rotate(ang);
-      ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(0,0,a*0.62,b,0,0,TAU);ctx.fill();ctx.restore();
-    }
-  }
-
-  function drawParticles(){
-    // flujos
-    for(const p of P){
-      if(p.type==='lava'){const t=p.frozen?0.06:lerp(0.92,0.28,p.cool||0);
-        ctx.fillStyle=thermCss(t,p.frozen?0.95:0.9);ctx.shadowColor=thermCss(0.8,.8);ctx.shadowBlur=p.frozen?0:8;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.7,0,TAU);ctx.fill();ctx.shadowBlur=0;}
-      else if(p.type==='pdc'){const t=lerp(0.5,0.12,p.cool||0);ctx.fillStyle=`rgba(${thermRGB(t).join(',')},0.42)`;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,TAU);ctx.fill();}
-      else if(p.type==='lahar'){ctx.fillStyle='rgba(120,90,60,0.7)';ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.8,0,TAU);ctx.fill();}
-    }
-    // ceniza (pluma)
-    for(const p of P){if(p.type==='ash'){const a=clamp(0.4*(1-p.r/p.reach)+0.05,0.03,0.4);
-      ctx.fillStyle=`rgba(154,161,173,${a})`;ctx.beginPath();ctx.arc(p.x,p.y,p.size*0.8,0,TAU);ctx.fill();}}
-    // balísticos
-    for(const p of P){if(p.type==='ball'){ctx.fillStyle=thermCss(clamp(1-p.age,0.2,1),0.9);ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,TAU);ctx.fill();}}
+  function drawBallistics(){
+    const Rb=FLOW.ball;if(Rb<0.1)return;const act=productRates().ball>0.05;
+    ctx.setLineDash([4,4]);ctx.strokeStyle=`rgba(255,182,72,${act?0.9:0.5})`;ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(X(0),Y(0),Rb*V.ppk,0,TAU);ctx.stroke();ctx.setLineDash([]);
+    if(Rb*V.ppk>46)text('zona de proyectiles balísticos',X(0),Y(0)-Rb*V.ppk-5,'rgba(255,200,120,.95)',9,'center');
+    for(const p of P){if(p.type!=='ball')continue;const k=1-p.age/0.7;ctx.fillStyle=thermCss(0.35+0.6*k,0.95*k);ctx.beginPath();ctx.arc(X(p.x),Y(p.y),1.2+2.6*k,0,TAU);ctx.fill();}
   }
   function drawCrater(){
-    // proyección de la cámara magmática (subsuelo, vista cenital)
-    ctx.save();
-    const chR=minR*0.17, chRy=minR*0.13;
-    ctx.fillStyle=`rgba(236,96,33,${0.05+0.05*S.intensity})`;
-    ctx.beginPath();ctx.ellipse(cx,cy,chR,chRy,0,0,TAU);ctx.fill();
-    ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(236,96,33,.5)';ctx.lineWidth=1.3;
-    ctx.beginPath();ctx.ellipse(cx,cy,chR,chRy,0,0,TAU);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='rgba(236,96,33,.65)';ctx.font='8px "JetBrains Mono"';ctx.textAlign='center';
-    ctx.fillText('cámara magmática (proyección)',cx,cy+chRy+12);ctx.textAlign='left';
-    ctx.restore();
-    // cráter
-    ctx.fillStyle='rgba(20,16,18,.9)';ctx.beginPath();ctx.arc(cx,cy,minR*0.045,0,TAU);ctx.fill();
-    if(S.intensity>0.05){ctx.fillStyle=thermCss(0.9,0.6+0.3*Math.sin(S.tGlobal*6));ctx.beginPath();ctx.arc(cx,cy,minR*0.03*(0.7+S.intensity*0.6),0,TAU);ctx.fill();}
-    ctx.strokeStyle='rgba(180,120,100,.7)';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(cx,cy,minR*0.045,0,TAU);ctx.stroke();
-    // flecha de viento
-    const wv=windVec();const ox=W-46,oy=46;
-    ctx.strokeStyle='rgba(249,200,17,.9)';ctx.fillStyle='rgba(249,200,17,.9)';ctx.lineWidth=2;
-    ctx.beginPath();ctx.arc(ox,oy,18,0,TAU);ctx.strokeStyle='rgba(39,48,63,.9)';ctx.stroke();
-    ctx.strokeStyle='rgba(249,200,17,.9)';ctx.beginPath();ctx.moveTo(ox-wv[0]*12,oy-wv[1]*12);ctx.lineTo(ox+wv[0]*12,oy+wv[1]*12);ctx.stroke();
-    const ah=Math.atan2(wv[1],wv[0]);ctx.beginPath();ctx.moveTo(ox+wv[0]*15,oy+wv[1]*15);
-    ctx.lineTo(ox+Math.cos(ah+2.5)*7,oy+Math.sin(ah+2.5)*7);ctx.lineTo(ox+Math.cos(ah-2.5)*7,oy+Math.sin(ah-2.5)*7);ctx.closePath();ctx.fill();
-    ctx.fillStyle='rgba(140,150,165,.7)';ctx.font='8px "JetBrains Mono"';ctx.textAlign='center';ctx.fillText('VIENTO',ox,oy+30);ctx.textAlign='left';
+    /* proyección de la cámara magmática (subsuelo) */
+    if(V.ppk>7){const a=3.2*V.ppk,b=2.3*V.ppk;
+      ctx.fillStyle=`rgba(236,96,33,${0.05+0.06*S.intensity})`;ctx.beginPath();ctx.ellipse(X(0),Y(0),a,b,0,0,TAU);ctx.fill();
+      ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(255,150,90,.75)';ctx.lineWidth=1.2;ctx.stroke();ctx.setLineDash([]);
+      if(a>70)text('cámara magmática (proyección)',X(0),Y(0)+b+12,'rgba(255,170,120,.95)',9,'center');}
+    if(S.intensity>0.05){const rr=Math.max(3,World.RRIM*0.8*V.ppk)*(0.8+S.intensity*0.5);
+      ctx.fillStyle=thermCss(0.9,0.55+0.3*Math.sin(S.tGlobal*6));ctx.shadowColor=thermCss(0.8,1);ctx.shadowBlur=14;ctx.beginPath();ctx.arc(X(0),Y(0),rr,0,TAU);ctx.fill();ctx.shadowBlur=0;}
   }
-  function draw(dt){updateScale();drawScene();drawIsopach();spawn();update(dt);drawParticles();drawCrater();}
-  function reset(){P.length=0;for(const k in acc)acc[k]=0;}
-  return {resize,draw,reset,reaches};
+  function drawLabels(){
+    const k=V.ppk;
+    /* línea del perfil A–A′ */
+    if(k>6){const y=Y(0),x0=X(-14),x1=X(14);ctx.setLineDash([9,5]);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(X(-0.9),y);ctx.moveTo(X(0.9),y);ctx.lineTo(x1,y);ctx.stroke();ctx.setLineDash([]);
+      text('A',x0-4,y+4,'#fff',12,'right');text('A′',x1+4,y+4,'#fff',12);}
+    /* poblaciones: primero las principales; se omite la etiqueta que se monte sobre otra */
+    const used=[];
+    for(const t of TOWN_ORDER){const x=X(t.x),y=Y(t.y);if(x<64||x>W-64||y<30||y>H-44)continue;
+      if(!t.big&&k<24)continue;if(t.far&&k>60)continue;
+      const e=EXPO.towns[t.id],hit=e.lahar+e.pdc+e.lava,off=Math.max(9,t.R*k+6),w=t.n.length*6.4+10,bx=[x-w/2,y-off-11,x+w/2,y-off+(hit?15:3)];
+      if(used.some(u=>bx[0]<u[2]&&bx[2]>u[0]&&bx[1]<u[3]&&bx[3]>u[1]))continue;used.push(bx);
+      text(t.n,x,y-off,'#f4f1e6',t.big?10.5:9,'center');
+      if(hit>0)text(hit+' edif. alcanzadas',x,y-off+12,'#ffb199',9,'center');}
+  }
+  function drawFurniture(){
+    /* escala gráfica */
+    const km=niceStep(110/V.ppk),len=km*V.ppk,x0=14,y0=H-58;
+    ctx.fillStyle='rgba(8,14,28,.72)';ctx.fillRect(x0-7,y0-17,len+14,27);
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x0,y0-4);ctx.lineTo(x0,y0+3);ctx.lineTo(x0+len,y0+3);ctx.lineTo(x0+len,y0-4);ctx.moveTo(x0+len/2,y0+3);ctx.lineTo(x0+len/2,y0-1);ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='10px '+MONO;ctx.textAlign='center';ctx.fillText((km<1?km*1000+' m':km+' km'),x0+len/2,y0-7);ctx.textAlign='left';
+    /* norte y viento */
+    const w=windVecEN(),ox=W-44,oy=48;
+    ctx.fillStyle='rgba(8,14,28,.72)';ctx.beginPath();ctx.arc(ox,oy,24,0,TAU);ctx.fill();ctx.strokeStyle='rgba(120,140,170,.7)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='rgba(220,226,236,.9)';ctx.font='9px '+MONO;ctx.textAlign='center';ctx.fillText('N',ox,oy-27);
+    ctx.strokeStyle='rgba(249,200,17,.95)';ctx.fillStyle='rgba(249,200,17,.95)';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.moveTo(ox-w[0]*13,oy+w[1]*13);ctx.lineTo(ox+w[0]*11,oy-w[1]*11);ctx.stroke();
+    const ah=Math.atan2(-w[1],w[0]);ctx.beginPath();ctx.moveTo(ox+w[0]*17,oy-w[1]*17);ctx.lineTo(ox+Math.cos(ah+2.5)*8,oy+Math.sin(ah+2.5)*8);ctx.lineTo(ox+Math.cos(ah-2.5)*8,oy+Math.sin(ah-2.5)*8);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(200,208,222,.9)';ctx.font='8px '+MONO;ctx.fillText('VIENTO',ox,oy+37);ctx.textAlign='left';
+  }
+
+  function draw(dt){
+    if(V.auto){const tg=minR/autoKm();V.x=smooth(V.x,0,5,dt||0.016);V.y=smooth(V.y,0,5,dt||0.016);V.ppk=smooth(V.ppk,tg,3.5,dt||0.016);
+      if(Math.abs(V.ppk-tg)<tg*0.002)V.ppk=tg;if(Math.abs(V.x)<0.01)V.x=0;if(Math.abs(V.y)<0.01)V.y=0;}
+    /* el mapa base y los vectores fijos sólo se redibujan cuando cambia el encuadre */
+    if(!World.LV[0].ready){drawBase();return;}
+    const key=[V.x.toFixed(3),V.y.toFixed(3),V.ppk.toFixed(3),cv.width,cv.height,S.glacier?1:0,World.LV.map(l=>l.ready?1:0).join(''),World.SNOW.ready?1:0].join('|');
+    if(key!==baseKey){
+      if(!baseCv||baseCv.width!==cv.width||baseCv.height!==cv.height){baseCv=document.createElement('canvas');baseCv.width=cv.width;baseCv.height=cv.height;baseCtx=baseCv.getContext('2d');}
+      baseCtx.setTransform(DPR,0,0,DPR,0,0);ctx=baseCtx;drawBase();drawStatic();ctx=mainCtx;baseKey=key;}
+    ctx.drawImage(baseCv,0,0,W,H);
+    drawAshDeposit();
+    drawFlows();
+    drawBuildings();
+    drawBallistics();drawPlume();
+    drawCrater();drawLabels();drawFurniture();
+  }
+  function step(dt){if(dt>0){spawn(dt);update(dt);}}
+  function reset(){P.length=0;for(const k in acc)acc[k]=0;V.auto=true;}
+  return {resize,step,draw,reset,view:V};
 })();
 /* ============================================================
-   VISTA 3D — edificio volcánico (Three.js r128)
+   VISTA 3D — terreno texturizado, poblaciones, columna eruptiva,
+   flujos encauzados y corte geológico (Three.js r128)
+   Unidades: 1 = 1 km · X = Este · Y = arriba · Z = Sur
    ============================================================ */
 const View3D=(function(){
   const host=$('three');
-  let ok = (typeof THREE!=='undefined');
-  let renderer,scene,cam,terrainMesh,ventLight,coreMesh,plumeGeo,plumePts,flowGeo,flowPts,glow,chamberMesh,conduitMesh;
-  let W=1,H=1;
-  // órbita manual
-  let theta=0.9, phi=1.02, radius=205;          // esféricas
-  const TR=185, SUMMIT=40, CRATER_R=0.085, CRATER_D=7.2, SIZE=120, GRID=104;
-  let dragging=false,lx=0,ly=0;
+  let ok=(typeof THREE!=='undefined');
+  const VE=1.45, YV=h=>h*VE;                       // exageración vertical del relieve
+  let renderer,scene,cam,W=1,H=1,ready=false,msg=null;
+  let hemi,sun,ventLight,sky,skyDay,skyNight,stars,ground;
+  let gN,gM,gF,mN,mM,mF,cvN,cvM,txN,txM,txF;
+  let walls,roofs,lamps,B3=[];
+  let puffGeo,puffMat,puffPts,glowGeo,glowMat,glowPts;
+  const PMAX=2600,GMAX=420,puffs=[],glows=[];
+  let pPos,pCol,pSize,gPos,gCol,gSize;
+  const acc={col:0,gas:0,ball:0,fountain:0,pdc:[0,0,0,0,0,0]};
+  let ribP,ribL,ribV,ribVer=-1;
+  const cut={on:false,plane:null,group:null,magCv:null,magTx:null,t:0};
+  const clipMats=[];
+  /* cámara orbital: actual (C) y deseada (D) */
+  const C={th:1.2,ph:1.27,r:27,tx:0,ty:2.7,tz:0},D={th:1.2,ph:1.27,r:27,tx:0,ty:2.7,tz:0};
+  let camMode='general',manualZoom=false,drag=false,lx=0,ly=0,pinch=0;
 
-  /* --- perfil de altura del cono (normalizado) --- */
-  function coneH(rN,ang){
-    let h=Math.pow(clamp(1-rN,0,1),1.45);                 // cono base
-    h+=0.05*Math.sin(ang*7+rN*3)*clamp(1-rN,0,1);          // crestas radiales
-    h+=0.028*Math.sin(rN*15)*Math.sin(ang*3);              // rugosidad
-    h+=0.018*Math.sin(ang*13);                             // micro-relieve
-    if(rN<CRATER_R){ const d=(CRATER_R-rN)/CRATER_R; h-=d*d*(CRATER_D/SUMMIT); } // cráter hundido
-    return Math.max(h,-0.02);
-  }
-  function terrYworld(x,z){
-    const rN=Math.min(Math.sqrt(x*x+z*z)/SIZE,1.4); const ang=Math.atan2(z,x);
-    return coneH(rN,ang)*SUMMIT;
-  }
-  function terrColor(hN,rN,glac){
-    // hN: altura relativa 0..1 ; rN: radio normalizado
-    let c=new THREE.Color();
-    if(glac && hN>0.74){ c.setRGB(0.86,0.89,0.95); }            // nieve/glaciar
-    else if(rN<CRATER_R+0.015){ c.setRGB(0.16,0.11,0.10); }      // interior cráter
-    else if(hN>0.62){ const t=(hN-0.62)/0.38; c.setRGB(lerp(0.34,0.5,t),lerp(0.31,0.47,t),lerp(0.30,0.46,t)); } // roca gris
-    else if(hN>0.30){ const t=(hN-0.30)/0.32; c.setRGB(lerp(0.32,0.40,t),lerp(0.26,0.30,t),lerp(0.18,0.21,t)); } // suelo pardo
-    else { const t=hN/0.30; c.setRGB(lerp(0.16,0.27,t),lerp(0.24,0.33,t),lerp(0.12,0.15,t)); }                   // vegetación
-    return c;
-  }
-
-  function buildTerrain(){
-    const g=new THREE.BufferGeometry();
-    const verts=[],cols=[],idx=[];
-    const half=SIZE, step=(SIZE*2)/GRID;
-    for(let j=0;j<=GRID;j++)for(let i=0;i<=GRID;i++){
-      const x=-half+i*step, z=-half+j*step; const y=terrYworld(x,z);
-      verts.push(x,y,z);
-      const rN=Math.min(Math.sqrt(x*x+z*z)/SIZE,1.2), hN=clamp(y/SUMMIT,0,1);
-      const c=terrColor(hN,rN,S.glacier); cols.push(c.r,c.g,c.b);
-    }
-    for(let j=0;j<GRID;j++)for(let i=0;i<GRID;i++){
-      const a=j*(GRID+1)+i,b=a+1,d=a+(GRID+1),e=d+1;
-      idx.push(a,d,b, b,d,e);
-    }
-    g.setIndex(idx);
-    g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
-    g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));
-    g.computeVertexNormals();
-    return g;
-  }
-  function recolorTerrain(){
-    if(!terrainMesh)return; const pos=terrainMesh.geometry.attributes.position, col=terrainMesh.geometry.attributes.color;
-    for(let k=0;k<pos.count;k++){ const x=pos.getX(k),y=pos.getY(k),z=pos.getZ(k);
-      const rN=Math.min(Math.sqrt(x*x+z*z)/SIZE,1.2),hN=clamp(y/SUMMIT,0,1); const c=terrColor(hN,rN,S.glacier);
-      col.setXYZ(k,c.r,c.g,c.b); }
-    col.needsUpdate=true;
+  /* ---------- mallas del terreno ---------- */
+  function mkGrid(n,half,lod){const A=new Float32Array((n+1)*(n+1)),st=2*half/n;
+    for(let j=0;j<=n;j++){const y=half-j*st;for(let i=0;i<=n;i++){const x=-half+i*st;A[j*(n+1)+i]=lod===0?World.hAt(x,y):World.height(x,y,lod);}}
+    return{n,half,st,H:A};}
+  function gH(g,x,y){const fx=clamp((x+g.half)/g.st,0,g.n-1e-4),fy=clamp((g.half-y)/g.st,0,g.n-1e-4),i=fx|0,j=fy|0,u=fx-i,v=fy-j,k=j*(g.n+1)+i,A=g.H;
+    return (A[k]*(1-u)+A[k+1]*u)*(1-v)+(A[k+g.n+1]*(1-u)+A[k+g.n+2]*u)*v;}
+  function meshH(x,y){return Math.abs(x)<gN.half&&Math.abs(y)<gN.half?gH(gN,x,y):Math.abs(x)<gM.half&&Math.abs(y)<gM.half?gH(gM,x,y):gH(gF,x,y);}
+  /* el borde de cada malla se funde con la malla más gruesa que la rodea */
+  function blendBorder(g,outer,cells){const n=g.n;for(let j=0;j<=n;j++)for(let i=0;i<=n;i++){const d=Math.min(i,j,n-i,n-j);if(d>=cells)continue;
+      const x=-g.half+i*g.st,y=g.half-j*g.st,w=1-d/cells,k=j*(n+1)+i;g.H[k]=lerp(g.H[k],gH(outer,x,y),w*w*(3-2*w));}}
+  function mkTerrain(g,inner){const n=g.n,N=(n+1)*(n+1),pos=new Float32Array(N*3),uv=new Float32Array(N*2),idx=[];
+    for(let j=0;j<=n;j++)for(let i=0;i<=n;i++){const k=j*(n+1)+i,x=-g.half+i*g.st,y=g.half-j*g.st;let h=g.H[k];
+      if(inner&&Math.abs(x)<inner-g.st*1.01&&Math.abs(y)<inner-g.st*1.01)h-=0.35;
+      pos[k*3]=x;pos[k*3+1]=YV(h);pos[k*3+2]=-y;uv[k*2]=i/n;uv[k*2+1]=1-j/n;}
+    for(let j=0;j<n;j++)for(let i=0;i<n;i++){
+      if(inner){const x0=-g.half+i*g.st,y0=g.half-j*g.st,m=inner-g.st*2.1;if(Math.abs(x0)<m&&Math.abs(x0+g.st)<m&&Math.abs(y0)<m&&Math.abs(y0-g.st)<m)continue;}
+      const a=j*(n+1)+i,b=a+1,c=a+n+1,d=c+1;idx.push(a,c,b,b,c,d);}
+    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+    geo.setIndex(idx);geo.computeVertexNormals();return geo;}
+  function mkTex(cv){const t=new THREE.CanvasTexture(cv);t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;}
+  /* cada textura se funde en sus bordes con el nivel más grueso, para que no se note el cambio de detalle */
+  function paintTex(){
+    const L0=World.LV[0],L1=World.LV[1],L2=World.LV[2],SN=World.SNOW;
+    const under=(c,n,Lf,Lc)=>{const k=Lc.n/(2*Lc.half),s0=(Lc.half-Lf.half)*k;c.drawImage(Lc.tex,s0,s0,2*Lf.half*k,2*Lf.half*k,0,0,n,n);};
+    const snow=(c,n,L)=>{if(S.glacier&&SN.ready){const k=n/(2*L.half);c.drawImage(SN.tex,(L.half-SN.half)*k,(L.half-SN.half)*k,2*SN.half*k,2*SN.half*k);}};
+    if(L0.ready&&cvN){const c=cvN.getContext('2d'),n=cvN.width;
+      if(L1.ready){under(c,n,L0,L1);c.drawImage(L0.texF,0,0,n,n);}else c.drawImage(L0.tex,0,0,n,n);
+      snow(c,n,L0);txN.needsUpdate=true;}
+    if(L1.ready&&cvM){const c=cvM.getContext('2d'),n=cvM.width;
+      if(L2.ready){under(c,n,L1,L2);c.drawImage(L1.texF,0,0,n,n);}else c.drawImage(L1.tex,0,0,n,n);
+      snow(c,n,L1);txM.needsUpdate=true;if(!mM.material.map){mM.material.map=txM;mM.material.color.set(0xffffff);mM.material.needsUpdate=true;}}
   }
 
-  // sistemas de partículas (pluma + flujos) ----------------
-  const PMAX=2200, plume=[]; const FMAX=900, flow=[];
-  let plPos,plCol,flPos,flCol;
-  function initParticles(){
-    plPos=new Float32Array(PMAX*3); plCol=new Float32Array(PMAX*3);
-    plumeGeo=new THREE.BufferGeometry();
-    plumeGeo.setAttribute('position',new THREE.BufferAttribute(plPos,3));
-    plumeGeo.setAttribute('color',new THREE.BufferAttribute(plCol,3));
-    const pm=new THREE.PointsMaterial({size:2.5,vertexColors:true,transparent:true,opacity:0.82,depthWrite:false,blending:THREE.NormalBlending});
-    plumePts=new THREE.Points(plumeGeo,pm); scene.add(plumePts);
+  /* ---------- cielo ---------- */
+  function skyTex(stops){const c=document.createElement('canvas');c.width=4;c.height=256;const g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,256);
+    for(const s of stops)gr.addColorStop(s[0],s[1]);g.fillStyle=gr;g.fillRect(0,0,4,256);return new THREE.CanvasTexture(c);}
 
-    flPos=new Float32Array(FMAX*3); flCol=new Float32Array(FMAX*3);
-    flowGeo=new THREE.BufferGeometry();
-    flowGeo.setAttribute('position',new THREE.BufferAttribute(flPos,3));
-    flowGeo.setAttribute('color',new THREE.BufferAttribute(flCol,3));
-    const fm=new THREE.PointsMaterial({size:3.0,vertexColors:true,transparent:true,opacity:0.92,depthWrite:false});
-    flowPts=new THREE.Points(flowGeo,fm); scene.add(flowPts);
+  /* ---------- edificaciones ---------- */
+  const ROOF3=[0xb3573a,0xb4b9be,0x8f8d88];
+  function buildTowns(){
+    B3=World.buildings.filter(b=>Math.abs(b.x)<gM.half-1&&Math.abs(b.y)<gM.half-1);
+    const ch=World.towns[0].church,extra=[{x:ch.x,y:ch.y,ang:ch.ang,w:0.12,d:0.07,hh:0.075,roof:0,hit:0,church:1},
+      {x:ch.x-0.07*Math.cos(ch.ang),y:ch.y-0.07*Math.sin(ch.ang),ang:ch.ang,w:0.045,d:0.045,hh:0.15,roof:0,hit:0,church:1}];
+    const all=B3.concat(extra),n=all.length;
+    const wg=new THREE.BoxGeometry(1,1,1);wg.translate(0,0.5,0);
+    const rg=new THREE.ConeGeometry(0.74,1,4,1);rg.rotateY(Math.PI/4);rg.translate(0,0.5,0);
+    walls=new THREE.InstancedMesh(wg,clipMat(new THREE.MeshLambertMaterial({color:0xffffff})),n);
+    roofs=new THREE.InstancedMesh(rg,clipMat(new THREE.MeshLambertMaterial({color:0xffffff})),n);
+    const m=new THREE.Matrix4(),q=new THREE.Quaternion(),p=new THREE.Vector3(),s=new THREE.Vector3(),up=new THREE.Vector3(0,1,0),lp=new Float32Array(n*3);
+    all.forEach((b,i)=>{const y=YV(meshH(b.x,b.y))-0.006;q.setFromAxisAngle(up,b.ang);
+      p.set(b.x,y,-b.y);s.set(b.w,b.hh,b.d);m.compose(p,q,s);walls.setMatrixAt(i,m);
+      p.set(b.x,y+b.hh,-b.y);s.set(b.w*1.1,b.hh*(b.church?0.8:0.62),b.d*1.1);m.compose(p,q,s);roofs.setMatrixAt(i,m);
+      lp[i*3]=b.x;lp[i*3+1]=y+b.hh*0.6;lp[i*3+2]=-b.y;});
+    B3=all;scene.add(walls);scene.add(roofs);
+    const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(lp,3));
+    lamps=new THREE.Points(lg,clipMat(new THREE.PointsMaterial({color:0xffc878,size:0.11,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending,depthWrite:false})));
+    lamps.visible=false;scene.add(lamps);
+    paintHits();
   }
-  function ventY(){return terrYworld(0,0);}
-  function windVec3(){const r=S.windDir*Math.PI/180;return[Math.sin(r),0,-Math.cos(r)];}
-  function emit(dt){
-    const R=productRates(); const I=S.intensity; if(I<=0.02 && R.gas<0.05)return;
-    const vy0=()=>SUMMIT*0.9+I*60;
-    // pluma / ceniza / gas
-    let n=Math.floor((R.ash*9 + R.gas*4 + R.ball*2)*I*60*dt + (R.gas>0?1:0)*2*dt*60);
-    n=Math.min(n,40);
-    for(let i=0;i<n && plume.length<PMAX;i++){
-      const a=rand(TAU), rr=rand(CRATER_R*SIZE*0.7);
-      plume.push({x:Math.cos(a)*rr, y:ventY()+rand(3), z:Math.sin(a)*rr,
-        vx:Math.cos(a)*rand(2), vy:vy0()*rand(0.7,1.1)*0.016, vz:Math.sin(a)*rand(2),
-        age:0, life:rand(3.4,6.5), hot:Math.random()<0.5?1:0, sz:rand(0.6,1.4)});
-    }
-    // flujos: lava / CDP / lahar descendiendo la ladera
-    const ftypes=[];
-    if(R.lava>0.05)ftypes.push(['lava',R.lava]);
-    if(R.pdc>0.05) ftypes.push(['pdc',R.pdc]);
-    if(R.lahar>0.05)ftypes.push(['lahar',R.lahar]);
-    for(const [ty,rate] of ftypes){
-      let m=Math.floor(rate*I*22*dt*60); m=Math.min(m,10);
-      for(let i=0;i<m && flow.length<FMAX;i++){
-        const a=rand(TAU);
-        flow.push({ty, ang:a, r:CRATER_R*SIZE+rand(4), age:0,
-          life:ty==='lava'?rand(7,13):rand(3,6),
-          spd:ty==='pdc'?rand(34,52):ty==='lahar'?rand(26,40):rand(10,18)});
-      }
-    }
+  const _c=ok?new THREE.Color():null;
+  function paintHits(){if(!walls)return;
+    B3.forEach((b,i)=>{const f=b.hit&7;
+      walls.setColorAt(i,_c.set(f&4?0x241c1a:f&2?0x57504c:f&1?0x6a4d34:0xece5d3));
+      roofs.setColorAt(i,_c.set(f&4?0x1c1614:f&2?0x4a4442:f&1?0x5a4230:(b.hit&8)?0xa9a7a3:ROOF3[b.roof]));});
+    walls.instanceColor.needsUpdate=true;roofs.instanceColor.needsUpdate=true;}
+
+  /* ---------- cintas de flujo sobre el terreno (CDP, lahar, lava) ---------- */
+  const RSEG=400;
+  function mkRibbon(order){const nV=6*(RSEG+1)*3,pos=new Float32Array(nV*3),col=new Float32Array(nV*3),idx=[];
+    for(let v=0;v<6;v++){const base=v*(RSEG+1)*3;for(let k=0;k<RSEG;k++){const a=base+k*3;idx.push(a,a+1,a+3,a+1,a+4,a+3,a+1,a+2,a+4,a+2,a+5,a+4);}}
+    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.setIndex(idx);
+    const mesh=new THREE.Mesh(geo,clipMat(new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2-order*2,polygonOffsetUnits:-2-order*2})));
+    mesh.frustumCulled=false;mesh.renderOrder=1+order;scene.add(mesh);return{geo,pos,col,mesh,lift:0.012+0.008*order};}
+  function fillRibbon(R,front,s0,wfn,colfn){const ds=World.VL_DS,pos=R.pos,col=R.col;let any=false;
+    for(let v=0;v<6;v++){const F=Math.min(front[v],RSEG*ds-0.2),L=World.VLINE[v],base=v*(RSEG+1)*3;
+      for(let k=0;k<=RSEG;k++){const s=k*ds,o=k*4,i=(base+k*3)*3;let w=0;
+        if(F>s0+0.05&&s>=s0&&s<=F){w=wfn(s,F);any=true;}
+        const x=L[o],y=L[o+1],nx=L[o+2],ny=L[o+3];
+        if(w<=0){const yy=YV(meshH(x,y))-0.25;pos[i]=pos[i+3]=pos[i+6]=x;pos[i+1]=pos[i+4]=pos[i+7]=yy;pos[i+2]=pos[i+5]=pos[i+8]=-y;continue;}
+        const hc=meshH(x,y),hl=Math.max(meshH(x+nx*w,y+ny*w),hc),hr=Math.max(meshH(x-nx*w,y-ny*w),hc);
+        pos[i]=x+nx*w;pos[i+1]=YV(hl)+R.lift;pos[i+2]=-(y+ny*w);pos[i+3]=x;pos[i+4]=YV(hc)+R.lift*1.6;pos[i+5]=-y;pos[i+6]=x-nx*w;pos[i+7]=YV(hr)+R.lift;pos[i+8]=-(y-ny*w);
+        colfn(s,F,col,i);}}
+    R.geo.attributes.position.needsUpdate=true;R.geo.attributes.color.needsUpdate=true;R.mesh.visible=any;}
+  function updateRibbons(){
+    const F=FLOW,nk=S.night?0.42:1,t=S.tGlobal;
+    fillRibbon(ribP,F.pdc,0.6,wPdc,(s,Fv,c,i)=>{const g=(0.50+0.08*World.hash2((s*7)|0,3))*nk;c[i]=c[i+6]=g*0.98;c[i+1]=c[i+7]=g*0.88;c[i+2]=c[i+8]=g*0.80;c[i+3]=g*1.10;c[i+4]=g;c[i+5]=g*0.92;});
+    fillRibbon(ribL,F.lah,F.LAH0,wLah,(s,Fv,c,i)=>{const w=0.5+0.5*Math.sin(s*9-t*7),g=nk;c[i]=c[i+6]=0.36*g;c[i+1]=c[i+7]=0.26*g;c[i+2]=c[i+8]=0.17*g;c[i+3]=(0.44+0.08*w)*g;c[i+4]=(0.33+0.06*w)*g;c[i+5]=(0.22+0.04*w)*g;});
+    const hot=1-F.lavCool;
+    fillRibbon(ribV,F.lav,0.42,wLav,(s,Fv,c,i)=>{const e=thermRGB(lerp(0.06,0.55-0.2*s/Math.max(Fv,0.5),hot)),m=thermRGB(lerp(0.08,0.96-0.25*s/Math.max(Fv,0.5),hot));
+      c[i]=c[i+6]=e[0]/255;c[i+1]=c[i+7]=e[1]/255;c[i+2]=c[i+8]=e[2]/255;c[i+3]=m[0]/255;c[i+4]=m[1]/255;c[i+5]=m[2]/255;});
+  }
+
+  /* ---------- nubes volumétricas (puntos con sombreado) ---------- */
+  function mkParticles(){
+    pPos=new Float32Array(PMAX*3);pCol=new Float32Array(PMAX*4);pSize=new Float32Array(PMAX);
+    puffGeo=new THREE.BufferGeometry();puffGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));puffGeo.setAttribute('aCol',new THREE.BufferAttribute(pCol,4));puffGeo.setAttribute('aSize',new THREE.BufferAttribute(pSize,1));
+    puffMat=new THREE.ShaderMaterial({uniforms:{uScale:{value:800}},transparent:true,depthWrite:false,
+      vertexShader:'attribute float aSize;attribute vec4 aCol;varying vec4 vCol;uniform float uScale;void main(){vCol=aCol;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=min(aSize*uScale/max(-mv.z,0.2),300.0);gl_Position=projectionMatrix*mv;}',
+      fragmentShader:'varying vec4 vCol;void main(){vec2 p=gl_PointCoord*2.0-1.0;float d=dot(p,p);if(d>1.0)discard;float a=smoothstep(1.0,0.2,d);float l=0.80+0.34*dot(p,vec2(-0.55,-0.62))+0.10*(1.0-d);gl_FragColor=vec4(vCol.rgb*l,vCol.a*a);}'});
+    puffPts=new THREE.Points(puffGeo,puffMat);puffPts.frustumCulled=false;puffPts.renderOrder=6;scene.add(puffPts);
+    gPos=new Float32Array(GMAX*3);gCol=new Float32Array(GMAX*4);gSize=new Float32Array(GMAX);
+    glowGeo=new THREE.BufferGeometry();glowGeo.setAttribute('position',new THREE.BufferAttribute(gPos,3));glowGeo.setAttribute('aCol',new THREE.BufferAttribute(gCol,4));glowGeo.setAttribute('aSize',new THREE.BufferAttribute(gSize,1));
+    glowMat=new THREE.ShaderMaterial({uniforms:{uScale:{value:800}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+      vertexShader:puffMat.vertexShader,
+      fragmentShader:'varying vec4 vCol;void main(){vec2 p=gl_PointCoord*2.0-1.0;float d=dot(p,p);if(d>1.0)discard;float a=(1.0-d);gl_FragColor=vec4(vCol.rgb*a*vCol.a,1.0);}'});
+    glowPts=new THREE.Points(glowGeo,glowMat);glowPts.frustumCulled=false;glowPts.renderOrder=7;scene.add(glowPts);
+  }
+  const ventY=()=>YV(World.CFLOOR)+0.05;
+  function spawn(dt){
+    const r=productRates(),R=reaches(),Hc=Math.max(S.columnKm,0.35);
+    const emit=(key,rate,fn)=>{acc[key]+=rate*dt;while(acc[key]>=1){acc[key]-=1;fn();}};
+    emit('col',r.ash*72,()=>{if(puffs.length<PMAX)puffs.push({k:0,t:0,life:rand(6.5,10.5),tau:rand(0.9,1.5),ztop:Hc*rand(0.8,1.04),hc:Hc,ang:rand(TAU),off:Math.sqrt(Math.random()),rs:Math.random(),u:rand(0.3,1.2)});});
+    emit('gas',r.gas*7,()=>{if(puffs.length<PMAX)puffs.push({k:1,t:0,life:rand(3,5.5),tau:rand(1.2,2),ztop:rand(0.5,1.4)*(0.6+S.gas/160),hc:1.2,ang:rand(TAU),off:Math.random(),rs:Math.random(),u:0});});
+    for(let v=0;v<6;v++){const act=FLOW.pdcAct[v],F=Math.min(FLOW.pdc[v],RSEG*World.VL_DS-0.5);if(act<0.03||F<=FLOW.PDC0)continue;
+      acc.pdc[v]+=20*act*dt;while(acc.pdc[v]>=1){acc.pdc[v]-=1;if(puffs.length>=PMAX)break;
+        const s0=Math.random()<0.45?Math.max(F-Math.random()*1.3,0.5):rand(0.5,Math.max(0.6,F*0.55));
+        puffs.push({k:2,t:0,life:rand(2.4,4.4),v,s:s0,spd:rand(1.6,3.2),lat:rand(-0.8,0.8),hov:rand(0.03,0.12),sz:rand(0.38,0.75),rs:Math.random()});}}
+    const g=3.0;
+    emit('ball',r.ball*10,()=>{if(glows.length<GMAX){const T=rand(1.0,1.9),a=rand(TAU),d=rand(0.2,1)*R.ball/T;glows.push({k:0,t:0,life:3,x:0,y:ventY(),z:0,vx:Math.cos(a)*d,vy:g*T/2,vz:Math.sin(a)*d,sz:rand(0.10,0.17)});}});
+    emit('fountain',r.fountain*60,()=>{if(glows.length<GMAX){const h=rand(0.3,1)*0.55*(0.6+S.gas/120),v=Math.sqrt(2*g*h),a=rand(TAU);glows.push({k:1,t:0,life:2.4,x:0,y:ventY(),z:0,vx:Math.cos(a)*v*0.2,vy:v,vz:Math.sin(a)*v*0.2,sz:rand(0.07,0.12)});}});
   }
   function stepParticles(dt){
-    const wv=windVec3(); const colH=Math.max(20,S.columnKm/35*150);
-    for(let i=plume.length-1;i>=0;i--){const p=plume[i];p.age+=dt;
-      const rel=clamp((p.y-ventY())/colH,0,1);
-      // empuje→convección→paraguas
-      p.vy += (rel<0.5? 8*dt : -3*dt); p.vy=clamp(p.vy,-2,80);
-      const spread=(rel>0.45?1:0.15)*(8+rel*20);
-      const dirx=p.x, dirz=p.z, dl=Math.hypot(dirx,dirz)||1;
-      p.vx += (dirx/dl)*spread*dt + wv[0]*S.windSpd*0.02*dt*(0.3+rel);
-      p.vz += (dirz/dl)*spread*dt + wv[2]*S.windSpd*0.02*dt*(0.3+rel);
-      p.x+=p.vx*dt*6; p.y+=p.vy*dt*6; p.z+=p.vz*dt*6;
-      if(p.age>p.life||p.y<ventY()-4){plume.splice(i,1);}
-    }
-    for(let i=flow.length-1;i>=0;i--){const f=flow[i];f.age+=dt; f.r+=f.spd*dt;
-      if(f.age>f.life||f.r>SIZE*1.15){flow.splice(i,1);}
-    }
-    // volcar a buffers
-    let k=0; for(const p of plume){ if(k>=PMAX)break;
-      plPos[k*3]=p.x; plPos[k*3+1]=p.y; plPos[k*3+2]=p.z;
-      const rel=clamp((p.y-ventY())/colH,0,1);
-      if(p.hot && rel<0.25){const c=thermRGB(lerp(0.95,0.4,rel/0.25)); plCol[k*3]=c[0]/255;plCol[k*3+1]=c[1]/255;plCol[k*3+2]=c[2]/255;}
-      else {const g=lerp(0.34,0.62,rel); plCol[k*3]=g; plCol[k*3+1]=g*0.97; plCol[k*3+2]=g*0.99;}
-      k++; }
-    plumeGeo.setDrawRange(0,k); plPos.fill(0,k*3); 
-    plumeGeo.attributes.position.needsUpdate=true; plumeGeo.attributes.color.needsUpdate=true;
-
-    let m=0; for(const f of flow){ if(m>=FMAX)break;
-      const x=Math.cos(f.ang)*f.r, z=Math.sin(f.ang)*f.r;
-      let yoff=1.2, c;
-      if(f.ty==='lava'){c=thermRGB(clamp(1-f.age/f.life*0.8,0.25,1));c=[c[0]/255,c[1]/255,c[2]/255];}
-      else if(f.ty==='pdc'){const k=f.age/f.life; c=[lerp(0.66,0.34,k),lerp(0.24,0.18,k),lerp(0.20,0.18,k)]; yoff=2.5+6*(1-k);} // CDP: nube rojiza-carbón que se eleva
-      else {c=[lerp(0.52,0.42,f.age/f.life),lerp(0.38,0.31,f.age/f.life),0.20];} // lahar: pardo-lodo pegado al suelo
-      const y=terrYworld(x,z)+yoff;
-      flPos[m*3]=x; flPos[m*3+1]=y; flPos[m*3+2]=z;
-      flCol[m*3]=c[0]; flCol[m*3+1]=c[1]; flCol[m*3+2]=c[2]; m++; }
-    flowGeo.setDrawRange(0,m); flPos.fill(0,m*3);
-    flowGeo.attributes.position.needsUpdate=true; flowGeo.attributes.color.needsUpdate=true;
+    const w=windVecEN(),wE=w[0],wN=w[1],ws=S.windSpd/140,N=S.night,I=S.intensity,vy0=ventY(),g=3.0,ds=World.VL_DS;
+    let n=0;
+    for(let i=puffs.length-1;i>=0;i--){const p=puffs[i];p.t+=dt;if(p.t>p.life){puffs.splice(i,1);continue;}}
+    for(let i=0;i<puffs.length&&n<PMAX;i++){const p=puffs[i],t=p.t;let x,y,z,sz,cr,cg,cb,a;
+      if(p.k<2){const zz=p.ztop*(1-Math.exp(-t/p.tau)),f=zz/p.hc,Rc=(p.k?0.10:0.16)+0.115*zz,tu=1.9*p.tau,du=Math.max(0,t-tu),bend=0.55*zz*zz/Math.max(p.hc,1.5)*ws;
+        x=Math.cos(p.ang)*p.off*Rc*0.7+wE*bend;z=Math.sin(p.ang)*p.off*Rc*0.7-wN*bend;y=vy0+zz;
+        if(p.k===0&&du>0){const e=1-Math.exp(-du/2.2),rad=p.u*p.hc*0.62*e,dr=(0.35+0.07*p.hc)*S.windSpd/45*du;x+=Math.cos(p.ang)*rad+wE*dr;z+=Math.sin(p.ang)*rad-wN*dr;y+=-0.035*p.hc*p.u*e-0.03*du;}
+        if(p.k===1){x+=wE*ws*t*1.6;z-=wN*ws*t*1.6;}
+        sz=2*Rc*(0.8+0.5*p.rs)*(1+0.16*du);
+        a=Math.min(1,t/0.25)*(t>p.life*0.62?Math.max(0,1-(t-p.life*0.62)/(p.life*0.38)):1)*(p.k?0.42:0.93);
+        if(p.k){cr=0.93;cg=0.95;cb=0.97;if(N){cr=0.42;cg=0.46;cb=0.56;}}
+        else{const c=f<0.2?0.30:f<0.6?lerp(0.30,0.50,(f-0.2)/0.4):lerp(0.50,0.66,clamp((f-0.6)/0.4,0,1)),j=0.92+0.16*p.rs;cr=c*j;cg=c*j*0.97;cb=c*j*0.94;
+          if(N){cr*=0.40;cg*=0.42;cb*=0.52;if(f<0.32){const k=(0.32-f)/0.32*I;cr+=0.75*k;cg+=0.24*k;cb+=0.04*k;}}}
+      }else{const F=Math.min(FLOW.pdc[p.v],RSEG*ds-0.5);p.s=Math.min(p.s+p.spd*dt,F);p.hov+=0.16*dt;
+        const fk=p.s/ds,k=Math.min(World.VL_N-2,fk|0),u=fk-k,L=World.VLINE[p.v],o=k*4,wv=wPdc(Math.max(p.s-0.3,0.5),F)+0.08;
+        const px=L[o]+(L[o+4]-L[o])*u+L[o+2]*p.lat*wv,py=L[o+1]+(L[o+5]-L[o+1])*u+L[o+3]*p.lat*wv;
+        x=px;z=-py;y=YV(meshH(px,py))+p.hov;sz=p.sz*(1+0.5*t);a=Math.min(1,t/0.2)*Math.max(0,1-t/p.life)*0.9;
+        const c=0.66+0.12*p.rs;cr=c;cg=c*0.94;cb=c*0.88;if(N){cr*=0.42;cg*=0.38;cb*=0.40;}}
+      if(cut.on&&z>0.05&&p.k===2)continue;
+      pPos[n*3]=x;pPos[n*3+1]=y;pPos[n*3+2]=z;pSize[n]=sz;pCol[n*4]=cr;pCol[n*4+1]=cg;pCol[n*4+2]=cb;pCol[n*4+3]=a;n++;}
+    puffGeo.setDrawRange(0,n);puffGeo.attributes.position.needsUpdate=true;puffGeo.attributes.aCol.needsUpdate=true;puffGeo.attributes.aSize.needsUpdate=true;
+    /* incandescentes */
+    let m=0;
+    if(I>0.04||(N&&S.magmaLevel>0.5)){const k=Math.max(I,N?S.magmaLevel*0.3:0);gPos[0]=0;gPos[1]=vy0+0.1;gPos[2]=0;gSize[0]=(N?2.6:1.5)*(0.6+k);gCol[0]=1.0;gCol[1]=0.45;gCol[2]=0.12;gCol[3]=(N?0.9:0.55)*k;m=1;}
+    for(let i=glows.length-1;i>=0;i--){const p=glows[i];p.t+=dt;p.vy-=g*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;
+      if(p.t>p.life||(p.vy<0&&p.y<YV(meshH(p.x,-p.z)))){glows.splice(i,1);continue;}
+      if(m>=GMAX)continue;const c=thermRGB(clamp(1-p.t/(p.k?1.6:2.4),0.15,1));
+      gPos[m*3]=p.x;gPos[m*3+1]=p.y;gPos[m*3+2]=p.z;gSize[m]=p.sz*(N?1.5:1);gCol[m*4]=c[0]/255;gCol[m*4+1]=c[1]/255;gCol[m*4+2]=c[2]/255;gCol[m*4+3]=N?1:0.9;m++;}
+    glowGeo.setDrawRange(0,m);glowGeo.attributes.position.needsUpdate=true;glowGeo.attributes.aCol.needsUpdate=true;glowGeo.attributes.aSize.needsUpdate=true;
   }
 
-  function placeCam(){
-    cam.position.set(
-      radius*Math.sin(phi)*Math.cos(theta),
-      radius*Math.cos(phi),
-      radius*Math.sin(phi)*Math.sin(theta));
-    cam.lookAt(0,SUMMIT*0.42,0);
+  /* ---------- corte geológico por la línea A–A′ (bloque diagrama) ---------- */
+  function clipMat(m){clipMats.push(m);return m;}
+  const FACE={w:28,h:14,top:4.2,cw:2048,chh:1024};
+  function buildCut(){
+    cut.plane=new THREE.Plane(new THREE.Vector3(0,0,-1),0);cut.group=new THREE.Group();cut.group.visible=false;scene.add(cut.group);
+    const k=FACE.cw/FACE.w,X=x=>(x+FACE.w/2)*k,Y=z=>(FACE.top-z*VE)*k,zB=(FACE.top-FACE.h)/VE;
+    /* cara del corte: roca */
+    const c=document.createElement('canvas');c.width=FACE.cw;c.height=FACE.chh;const g=c.getContext('2d');
+    Section.paintRock(g,X,Y,-FACE.w/2,FACE.w/2,zB-0.2);
+    /* cobertura superficial como línea delgada */
+    g.strokeStyle='#4a5a34';g.lineWidth=3;g.beginPath();for(let i=0;i<=FACE.cw;i+=4){const x=i/k-FACE.w/2,y=Y(World.secHAt(x));if(i)g.lineTo(i,y);else g.moveTo(i,y);}g.stroke();
+    const tx=new THREE.CanvasTexture(c);tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+    const face=new THREE.Mesh(new THREE.PlaneGeometry(FACE.w,FACE.h),new THREE.MeshBasicMaterial({map:tx,transparent:true,alphaTest:0.5,side:THREE.DoubleSide}));
+    face.position.set(0,FACE.top-FACE.h/2,0.004);cut.group.add(face);cut.face=face;
+    /* magma (dinámico) en un plano pequeño delante de la cara */
+    const mw=8,mh=14,mc=document.createElement('canvas');mc.width=512;mc.height=896;cut.magCv=mc;cut.magTx=new THREE.CanvasTexture(mc);
+    const mag=new THREE.Mesh(new THREE.PlaneGeometry(mw,mh),new THREE.MeshBasicMaterial({map:cut.magTx,transparent:true,depthWrite:false}));
+    mag.position.set(0,FACE.top-mh/2,0.012);mag.renderOrder=3;cut.group.add(mag);cut.mag={w:mw,h:mh,k:512/mw};
+    /* paredes del bloque (Oeste, Norte, Este) con estratos */
+    const sc=document.createElement('canvas');sc.width=256;sc.height=256;const sg=sc.getContext('2d');
+    const cols=['#7d6c58','#6f6558','#62605c','#5a5c64','#50535e','#484a57','#3f414e','#373946'];
+    for(let i=0;i<cols.length;i++){sg.fillStyle=cols[i];sg.fillRect(0,i*32,256,33);}
+    const R=World.rng(5);for(let i=0;i<900;i++){sg.fillStyle=R()<0.5?'rgba(0,0,0,.16)':'rgba(255,235,210,.08)';sg.fillRect(R()*256,R()*256,2+R()*5,1);}
+    const st=new THREE.CanvasTexture(sc);st.wrapS=THREE.RepeatWrapping;
+    const hN=gN.half,yb=FACE.top-FACE.h,pts=[];const n=64;
+    for(let i=0;i<=n;i++)pts.push([-hN,hN*i/n]);            // Oeste: de A hacia el Norte
+    for(let i=1;i<=n*2;i++)pts.push([-hN+2*hN*i/(n*2),hN]); // Norte
+    for(let i=1;i<=n;i++)pts.push([hN,hN-hN*i/n]);          // Este: hasta A′
+    const pos=[],uv=[],idx=[];
+    pts.forEach((p,i)=>{const yT=YV(gH(gN,p[0],p[1]));pos.push(p[0],yT,-p[1],p[0],yb,-p[1]);uv.push(i/16,1-(FACE.top-yT)/FACE.h,i/16,0);
+      if(i<pts.length-1){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}});
+    const wg=new THREE.BufferGeometry();wg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));wg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));wg.setIndex(idx);
+    const wall=new THREE.Mesh(wg,new THREE.MeshBasicMaterial({map:st,side:THREE.DoubleSide}));cut.group.add(wall);
+    const base=new THREE.Mesh(new THREE.PlaneGeometry(2*hN,hN),new THREE.MeshBasicMaterial({color:0x2c2e3a,side:THREE.DoubleSide}));
+    base.rotation.x=-Math.PI/2;base.position.set(0,yb,-hN/2);cut.group.add(base);
   }
-  function onDown(e){dragging=true;const t=e.touches?e.touches[0]:e;lx=t.clientX;ly=t.clientY;}
-  function onMove(e){if(!dragging)return;const t=e.touches?e.touches[0]:e;
-    const dx=t.clientX-lx, dy=t.clientY-ly; lx=t.clientX; ly=t.clientY;
-    theta-=dx*0.006; phi=clamp(phi-dy*0.005,0.18,1.45); placeCam(); if(e.cancelable)e.preventDefault();}
-  function onUp(){dragging=false;}
-  function onWheel(e){radius=clamp(radius*(1+(e.deltaY>0?0.09:-0.09)),90,360);placeCam();e.preventDefault();}
+  function drawMagma(){
+    const m=cut.mag,c=cut.magCv.getContext('2d'),k=m.k,X=x=>(x+m.w/2)*k,Y=z=>(FACE.top-z*VE)*k;
+    c.clearRect(0,0,cut.magCv.width,cut.magCv.height);
+    Section.paintMagma(c,X,Y,S.magmaLevel,S.magmaLevel+S.intensity,S.tGlobal);cut.magTx.needsUpdate=true;
+  }
+  function setCut(on){
+    if(!ready)return;cut.on=on;if(on&&!cut.group)buildCut();
+    renderer.localClippingEnabled=on;for(const m of clipMats){m.clippingPlanes=on?[cut.plane]:null;m.needsUpdate=true;}
+    if(cut.group)cut.group.visible=on;mM.visible=!on;mF.visible=!on;ground.visible=!on;
+    scene.fog.near=on?400:(S.night?30:45);scene.fog.far=on?2000:(S.night?230:300);
+    const b=$('chipCut');if(b){b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');}
+    if(on){setCam('cut');}else if(camMode==='cut')setCam('general');
+  }
 
+  /* ---------- cámara ---------- */
+  const PRE={general:{th:1.2,ph:1.27,r:27,tx:0,ty:2.7,tz:0},crater:{th:1.05,ph:0.98,r:7.5,tx:0,ty:2.5,tz:0},
+    town:{th:1.35,ph:1.12,r:5.2,tx:World.towns[0].x,ty:0.15,tz:-World.towns[0].y-0.2},cut:{th:Math.PI/2+0.16,ph:1.36,r:36,tx:0,ty:-1.2,tz:0}};
+  function setCam(mode){camMode=mode;manualZoom=false;Object.assign(D,PRE[mode]);
+    document.querySelectorAll('#chips3d .chip[data-cam]').forEach(b=>b.classList.toggle('on',b.dataset.cam===mode));}
+  function placeCam(dt){
+    if(camMode==='general'&&!manualZoom){D.r=Math.max(PRE.general.r,14+S.columnKm*2.2);D.ty=2.7+S.columnKm*0.34;}
+    const k=dt>0?1-Math.exp(-4*dt):1;
+    for(const key in C)C[key]+=(D[key]-C[key])*(drag&&(key==='th'||key==='ph')?1:Math.max(k,0.08));
+    cam.position.set(C.tx+C.r*Math.sin(C.ph)*Math.cos(C.th),C.ty+C.r*Math.cos(C.ph),C.tz+C.r*Math.sin(C.ph)*Math.sin(C.th));
+    cam.lookAt(C.tx,C.ty,C.tz);
+  }
+  function bindCam(el){
+    const dn=e=>{drag=true;const t=e.touches?e.touches[0]:e;lx=t.clientX;ly=t.clientY;if(e.touches&&e.touches.length===2){drag=false;pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}};
+    const mv=e=>{if(e.touches&&e.touches.length===2&&pinch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);D.r=clamp(D.r*pinch/d,2.5,170);pinch=d;manualZoom=true;e.preventDefault();return;}
+      if(!drag)return;const t=e.touches?e.touches[0]:e;D.th+=(t.clientX-lx)*0.006;D.ph=clamp(D.ph-(t.clientY-ly)*0.005,0.22,1.5);lx=t.clientX;ly=t.clientY;if(e.cancelable)e.preventDefault();};
+    const up=()=>{drag=false;pinch=0;};
+    el.addEventListener('mousedown',dn);window.addEventListener('mousemove',mv);window.addEventListener('mouseup',up);
+    el.addEventListener('touchstart',dn,{passive:true});el.addEventListener('touchmove',mv,{passive:false});el.addEventListener('touchend',up);
+    el.addEventListener('wheel',e=>{D.r=clamp(D.r*(e.deltaY>0?1.1:0.9),2.5,170);manualZoom=true;e.preventDefault();},{passive:false});
+  }
+  function bindChips(){
+    document.querySelectorAll('#chips3d .chip[data-cam]').forEach(b=>b.addEventListener('click',()=>{if(cut.on&&b.dataset.cam!=='general')setCut(false);setCam(cut.on?'cut':b.dataset.cam);}));
+    const c=$('chipCut');if(c)c.addEventListener('click',()=>setCut(!cut.on));
+  }
+
+  /* ---------- iluminación: día / noche ---------- */
+  function relight(){
+    if(!ready)return;const N=S.night;
+    hemi.color.set(N?0x2a3a66:0xd6e6ff);hemi.groundColor.set(N?0x05070c:0x77705c);hemi.intensity=N?0.42:0.62;
+    sun.color.set(N?0x8fa6d6:0xfff0d8);sun.intensity=N?0.20:0.78;
+    scene.fog.color.set(N?0x070c18:0xc3d6e6);if(!cut.on){scene.fog.near=N?30:45;scene.fog.far=N?230:300;}
+    sky.material.map=N?skyNight:skyDay;sky.material.needsUpdate=true;stars.visible=N;if(lamps)lamps.visible=N;
+    ground.material.color.set(N?0x0b1016:0x7f8f6a);
+    ribVer=-1;
+  }
+
+  /* ---------- inicio ---------- */
+  function fallback(t){host.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9fabc2;font:12px JetBrains Mono,monospace;text-align:center;padding:20px">'+t+'</div>';}
   function init(){
-    if(!ok){ host.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#6c778a;font:12px JetBrains Mono;text-align:center;padding:20px">No se pudo cargar el motor 3D (Three.js).<br>Las demás vistas siguen activas.</div>'; return; }
+    if(!ok){fallback('No se pudo cargar el motor 3D (Three.js).<br>Las demás vistas siguen activas.');return;}
     try{
-      W=host.clientWidth||600; H=host.clientHeight||400;
-      scene=new THREE.Scene();
-      scene.background=new THREE.Color(0x081021);
-      scene.fog=new THREE.Fog(0x081021, 230, 520);
-      cam=new THREE.PerspectiveCamera(52, W/H, 0.5, 2000); placeCam();
-      renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-      renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
-      renderer.setSize(W,H); host.appendChild(renderer.domElement);
-      // luces
-      scene.add(new THREE.HemisphereLight(0x9fb6d6,0x1a140f,0.85));
-      const sun=new THREE.DirectionalLight(0xffe9c8,0.95); sun.position.set(-120,160,90); scene.add(sun);
-      ventLight=new THREE.PointLight(0xff5a1e,0,260,2); ventLight.position.set(0,SUMMIT-CRATER_D+4,0); scene.add(ventLight);
-      // terreno
-      terrainMesh=new THREE.Mesh(buildTerrain(), new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.95,metalness:0.02,flatShading:false}));
-      scene.add(terrainMesh);
-      // núcleo incandescente del cráter
-      coreMesh=new THREE.Mesh(new THREE.SphereGeometry(SIZE*CRATER_R*0.7,16,16),
-        new THREE.MeshBasicMaterial({color:0xff6a22,transparent:true,opacity:0}));
-      coreMesh.position.set(0,SUMMIT-CRATER_D+3,0); scene.add(coreMesh);
-      glow=new THREE.Mesh(new THREE.SphereGeometry(SIZE*CRATER_R*1.5,16,16),
-        new THREE.MeshBasicMaterial({color:0xff8a3a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
-      glow.position.copy(coreMesh.position); scene.add(glow);
-      // CÁMARA MAGMÁTICA subsuperficial (vista tipo rayos X) + conducto
-      const chamberMat=new THREE.MeshBasicMaterial({color:0xd23a1a,transparent:true,opacity:0.4,depthTest:false,depthWrite:false});
-      chamberMesh=new THREE.Mesh(new THREE.SphereGeometry(SIZE*0.22,20,16),chamberMat);
-      chamberMesh.scale.set(1,0.5,1); chamberMesh.position.set(0,-9,0); chamberMesh.renderOrder=3; scene.add(chamberMesh);
-      const condTop=SUMMIT-CRATER_D+3, condBot=-9, condLen=condTop-condBot;
-      conduitMesh=new THREE.Mesh(new THREE.CylinderGeometry(SIZE*0.022,SIZE*0.03,condLen,12),
-        new THREE.MeshBasicMaterial({color:0xe0561e,transparent:true,opacity:0.4,depthTest:false,depthWrite:false}));
-      conduitMesh.position.set(0,(condTop+condBot)/2,0); conduitMesh.renderOrder=3; scene.add(conduitMesh);
-      initParticles();
-      // interacción
-      const el=renderer.domElement;
-      el.addEventListener('mousedown',onDown); window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp);
-      el.addEventListener('touchstart',onDown,{passive:false}); el.addEventListener('touchmove',onMove,{passive:false}); el.addEventListener('touchend',onUp);
-      el.addEventListener('wheel',onWheel,{passive:false});
-    }catch(err){ ok=false; console.warn('3D init falló:',err);
-      host.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#6c778a;font:12px JetBrains Mono">Motor 3D no disponible.</div>'; }
+      W=host.clientWidth||600;H=host.clientHeight||400;
+      scene=new THREE.Scene();scene.fog=new THREE.Fog(0xc3d6e6,45,300);
+      cam=new THREE.PerspectiveCamera(40,W/H,0.15,2600);
+      renderer=new THREE.WebGLRenderer({antialias:true});
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);
+      host.appendChild(renderer.domElement);
+      msg=document.createElement('div');msg.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9fabc2;font:12px JetBrains Mono,monospace;background:#0d1626;z-index:2';
+      msg.textContent='Generando el relieve…';host.appendChild(msg);
+      bindCam(renderer.domElement);
+    }catch(err){ok=false;console.warn('3D no disponible:',err);fallback('Motor 3D no disponible en este dispositivo.<br>Las demás vistas siguen activas.');}
   }
-  function resize(){ if(!ok||!renderer)return; W=host.clientWidth||W; H=host.clientHeight||H;
-    if(W<2||H<2)return; cam.aspect=W/H; cam.updateProjectionMatrix(); renderer.setSize(W,H); }
-  let lastGlac=null;
-  function draw(dt){ if(!ok||!renderer)return;
-    if(lastGlac!==S.glacier){recolorTerrain(); lastGlac=S.glacier;}
-    emit(dt); stepParticles(Math.min(dt,0.05));
+  function buildScene(){
+    try{
+      hemi=new THREE.HemisphereLight(0xd6e6ff,0x77705c,0.62);scene.add(hemi);
+      sun=new THREE.DirectionalLight(0xfff0d8,0.78);sun.position.set(World.SUN_3D[0]*100,World.SUN_3D[2]*100,-World.SUN_3D[1]*100);scene.add(sun);
+      ventLight=new THREE.PointLight(0xff5a1e,0,16,2);ventLight.position.set(0,ventY()+0.5,0);scene.add(ventLight);
+      skyDay=skyTex([[0,'#2c69b3'],[0.34,'#6ba2d7'],[0.497,'#d4e4ef'],[0.52,'#c3d4dc'],[1,'#9fb2b6']]);
+      skyNight=skyTex([[0,'#02040a'],[0.38,'#081226'],[0.497,'#1b2a48'],[0.52,'#0c1424'],[1,'#05080f']]);
+      sky=new THREE.Mesh(new THREE.SphereGeometry(1200,24,14),new THREE.MeshBasicMaterial({map:skyDay,side:THREE.BackSide,fog:false,depthWrite:false}));scene.add(sky);
+      {const R=World.rng(99),sp=new Float32Array(700*3);for(let i=0;i<700;i++){const a=R()*TAU,e=Math.asin(0.04+0.96*R());sp[i*3]=1100*Math.cos(e)*Math.cos(a);sp[i*3+1]=1100*Math.sin(e);sp[i*3+2]=1100*Math.cos(e)*Math.sin(a);}
+        const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+        stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xdfe8ff,size:1.8,sizeAttenuation:false,fog:false,transparent:true,opacity:0.85,depthWrite:false}));stars.visible=false;scene.add(stars);}
+      /* mallas: detalle (±14 km), regional (±42 km) y lejana (±126 km) */
+      gN=mkGrid(224,World.LV[0].half,0);gM=mkGrid(128,World.LV[1].half,1);gF=mkGrid(72,World.LV[2].half,2);
+      blendBorder(gN,gM,5);blendBorder(gM,gF,4);
+      cvN=document.createElement('canvas');cvN.width=cvN.height=1024;txN=mkTex(cvN);
+      cvM=document.createElement('canvas');cvM.width=cvM.height=1024;txM=mkTex(cvM);
+      mN=new THREE.Mesh(mkTerrain(gN,0),clipMat(new THREE.MeshLambertMaterial({map:txN})));scene.add(mN);
+      mM=new THREE.Mesh(mkTerrain(gM,gN.half),new THREE.MeshLambertMaterial({color:0x74895c,polygonOffset:true,polygonOffsetFactor:2,polygonOffsetUnits:2}));scene.add(mM);
+      mF=new THREE.Mesh(mkTerrain(gF,gM.half),new THREE.MeshLambertMaterial({color:0x74895c,polygonOffset:true,polygonOffsetFactor:4,polygonOffsetUnits:4}));scene.add(mF);
+      ground=new THREE.Mesh(new THREE.CircleGeometry(1100,40),new THREE.MeshLambertMaterial({color:0x7f8f6a}));ground.rotation.x=-Math.PI/2;ground.position.y=YV(-2.3);scene.add(ground);
+      buildTowns();
+      ribP=mkRibbon(0);ribL=mkRibbon(1);ribV=mkRibbon(2);
+      mkParticles();
+      ready=true;paintTex();relight();resize();
+      if(msg){msg.remove();msg=null;}
+    }catch(err){ok=false;console.warn('3D no disponible:',err);fallback('Motor 3D no disponible en este dispositivo.<br>Las demás vistas siguen activas.');}
+  }
+  function onWorld(lv){
+    if(!ok||!renderer)return;
+    if(lv===0)buildScene();
+    else if(!ready)return;
+    else if(lv==='snow'||lv===1)paintTex();
+    else if(lv===2){const L=World.LV[2],c=document.createElement('canvas');c.width=c.height=512;c.getContext('2d').drawImage(L.tex,0,0,512,512);
+      txF=mkTex(c);mF.material.map=txF;mF.material.color.set(0xffffff);mF.material.needsUpdate=true;paintTex();}
+  }
+  function resize(){if(!ok||!renderer)return;const w=host.clientWidth,h=host.clientHeight;if(w<2||h<2)return;W=w;H=h;
+    cam.aspect=W/H;cam.updateProjectionMatrix();renderer.setSize(W,H);
+    const sc=H*renderer.getPixelRatio()/(2*Math.tan(cam.fov*Math.PI/360));if(puffMat){puffMat.uniforms.uScale.value=sc;glowMat.uniforms.uScale.value=sc;}}
+  let hitVer=-1;
+  function draw(dt){
+    if(!ok||!renderer)return;
+    if(!ready){if(msg)msg.textContent='Generando el relieve… '+Math.round(World.progress*100)+' %';return;}
+    placeCam(dt);
+    const moving=FLOW.pdcAct.some(a=>a>0)||FLOW.lahAct.some(a=>a>0)||FLOW.lavAct.some(a=>a>0)||FLOW.lavCool<1;
+    if(moving||ribVer!==FLOW.ver){updateRibbons();ribVer=FLOW.ver;}
+    if(hitVer!==EXPO.ver){hitVer=EXPO.ver;paintHits();}
     const I=S.intensity;
-    ventLight.intensity = I*3.4*(0.75+0.25*Math.sin(S.tGlobal*7));
-    coreMesh.material.opacity = clamp(I*0.85,0,0.9);
-    coreMesh.scale.setScalar(0.7+I*0.7+0.12*Math.sin(S.tGlobal*5));
-    glow.material.opacity = clamp(I*0.5,0,0.55);
-    glow.scale.setScalar(1+I*1.3+0.2*Math.sin(S.tGlobal*4));
-    if(chamberMesh){
-      const cap=clamp(S.magmaLevel*0.45+I*0.7,0,1);
-      chamberMesh.material.opacity=clamp(0.30+0.30*cap+0.05*Math.sin(S.tGlobal*3),0.22,0.66);
-      conduitMesh.material.opacity=clamp(0.26+0.40*clamp(S.magmaLevel,0,1),0.24,0.66);
-    }
+    ventLight.intensity=I*(S.night?4.2:1.6)*(0.8+0.2*Math.sin(S.tGlobal*7));
+    if(cut.on){cut.t+=dt;if(cut.t>0.07||dt===0){cut.t=0;drawMagma();}}
     renderer.render(scene,cam);
   }
-  function reset(){ plume.length=0; flow.length=0; }
-  return {init,resize,draw,reset};
+  function step(dt){if(!ready)return;if(dt>0)spawn(dt);stepParticles(dt);}
+  function reset(){puffs.length=0;glows.length=0;acc.col=acc.gas=acc.ball=acc.fountain=0;acc.pdc.fill(0);ribVer=-1;}
+  return {init,resize,step,draw,reset,relight,retexture:paintTex,onWorld,bindChips,setCut,setCam};
 })();
 /* ============================================================
    UI · TELEMETRÍA · BUCLE · INICIO
@@ -1419,23 +2248,28 @@ function dirText(deg){deg=((deg%360)+360)%360;const a=['↑ N','↗ NE','→ E',
 function level3(v){return v<0.05?'—':v<0.34?'bajo':v<0.66?'medio':'alto';}
 
 /* ---- sincroniza controles desde el estado ---- */
+function setRange(id,v){const e=$(id);e.value=v;e.style.setProperty('--p',((v-e.min)/(e.max-e.min)*100)+'%');}
 function syncUI(){
   $('scenario').value=S.scenario;
   [...$('styleSeg').children].forEach(b=>b.classList.toggle('on',b.dataset.style===S.style));
-  $('vei').value=S.vei; $('veiVal').textContent='VEI '+S.vei;
-  $('visc').value=S.visc; $('viscVal').textContent=VISC_LABEL(S.visc);
-  $('gas').value=S.gas; $('gasVal').textContent=S.gas+'%';
+  setRange('vei',S.vei); $('veiVal').textContent='VEI '+S.vei;
+  setRange('visc',S.visc); $('viscVal').textContent=VISC_LABEL(S.visc);
+  setRange('gas',S.gas); $('gasVal').textContent=S.gas+'%';
   $('glacier').checked=S.glacier;
   $('windArrow').setAttribute('transform','rotate('+S.windDir+' 39 39)');
   $('windDirVal').textContent=dirText(S.windDir);
-  $('windSpd').value=S.windSpd; $('windSpdVal').textContent=S.windSpd+' km/h';
+  setRange('windSpd',S.windSpd); $('windSpdVal').textContent=S.windSpd+' km/h';
 }
 function goCustom(){ S.scenario='custom'; $('scenario').value='custom'; $('volcanoName').textContent='Escenario personalizado'; }
-
+function resetSim(){
+  S.phase='repose';S.t=0;S.tGlobal=0;S.intensity=0;S.magmaLevel=0;S.columnKm=0;S.seismic=0;S.inflation=0;S.pulse=0;S.auto=false;
+  resetFlows();setPaused(false);
+  Profile.reset();Plan.reset();View3D.reset(); for(let i=0;i<NB;i++)seis[i]=0.04;
+}
 function applyScenario(key){
   const sc=SCENARIOS[key];
   if(sc){ S.scenario=key; S.style=sc.style; S.vei=sc.vei; S.visc=sc.visc; S.gas=sc.gas; S.glacier=sc.glacier; S.windDir=sc.wind;
-    $('volcanoName').textContent=sc.name; }
+    $('volcanoName').textContent=sc.name; resetSim(); Profile.relight(); View3D.retexture(); }
   else { S.scenario='custom'; $('volcanoName').textContent='Escenario personalizado'; }
   syncUI();
 }
@@ -1458,14 +2292,14 @@ function pushSeismo(){
 }
 
 /* ---- telemetría ---- */
-let _tAcc=0;
+let _tAcc=0,_expoVer=-1;
 function updateTelemetry(){
-  const R=productRates(), rc=Plan.reaches();
+  const R=productRates();
   $('gColumn').innerHTML=S.columnKm.toFixed(1)+'<small>km</small>';
   $('gVei').textContent='VEI '+S.vei;
   $('gTemp').innerHTML=magmaTempC()+'<small>°C</small>';
-  const cdp=R.pdc>0.02?rc.pdc:0;
-  $('gReach').innerHTML=cdp.toFixed(1)+'<small>km</small>';
+  $('gReach').innerHTML=maxFront(FLOW.pdc).toFixed(1)+'<small>km</small>';
+  $('rec').classList.toggle('live',S.phase==='climax'||S.phase==='waning');
   // productos
   $('prodList').querySelectorAll('.prod').forEach(el=>{
     const p=el.dataset.p, v=R[p]||0, on=v>(p==='gas'?0.04:0.05);
@@ -1479,18 +2313,36 @@ function updateTelemetry(){
   $('phaseLabel').textContent=PHASE_ES[S.phase]||'—';
   $('clock').textContent=fmtClock(S.tGlobal);
   pushSeismo();
+  // exposición
+  updateExposure();
+  if(_expoVer!==EXPO.ver){_expoVer=EXPO.ver;renderExposure();}
+}
+/* ---- poblaciones y edificaciones alcanzadas (esquemático) ---- */
+const EXPO_ROWS=[['Cabecera municipal',[0]],['Centro poblado',[1]],['Veredas (6)',[2,3,4,5,6,7]],['Municipios vecinos y ciudad',[8,9,10,11]]];
+function renderExposure(){
+  const el=$('expoList');if(!el)return;let h='';
+  for(const [name,ids] of EXPO_ROWS){let n=0,la=0,pd=0,lv=0,as=0;for(const i of ids){const t=EXPO.towns[i];n+=t.n;la+=t.lahar;pd+=t.pdc;lv+=t.lava;as+=t.ash;}
+    const tags=[];if(la)tags.push('<b class="x-lahar">lahar '+la+'</b>');if(pd)tags.push('<b class="x-pdc">CDP '+pd+'</b>');if(lv)tags.push('<b class="x-lava">lava '+lv+'</b>');if(as)tags.push('<b class="x-ash">ceniza '+as+'</b>');
+    h+='<div class="expo'+(tags.length?' on':'')+'"><span class="nm">'+name+'<small>'+n+' edif.</small></span><span class="tg">'+(tags.length?tags.join(''):'sin afectación')+'</span></div>';}
+  el.innerHTML=h;
 }
 
 /* ---- leyenda ---- */
 function fillLegend(){
   const html=`
     <h3>Productos volcánicos</h3>
-    <div class="leg-item"><span class="sw" style="background:var(--p-ash)"></span><div class="tx"><b>Caída de ceniza</b><span>Piroclastos finos dispersados por el viento; forman isópacas.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-ash)"></span><div class="tx"><b>Caída de ceniza</b><span>Piroclastos finos dispersados por el viento; su depósito se representa con isópacas.</span></div></div>
     <div class="leg-item"><span class="sw" style="background:var(--p-ball)"></span><div class="tx"><b>Proyectiles balísticos</b><span>Bloques y bombas con trayectoria parabólica cerca del cráter.</span></div></div>
-    <div class="leg-item"><span class="sw" style="background:var(--p-pdc)"></span><div class="tx"><b>Corrientes de densidad (CDP)</b><span>Flujos piroclásticos calientes que descienden a gran velocidad.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-pdc)"></span><div class="tx"><b>Corrientes de densidad (CDP)</b><span>Flujos piroclásticos calientes que descienden a gran velocidad por los valles.</span></div></div>
     <div class="leg-item"><span class="sw" style="background:var(--p-lava)"></span><div class="tx"><b>Flujos de lava</b><span>Roca fundida que sigue la pendiente; mayor alcance si es fluida.</span></div></div>
-    <div class="leg-item"><span class="sw" style="background:var(--p-lahar)"></span><div class="tx"><b>Lahares</b><span>Flujos de lodo por fusión de hielo/nieve; siguen los drenajes.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:var(--p-lahar)"></span><div class="tx"><b>Lahares</b><span>Flujos de lodo por fusión de hielo/nieve; siguen los cauces y alcanzan zonas pobladas.</span></div></div>
     <div class="leg-item"><span class="sw" style="background:var(--p-gas)"></span><div class="tx"><b>Emisión de gases</b><span>Pluma de vapor y gases (SO₂, CO₂) en cualquier fase.</span></div></div>
+    <h3 style="margin-top:16px">Paisaje del modelo</h3>
+    <div class="leg-item"><span class="sw" style="background:#8fa862"></span><div class="tx"><b>Cultivos y pastos</b><span>Mosaico de parcelas en las zonas bajas y de pendiente suave.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:#3c5a38"></span><div class="tx"><b>Bosque altoandino</b><span>Laderas empinadas, cañadas y relictos entre los cultivos.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:#7c7a48"></span><div class="tx"><b>Páramo y superpáramo</b><span>Pajonales y arenales por encima del límite del bosque.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:#6a625c"></span><div class="tx"><b>Roca y coladas antiguas</b><span>Zona alta del cono, sin vegetación; nieve si hay glaciar.</span></div></div>
+    <div class="leg-item"><span class="sw" style="background:#b5593c"></span><div class="tx"><b>Poblaciones y vías</b><span>Cabecera, centro poblado, veredas, vía principal y vías secundarias con puentes.</span></div></div>
     <h3 style="margin-top:16px">Temperatura del magma</h3>
     <div class="therm"></div>
     <div class="therm-row"><span>~770 °C · riolítico</span><span>basáltico · ~1160 °C</span></div>`;
@@ -1520,29 +2372,34 @@ function setPaused(v){
   b.classList.toggle('on',v);
   b.innerHTML = v ? '<span class="ix">▶</span> Reanudar simulación' : '<span class="ix">❚❚</span> Pausar simulación';
 }
+function setNight(v){
+  S.night=v;const b=$('btnLight');
+  b.classList.toggle('on',v);b.innerHTML=v?'<span class="ix">☾</span> Noche':'<span class="ix">☀</span> Día';
+  b.setAttribute('aria-pressed',v?'true':'false');
+  Profile.relight();View3D.relight();
+}
 function bindUI(){
   $('scenario').addEventListener('change',e=>applyScenario(e.target.value));
   [...$('styleSeg').children].forEach(b=>b.addEventListener('click',()=>applyStyle(b.dataset.style)));
-  $('vei').addEventListener('input',e=>{S.vei=+e.target.value;$('veiVal').textContent='VEI '+S.vei;goCustom();});
-  $('visc').addEventListener('input',e=>{S.visc=+e.target.value;$('viscVal').textContent=VISC_LABEL(S.visc);goCustom();});
-  $('gas').addEventListener('input',e=>{S.gas=+e.target.value;$('gasVal').textContent=S.gas+'%';goCustom();});
-  $('glacier').addEventListener('change',e=>{S.glacier=e.target.checked;goCustom();});
-  $('windSpd').addEventListener('input',e=>{S.windSpd=+e.target.value;$('windSpdVal').textContent=S.windSpd+' km/h';goCustom();});
+  $('vei').addEventListener('input',e=>{S.vei=+e.target.value;$('veiVal').textContent='VEI '+S.vei;setRange('vei',S.vei);goCustom();});
+  $('visc').addEventListener('input',e=>{S.visc=+e.target.value;$('viscVal').textContent=VISC_LABEL(S.visc);setRange('visc',S.visc);goCustom();});
+  $('gas').addEventListener('input',e=>{S.gas=+e.target.value;$('gasVal').textContent=S.gas+'%';setRange('gas',S.gas);goCustom();});
+  $('glacier').addEventListener('change',e=>{S.glacier=e.target.checked;goCustom();Profile.relight();View3D.retexture();});
+  $('windSpd').addEventListener('input',e=>{S.windSpd=+e.target.value;$('windSpdVal').textContent=S.windSpd+' km/h';setRange('windSpd',S.windSpd);goCustom();});
   bindDial();
   $('btnRise').addEventListener('click',()=>{S.auto=true; if(S.phase==='repose'||S.phase==='waning')setPhase('rising');});
   $('btnErupt').addEventListener('click',()=>{ if(S.phase==='repose'||S.phase==='waning'){S.magmaLevel=0.65;} S.auto=false; setPhase('climax');});
   $('btnPause').addEventListener('click',()=>setPaused(!S.paused));
-  $('btnReset').addEventListener('click',()=>{
-    S.phase='repose';S.t=0;S.tGlobal=0;S.intensity=0;S.magmaLevel=0;S.columnKm=0;S.seismic=0;S.inflation=0;S.pulse=0;S.auto=false;
-    setPaused(false);
-    Profile.reset();Plan.reset();View3D.reset(); for(let i=0;i<NB;i++)seis[i]=0.04;
-  });
+  $('btnReset').addEventListener('click',resetSim);
+  $('btnLight').addEventListener('click',()=>setNight(!S.night));
   // tabs
   document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); t.classList.add('on');
     $('views').dataset.mode=t.dataset.mode;
     requestAnimationFrame(()=>{resizeAll();requestAnimationFrame(resizeAll);});
   }));
+  View3D.bindChips();
+  $('chipFit').addEventListener('click',()=>{Plan.view.auto=true;});
 }
 
 /* ---- bucle principal ---- */
@@ -1551,11 +2408,13 @@ function frame(now){
   let dt=(now-_last)/1000; _last=now; if(dt>0.05)dt=0.05; if(dt<0)dt=0;
   if(S.paused) dt=0;
   stepSim(dt);
+  /* las tres vistas avanzan siempre (así coinciden al cambiar de pestaña); sólo se dibuja la visible */
+  Profile.step(dt); Plan.step(dt); View3D.step(dt);
   const mode=$('views').dataset.mode;
-  if(mode==='profile') Profile.draw(dt);
+  if(mode==='profile') Profile.draw();
   else if(mode==='plan') Plan.draw(dt);
   else if(mode==='three') View3D.draw(dt);
-  else if(mode==='complete'){ Profile.draw(dt); Plan.draw(dt); View3D.draw(dt); }
+  else if(mode==='complete'){ Profile.draw(); Plan.draw(dt); View3D.draw(dt); }
   // 'concepts': sin render de lienzos; el motor y la telemetría siguen activos
   _tAcc+=dt; if(_tAcc>=0.18){_tAcc=0;updateTelemetry();}
   requestAnimationFrame(frame);
@@ -1563,13 +2422,16 @@ function frame(now){
 
 /* ---- init ---- */
 function init(){
+  World.setQuality(Math.min(screen.width,screen.height)<700||(navigator.hardwareConcurrency||4)<4);
   buildSeismo(); fillLegend(); bindUI();
   applyScenario('strato');
   View3D.init();
   resizeAll();
-  updateTelemetry();
+  updateTelemetry();renderExposure();
   requestAnimationFrame(frame);
   window.addEventListener('resize',()=>{ clearTimeout(window.__rz); window.__rz=setTimeout(resizeAll,120); });
+  /* el relieve se genera por tramos, sin bloquear la interfaz */
+  setTimeout(()=>World.buildAll(lv=>View3D.onWorld(lv)),60);
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 </script>
